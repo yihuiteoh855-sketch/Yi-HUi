@@ -1,0 +1,952 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>duoMoney Plus v2.1 Demo</title><style>*{box-sizing:border-box}body{margin:0;background:#e8f4ff;font:15px system-ui,-apple-system,'Segoe UI',sans-serif;color:#18395e}.phone{max-width:440px;min-height:100dvh;margin:auto;background:linear-gradient(160deg,#d5edff,#f9fcff 35%);padding:22px 18px 100px;position:relative;box-shadow:0 0 35px #a9c7df55}h1,h2,h3,p{margin:0}h1{font-size:26px}h2{font-size:21px;margin:12px 0}h3{font-size:16px;margin:12px 0}.muted{color:#7c91aa;font-size:12px}.card{background:#fff;border-radius:22px;padding:18px;margin:12px 0;box-shadow:0 6px 20px #90b9d72b}.balance{font-size:30px;font-weight:800;margin:8px 0}.blue{color:#1684e9}.green{color:#0caa91}.orange{color:#f3983d}.flex{display:flex;align-items:center;justify-content:space-between;gap:12px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px 6px;margin:18px 0}.tile{text-align:center;font-size:11px;cursor:pointer}.bubble{display:grid;place-items:center;width:53px;height:53px;border-radius:50%;background:linear-gradient(145deg,#effaff,#b5dcff);font-size:24px;margin:0 auto 6px;box-shadow:0 4px 9px #8cb5d74d}.tile:nth-child(4n+2) .bubble{background:linear-gradient(145deg,#dcfff7,#9de7e0)}.tile:nth-child(4n+3) .bubble{background:linear-gradient(145deg,#e5e9ff,#c7cfff)}.tile:nth-child(4n+4) .bubble{background:linear-gradient(145deg,#fff0fa,#f8c9e7)}button,select,input{font:inherit}button{border:0;background:#1688ee;color:white;padding:12px 16px;border-radius:13px;cursor:pointer;font-weight:650}button.secondary{background:#e7f3ff;color:#207ac4}button.small{padding:7px 12px;font-size:12px}input,select{width:100%;padding:12px;border:1px solid #d5e5f4;border-radius:12px;background:#fff;margin:6px 0 12px}.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:440px;width:100%;display:flex;justify-content:space-around;background:#fff;border-top:1px solid #e1effa;padding:10px 2px 16px;z-index:4}.nav button{background:none;color:#7790aa;font-size:11px;padding:3px}.nav button.active{color:#1387ec}.nav span{display:block;font-size:21px}.hide{display:none!important}.tag{display:inline-block;background:#e7f6f3;color:#0b9b84;border-radius:20px;padding:4px 9px;font-size:11px}.bar{height:9px;border-radius:9px;background:#e9f3fd;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#45aef6,#2ad4b5)}.line{border-bottom:1px solid #eff3f8;padding:12px 0}.pill{border-radius:24px;background:#e6f4ff;color:#247bb9;padding:6px 11px;font-size:12px}.login{padding-top:25px}.login .logo{margin-top:-8px;margin-bottom:0}.login h1{margin-top:0;margin-bottom:6px}.logo{text-align:center;font-size:48px}.login h1{text-align:center}.login p{text-align:center;margin:10px 0 35px}.notice{font-size:11px;color:#7c91aa;line-height:1.6}.chart{width:100%;height:155px}.amount{font-weight:700}.tabs{display:flex;gap:7px;overflow:auto;margin:12px 0}.tabs button{white-space:nowrap;padding:8px 11px;font-size:12px}.formrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ad{background:#edf4fb;border:1px dashed #bbd4ea;border-radius:16px;padding:15px;color:#7694af;font-size:12px;margin-top:25px}a{color:#167dd1}.header{margin-bottom:22px}.modal{position:fixed;inset:0;background:#17365088;z-index:8;display:flex;align-items:center;justify-content:center;padding:15px}.modal .card{width:min(400px,100%);max-height:85vh;overflow:auto}#app{display:none}#login{display:block}</style></head><body><div class="phone"><section id="login" class="login"><div class="logo">🪽</div><h1 style="font-size:23px;color:#316c9b" id="loginHeading">Welcome</h1><div class="card"><h2 id="welcome">Welcome back</h2><label id="loginIdentityLabel">Email / Phone Number</label><input id="email" type="text" autocomplete="username" placeholder="Enter your email or phone number"><label id="pwlabel">Password</label><input type="password" id="password" placeholder="Enter your password"><p style="text-align:right;margin:5px 0 12px"><a href="#" onclick="forgotPassword();return false">Forgot your password?</a></p><button style="width:100%" onclick="login()" id="sign">Sign in</button><p style="text-align:center;margin:14px 0 0;font-size:13px">New here? <a href="#" onclick="showRegister();return false" style="color:#1684e9;font-weight:700">Create an account</a></p><div class="flex" style="margin-top:12px"><button class="secondary small" onclick="demoAuth('Face ID')">◉ Face ID</button><button class="secondary small" onclick="demoAuth('Fingerprint')">☝ Fingerprint</button></div><p class="notice">Demo only: biometric buttons simulate authentication. No bank or biometric data is collected.</p><div id="subtitle" style="margin-top:18px;padding:14px 4px 2px;text-align:center;color:#316c9b;font-size:13px;line-height:1.55;font-weight:750;letter-spacing:0;border-top:1px solid #edf3f9"><div>YOUR MONEY, OUR RESPONSIBILITY.</div><div>YOUR PEACE, OUR PROMISE.</div></div></div><div id="registerPanel" class="card" style="display:none"><div class="flex"><h2 style="margin:0">Create account</h2><button class="secondary small" onclick="hideRegister()">✕</button></div><p class="muted" style="margin:9px 0 16px;text-align:left">duoMoney Plus · Demo registration</p><form id="registerForm" onsubmit="registerAccount(event)"><label>Full name</label><input id="regName" autocomplete="name" required minlength="2" placeholder="Your name"><label>Email address</label><input id="regEmail" type="email" autocomplete="email" required placeholder="you@example.com"><label>Password</label><input id="regPassword" type="password" autocomplete="new-password" required minlength="8" placeholder="At least 8 characters"><p style="text-align:right"><a href="#" onclick="forgotPassword();return false">Forgot your password?</a></p><label>Reset password</label><input id="regConfirm" type="password" autocomplete="new-password" required minlength="8" placeholder="Reset password"><label style="display:flex;gap:8px;align-items:flex-start"><input id="regConsent" type="checkbox" required style="width:auto;margin-top:4px"> <span style="font-size:12px">I understand this is a local demonstration account, not a real bank account.</span></label><p id="regError" role="alert" style="color:#d64e52;font-size:12px;text-align:left;margin:8px 0"></p><button style="width:100%" type="submit">Register</button><button class="secondary" style="width:100%;margin-top:8px" type="button" onclick="hideRegister()">Already have an account? Sign in</button></form><p class="notice">Demo only: no verification email, secure server account or real identity checks. Passwords are not saved.</p></div><label>🌐 Language / 语言</label><select id="langLogin" onchange="setLang(this.value)"></select></section><section id="app"><div class="flex header"><div><div class="muted" id="greeting">早上好，Alex 👋</div><h1>duoMoney <span class="blue">Plus</span></h1></div><button class="secondary small" onclick="openModal('notifications')">🔔</button></div><div id="screen"></div></section></div><nav class="nav hide" id="nav"></nav><div id="overlay" class="modal hide" onclick="if(event.target===this)closeModal()"><div class="card" id="modalbody"></div></div><script>
+const languages={'zh':'中文','ms':'Bahasa Melayu','en':'English','ko':'한국어','ja':'日本語','de':'Deutsch','es':'Español','fr':'Français','ar':'العربية'};let lang='en',tab='home',mode='personal',logged=false,ledger=JSON.parse(localStorage.getItem('mmp_ledger')||'null')||[{name:'午餐 Lunch',amount:18,category:'餐饮',who:'我',date:'2026-10-09'},{name:'电费 Electricity',amount:120,category:'账单',who:'Alex',date:'2026-10-08'},{name:'Grab',amount:22,category:'交通',who:'我',date:'2026-10-07'}];let members=['我','Alex'];const tr={zh:['首页','资产','记账','Performance','更多','欢迎回来','Smart Ledger','Shared Ledger','资产分析','总资产'],ms:['Utama','Aset','Catatan','Performance','Lagi','Selamat kembali','Rekod pintar','Buku kongsi','Analisis aset','Jumlah aset'],en:['Home','Assets','Ledger','Performance','More','Welcome back','Smart ledger','Shared ledger','Asset analysis','Total assets'],ko:['홈','자산','가계부','Performance','더보기','다시 오신 것을 환영합니다','스마트 가계부','공유 장부','자산 분석','총자산'],ja:['ホーム','資産','家計簿','Performance','その他','おかえりなさい','スマート家計簿','共有家計簿','資産分析','総資産'],de:['Start','Vermögen','Haushaltsbuch','Performance','Mehr','Willkommen zurück','Smartes Haushaltsbuch','Geteiltes Haushaltsbuch','Vermögensanalyse','Gesamtvermögen'],es:['Inicio','Activos','Gastos','Performance','Más','Bienvenido','Registro inteligente','Libro compartido','Análisis de activos','Activos totales'],fr:['Accueil','Actifs','Dépenses','Performance','Plus','Bon retour','Dépenses intelligentes','Livre partagé','Analyse des actifs','Total des actifs'],ar:['الرئيسية','الأصول','المصروفات','Performance','المزيد','مرحبًا بعودتك','تسجيل ذكي','دفتر مشترك','تحليل الأصول','إجمالي الأصول']};function t(i){return tr[lang][i]};function setLang(l){lang=l;document.getElementById('welcome').textContent=t(5);document.getElementById('login').dir=l==='ar'?'rtl':'ltr';document.getElementById('sign').textContent=lang==='zh'?'登录 / Sign in':'Sign in';render()};function showRegister(){document.querySelector('#login > .card').style.display='none';document.getElementById('registerPanel').style.display='block'}
+function hideRegister(){document.getElementById('registerPanel').style.display='none';document.querySelector('#login > .card').style.display='block'}
+function registerAccount(e){e.preventDefault();const name=document.getElementById('regName').value.trim(),email=document.getElementById('regEmail').value.trim(),pw=document.getElementById('regPassword').value,confirm=document.getElementById('regConfirm').value,err=document.getElementById('regError');if(name.length<2){err.textContent='Please enter your full name.';return}if(pw.length<8){err.textContent='Password must have at least 8 characters.';return}if(pw!==confirm){err.textContent='Passwords do not match / 密码不一致';return}if(!document.getElementById('regConsent').checked){err.textContent='Please confirm the demo account notice.';return}localStorage.setItem('duo_demo_profile',JSON.stringify({name,email}));document.getElementById('email').value=email;document.getElementById('password').value='';document.getElementById('regPassword').value='';document.getElementById('regConfirm').value='';hideRegister();alert('Demo account created! Registration is local-only. You can now explore the app.');enter()}
+function login(){if(!document.getElementById('email').value||!document.getElementById('password').value){alert('Enter your email / phone number and password (demo).');return}enter()};function demoAuth(type){alert(type+' 演示验证成功（非真实生物识别）');enter()};function enter(){logged=true;document.getElementById('login').style.display='none';document.getElementById('app').style.display='block';document.getElementById('nav').classList.remove('hide');render()};function logout(){logged=false;document.getElementById('login').style.display='block';document.getElementById('app').style.display='none';document.getElementById('nav').classList.add('hide')};function go(x){tab=x;render();window.scrollTo(0,0)};function money(n){return 'RM '+Number(n).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})};function tile(icon,label,action){return `<div class="tile" onclick="${action}"><div class="bubble">${icon}</div>${label}</div>`};function chart(){return `<svg class="chart" viewBox="0 0 340 155" preserveAspectRatio="none"><defs><linearGradient id="grad" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#4bb4fa" stop-opacity=".28"/><stop offset="1" stop-color="#4bb4fa" stop-opacity="0"/></linearGradient></defs>${[35,75,115].map(y=>`<line x1="5" y1="${y}" x2="335" y2="${y}" stroke="#e9f1f8"/>`).join('')}<path d="M5 128 L48 111 L90 117 L132 86 L175 94 L215 62 L255 69 L296 38 L335 22 L335 150 L5 150Z" fill="url(#grad)"/><path d="M5 128 L48 111 L90 117 L132 86 L175 94 L215 62 L255 69 L296 38 L335 22" fill="none" stroke="#208ff0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`};function home(){let items=[['🧾','Pay Bills'],['🚌','Transport'],['🔁','Transfer'],['🎁','Cashback'],['🎟️','Voucher'],['👥','Split Bill'],['🎬','Movies & Leisure'],['🏛️','Government']];return `<div class="card"><div class="muted">${t(9)} · ${currency}</div><div class="balance">${money(24680.50)}</div><div class="flex"><div><span class="green">●</span><div class="muted">Available</div><b>${money(15320.50)}</b></div><div><span class="orange">●</span><div class="muted">Locked / Invested</div><b>${money(9360)}</b></div></div></div><h3>Quick services</h3><div class="grid">${items.map(x=>tile(x[0],x[1],`openService('${x[1]}')`)).join('')}</div><h3>Banking & Savings</h3><div class="grid">${[['💰','Savings'],['🏦','Fixed Deposit'],['💳','Cards'],['📈','Performance']].map(x=>tile(x[0],x[1],x[1]==='Performance'?"go('performance')":`openService('${x[1]}')`)).join('')}</div><div class="card" onclick="go('assets')"><div class="flex"><b>✨ ${t(8)}</b><span class="blue">›</span></div><p class="muted">Your cash, investments and locked funds at a glance</p></div>${adPreference==='show'?`<div class="ad"><div class="flex"><span>${lang==='zh'?'赞助广告 · 广告展示区（演示）':'Sponsored · Ad Space (Demo)'}</span><button class="secondary small" onclick="setAds('hide')" aria-label="Close advertisement">✕</button></div><p>${lang==='zh'?'可选择的推广内容 · 可随时关闭':'Optional promotional content · Dismiss anytime'}</p></div>`:''}`};function assets(){return `<h2>${t(8)}</h2><div class="card"><div class="muted">${t(9)} · ${currency}</div><div class="balance">${money(24680.50)}</div><span class="tag">+8.5% · Demo trend</span>${chart()}</div><h3>Asset allocation</h3>${[['Cash',15320,62],['Investments',6800,28],['Fixed Deposits',2000,8],['Others',560,2]].map(a=>`<div class="card"><div class="flex"><b>${a[0]}</b><b>${money(a[1])}</b></div><div class="bar" style="margin-top:10px"><i style="width:${a[2]}%"></i></div></div>`).join('')}<div class="card"><b>🔒 Liquidity check</b><p class="muted" style="margin-top:8px">Demo: ${money(2000)} may be locked. Verify actual redemption terms with the provider.</p></div>`};function ledgerPage(){let total=ledger.reduce((a,b)=>a+Number(b.amount),0);return `<div class="flex"><h2>${t(6)}</h2><button class="small" onclick="openModal('add')">＋ Add</button></div><div class="card"><div class="muted">October · Total expenses</div><div class="balance">${money(total)}</div><div class="flex"><span class="pill">🍜 Food</span><span class="pill">🚗 Transport</span><span class="pill">🏠 Bills</span></div></div><div class="flex"><h3>${t(7)}</h3><button class="secondary small" onclick="openModal('share')">↗ Share</button></div><div class="card"><div class="flex"><div>👩🏻‍🤝‍👨🏼 <b>Family Ledger</b><div class="muted">${members.join(' · ')}</div></div><span class="tag">Shared demo</span></div>${ledger.slice().reverse().map(e=>`<div class="flex line"><div><b>${escapeHtml(e.name)}</b><div class="muted">${escapeHtml(e.category)} · ${escapeHtml(e.who)} · ${e.date}</div></div><b>−${money(e.amount)}</b></div>`).join('')}</div><button style="width:100%" onclick="openModal('add')">＋ Add transaction</button><p class="notice" style="margin-top:14px">Sharing exports a summary; this prototype does not sync data to other users.</p>`};function performance(){return `<h2>Performance</h2><div class="card"><div class="flex"><b>Investment overview</b><span class="tag">Demo data</span></div><div class="balance">${money(12450)}</div><div class="green">+ ${money(1560)} · Illustrative only</div>${chart()}<div class="flex"><span class="pill">1Y</span><span class="pill">3Y</span><span class="pill">5Y</span><span class="pill">10Y</span></div></div><div class="card"><b>✨ AI investment explainer</b><p style="margin:10px 0">Past performance is not guaranteed. Before investing, check the product's official risk level, fees, redemption limits and the dates used to calculate returns.</p><button onclick="openModal('analysis')">Analyze product terms</button></div><div class="card"><b>Liquidity first</b><p class="muted">This prototype does not connect to financial institutions or execute investments.</p></div>`};function more(){return `<h2>Services & Settings</h2><div class="card">${[['🌐','Language',"openModal('language')"],['✉️','Email inbox',"openModal('email')"],['☎️','Careline',"openModal('careline')"],['🔐','Security / Face ID / Fingerprint',"openModal('security')"],['🧾','Government & Healthcare',"openService('Government')"],['👤','Personal / Business mode',"openModal('mode')"]].map(x=>`<div class="flex line" onclick="${x[2]}" style="cursor:pointer"><b>${x[0]} ${x[1]}</b><span>›</span></div>`).join('')}</div><button class="secondary" onclick="logout()">Log out</button><p class="notice" style="margin-top:15px">Prototype only. Not affiliated with banks, government agencies or payment providers.</p>`};function render(){document.getElementById('langLogin').innerHTML=Object.entries(languages).map(([k,v])=>`<option value="${k}" ${k===lang?'selected':''}>${v}</option>`).join('');if(!logged)return;document.getElementById('screen').innerHTML={home:home,assets:assets,ledger:ledgerPage,performance:performance,more:more}[tab]();document.getElementById('nav').innerHTML=['home','assets','ledger','performance','more'].map((k,i)=>`<button class="${tab===k?'active':''}" onclick="go('${k}')"><span>${['⌂','◫','⊕','▥','☰'][i]}</span>${t(i)}</button>`).join('')};function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))};function openModal(type){let html='';if(type==='add')html=`<h2>Add expense</h2><label>Description</label><input id="txname" placeholder="Lunch / Groceries"><label>Amount (MYR base)</label><input id="txamount" type="number" min="0.01" step="0.01" placeholder="25.00"><label>Category</label><select id="txcategory"><option>餐饮</option><option>交通</option><option>账单</option><option>购物</option><option>其他</option></select><label>Paid by</label><select id="txwho">${members.map(m=>`<option>${escapeHtml(m)}</option>`).join('')}</select><button onclick="addTx()">Save expense</button>`;else if(type==='share')html=`<h2>👥 Shared ledger</h2><p class="muted">Add a member name or export a shareable summary.</p><input id="member" placeholder="Member name"><button onclick="addMember()">Add member</button> <button class="secondary" onclick="shareLedger()">Share summary</button><p class="notice">Real-time collaboration needs accounts, permissions and a backend. Demo sharing uses your device's share/copy feature.</p>`;else if(type==='language')html=`<h2>🌐 Language</h2><select id="modalLang">${Object.entries(languages).map(([k,v])=>`<option value="${k}" ${lang===k?'selected':''}>${v}</option>`).join('')}</select><button onclick="setLang(document.getElementById('modalLang').value);closeModal()">Apply</button>`;else if(type==='careline')html=`<h2>☎️ Careline</h2><p>For help with an account, contact the provider directly using the verified contact details in its official app or website.</p><p class="notice" style="margin-top:12px">No unverified official phone numbers or email addresses are shown in this demo.</p>`;else if(type==='email')html=`<h2>✉️ Email & Notifications</h2><p>📩 Welcome to duoMoney Plus demo</p><p class="muted">This is an in-app demonstration inbox. Real email integration is not enabled.</p>`;else if(type==='security')html=`<h2>🔐 Security</h2><p>Face ID, fingerprint and two-factor verification are planned. This HTML prototype only simulates biometric sign-in.</p><p class="notice">Production implementation requires device biometric APIs, passkeys or platform authentication, and server-side session security.</p>`;else if(type==='analysis')html=`<h2>✨ Product analysis</h2><p>Paste product terms below for a future AI analysis integration.</p><textarea style="width:100%;height:130px;border:1px solid #ddd;border-radius:12px;padding:12px" placeholder="Product terms..."></textarea><p class="notice">AI analysis is not connected in this demo. Always consult official product disclosures.</p>`;else if(type==='mode')html=`<h2>Personal / Business</h2><button onclick="mode='personal';closeModal()">Personal</button> <button class="secondary" onclick="mode='business';closeModal()">Self-employed / Business</button><p class="notice">Selected: ${mode}</p>`;else if(type==='notifications')html=`<h2>🔔 Notifications</h2><p>Welcome to your finance dashboard.</p><p class="muted">Demo reminder: check maturity dates and auto-renewal settings.</p>`;document.getElementById('modalbody').innerHTML=html+`<div style="text-align:right;margin-top:15px"><button class="secondary small" onclick="closeModal()">Close ✕</button></div>`;document.getElementById('overlay').classList.remove('hide')};function closeModal(){document.getElementById('overlay').classList.add('hide')};function addTx(){let n=document.getElementById('txname').value.trim(),a=Number(document.getElementById('txamount').value);if(!n||!Number.isFinite(a)||a<=0){alert('Enter a description and valid amount');return}ledger.push({name:n,amount:a,category:document.getElementById('txcategory').value,who:document.getElementById('txwho').value,date:new Date().toISOString().slice(0,10)});localStorage.setItem('mmp_ledger',JSON.stringify(ledger));closeModal();render()};function addMember(){let m=document.getElementById('member').value.trim();if(m&&!members.includes(m))members.push(m);closeModal();render()};async function shareLedger(){let text='duoMoney Plus shared ledger (demo)\n'+ledger.map(e=>`${e.date} ${e.name}: ${money(e.amount)} (${e.who})`).join('\n');try{if(navigator.share)await navigator.share({title:'duoMoney Plus Ledger',text});else if(navigator.clipboard){await navigator.clipboard.writeText(text);alert('Summary copied')}else prompt('Copy summary',text)}catch(e){if(e.name!=='AbortError')prompt('Copy summary',text)}}function openService(name){let groups={'Pay Bills':['Mobile & Telco','Electricity','Water','Rental / Condo','Internet','Car Loan','Toll & Parking','Assessment Tax','Other Bills'],'Transport':['Grab','Rapid KL','Touch n Go','Parking','Train / Bus','Car Rental'],'Government':['Tax refund status','Arrival Card','Healthcare','EPF / KWSP','SOCSO / PERKESO','Immigration','Driving Licence']};let items=groups[name];document.getElementById('modalbody').innerHTML=`<h2>${escapeHtml(name)}</h2>${items?`<div class="grid">${items.map((v,i)=>tile(['📱','⚡','💧','🏠','🚘','🏛️','🧾','💊'][i%8],v,`alert('Demo only: ${v.replace(/'/g,'')} is not connected to a provider')`)).join('')}</div>`:`<p>This feature is a UI placeholder and is not connected to a provider.</p>`}<p class="notice">Demo navigation only. No real payments, government submissions or bank transactions.</p><button class="secondary" onclick="closeModal()">Close</button>`;document.getElementById('overlay').classList.remove('hide')};render();</script>
+<style>
+:root{--save:#23b879;--reserved:#9ca8b6;--spend:#ef6573;--due:#f4a344}.budget-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.budget-tile{border-radius:17px;padding:13px;background:#f6faff}.budget-tile small{display:block;color:#667e96;font-size:11px;margin-bottom:5px}.budget-tile strong{font-size:18px}.budget-bar{display:flex;height:15px;overflow:hidden;border-radius:30px;margin:14px 0 9px;gap:2px}.budget-bar i{display:block;min-width:0}.control-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:10px 0}.control-row input,.control-row select{max-width:145px;width:45%;margin:0!important}.tiny{font-size:11px;color:#7188a2}.chiprow{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}.chiprow button{width:auto!important;padding:8px 11px!important;font-size:12px}.warning{border-left:4px solid #eea24b;padding:11px;background:#fff8e9;border-radius:9px}.safe{border-left:4px solid #20b782;padding:11px;background:#eafaf3;border-radius:9px}.mini-chart{width:100%;height:145px}.mini-chart polyline{fill:none;stroke:#258ee9;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.mini-chart line{stroke:#dce8f2;stroke-width:1}.lang-note{font-size:11px;color:#6f8399;margin:8px 0}.round-service{border-radius:50%;width:52px;height:52px;background:linear-gradient(145deg,#d9efff,#fff);display:grid;place-items:center;font-size:24px;margin:auto auto 7px}
+</style>
+<script>
+const budgetDefaults={balance:8500,savings:3000,reserved:1800,spending:2500,upcoming:1200,income:4500,incomeDay:1,billDay:15,monthlyExpenses:2200,monthlySaving:500};
+let budget=Object.assign({},budgetDefaults,JSON.parse(localStorage.getItem('duo_budget')||'{}'));
+let currency=localStorage.getItem('duo_currency')||'MYR';
+const demoFX={MYR:1,USD:0.24,EUR:0.205,GBP:0.18,SGD:0.31,HKD:1.84,CNY:1.69,JPY:35.1,KRW:337,THB:7.66,IDR:3930,AUD:0.36};
+const currSym={MYR:'RM',USD:'US$',EUR:'€',GBP:'£',SGD:'S$',HKD:'HK$',CNY:'¥',JPY:'¥',KRW:'₩',THB:'฿',IDR:'Rp',AUD:'A$'};
+function money(v){return (currSym[currency]||currency)+' '+(Number(v||0)*demoFX[currency]).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function changeCurrency(v){currency=v;localStorage.setItem('duo_currency',v);render()}
+function updateBudget(key,value){let n=Number(value);if(!Number.isFinite(n)||n<0)return;budget[key]=n;localStorage.setItem('duo_budget',JSON.stringify(budget));render()}
+function budgetRow(key,label){return `<label class="control-row"><span>${label}</span><input type="number" min="0" step="1" value="${budget[key]}" onchange="updateBudget('${key}',this.value)"></label>`}
+function budgetPage(){let b=budget;let allocated=b.savings+b.reserved+b.spending+b.upcoming,unallocated=b.balance-allocated;let color=['#23b879','#9ca8b6','#ef6573','#f4a344'];let tiles=[['Savings',b.savings],['Reserved Bills',b.reserved],['Spending',b.spending],['Upcoming Bills',b.upcoming]];let forecast=forecastData(90);let min=Math.min(...forecast.map(x=>x.balance)),risk=forecast.find(x=>x.balance<0);return `<h2>Smart Budget</h2><p class="muted">One balance, four purposes</p><div class="card"><span class="muted">Total Balance</span><div class="balance">${money(b.balance)}</div><div class="budget-bar">${tiles.map((x,i)=>`<i style="background:${color[i]};flex:${Math.max(0,x[1])}"></i>`).join('')}</div><div class="budget-grid">${tiles.map((x,i)=>`<div class="budget-tile"><small><span style="color:${color[i]}">●</span> ${x[0]}</small><strong>${money(x[1])}</strong></div>`).join('')}</div><p class="tiny" style="margin-top:12px">Unallocated Balance: ${money(unallocated)} · ${unallocated<0?'⚠️ Allocation exceeds balance':'Available to allocate'}</p></div><div class="card"><h3>Set Budget Amounts</h3>${budgetRow('balance','Account Balance (MYR base)')}${budgetRow('savings','🟢 Savings')}${budgetRow('reserved','⚪ Reserved Bills')}${budgetRow('spending','🔴 Spending')}${budgetRow('upcoming','🟠 Upcoming Bills')}<p class="tiny">Amounts use MYR as the base currency and convert to your selected display currency.</p></div><div class="card"><h3>✨ Financial Copilot</h3><div class="${unallocated<0||min<0?'warning':'safe'}">${unallocated<0?'Budget allocations exceed your balance by '+money(-unallocated)+'. Consider reducing spending or adjusting savings.':min<0?'A cash shortfall of '+money(-min)+' may occur within 90 days. Check income and bill dates.':'Based on this demo forecast, no negative balance is expected within 90 days.'} ${b.spending>b.balance*.35?'Consider reducing non-essential spending.':''}</div><p class="tiny">Rule-based demo guidance; not connected to a bank or live AI.</p></div><div class="card"><h3>90-Day Cash Flow Forecast</h3>${forecastChart(forecast)}<p class="muted">Projected Minimum Balance: ${money(min)} ${risk?'· Risk on day '+risk.day+'':'· No projected negative balance'}</p><button onclick="go('planning')">3 / 6 / 24-Month Planner →</button></div><div class="card"><h3>Ledger & Sharing</h3><div class="flex"><button onclick="go('ledger')">Smart Ledger</button><button class="secondary" onclick="openModal('share')">Shared Ledger</button></div><button class="secondary" onclick="exportCSV()">Export CSV Data</button></div>`}
+function forecastData(days,delta=0,extra=0){let b=budget;let arr=[{day:0,balance:b.balance}];let cash=b.balance;for(let d=1;d<=days;d++){let day=((d-1)%30)+1;if(day===Math.max(1,Math.min(30,b.incomeDay)))cash+=b.income*(1+delta);if(day===Math.max(1,Math.min(30,b.billDay)))cash-=b.upcoming+b.reserved;if(day===25)cash-=b.monthlySaving;cash-=b.monthlyExpenses/30;if(d===30)cash-=extra;arr.push({day:d,balance:cash})}return arr}
+function forecastChart(data){let vals=data.map(x=>x.balance),min=Math.min(0,...vals),max=Math.max(...vals,1),pts=data.map((x,i)=>`${(i/(data.length-1)*300).toFixed(1)},${(125-(x.balance-min)/(max-min)*110).toFixed(1)}`).join(' ');let y=125-(0-min)/(max-min)*110;return `<svg class="mini-chart" viewBox="0 0 310 145" role="img" aria-label="Forecast balance line chart"><line x1="0" y1="${y}" x2="310" y2="${y}"/><polyline points="${pts}"/><text x="3" y="140" font-size="10" fill="#8297aa">Today</text><text x="260" y="140" font-size="10" fill="#8297aa">${data.length-1} days</text></svg>`}
+function planning(){let m=Number(localStorage.getItem('duo_horizon')||3),drop=Number(localStorage.getItem('duo_drop')||0),extra=Number(localStorage.getItem('duo_extra')||0);let a=forecastData(m*30,-drop/100,extra),minimum=Math.min(...a.map(x=>x.balance));return `<h2>Future Planner</h2><div class="card"><h3>What if life changes?</h3><div class="chiprow">${[3,6,24].map(x=>`<button class="${x===m?'':'secondary'}" onclick="localStorage.setItem('duo_horizon',${x});render()">${x} Months</button>`).join('')}</div><label>Income Reduction: ${drop}%</label><input type="range" min="0" max="80" step="10" value="${drop}" oninput="localStorage.setItem('duo_drop',this.value);render()"><label>One-Time Expense Next Month (MYR)</label><input type="number" min="0" value="${extra}" onchange="localStorage.setItem('duo_extra',Math.max(0,Number(this.value)||0));render()">${forecastChart(a)}<p>Projected Ending Balance: <b>${money(a.at(-1).balance)}</b></p><p>Lowest Balance During Period: <b>${money(minimum)}</b></p><p class="tiny">假设每月 30，收入及费用按固定规则重复。未考虑利息、通胀和真实汇率。</p></div><div class="card"><h3>Life Event Budget</h3><p>Model travel, weddings, moving or job changes by adjusting one-time costs and income above.</p><button onclick="go('budget')">Back to Smart Budget</button></div>`}
+function exportCSV(){let rows=[['date','description','category','paid_by','amount_MYR'],...ledger.map(x=>[x.date,x.name,x.category,x.who,x.amount])];let csv='\uFEFF'+rows.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\r\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='duoMoney-ledger.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+const oldMore=more;more=function(){return oldMore()+`<div class="card"><h3>Display Currency</h3><select onchange="changeCurrency(this.value)">${Object.keys(demoFX).map(x=>`<option ${x===currency?'selected':''}>${x}</option>`).join('')}</select><p class="lang-note">Demo exchange rates are fixed, not live. Base amounts remain in MYR; displayed amounts convert to your chosen currency.</p><button onclick="go('planning')">Future Planner</button><button class="secondary" onclick="go('ledger')">Smart Ledger / Shared Ledger</button></div>`};
+render=function(){document.getElementById('langLogin').innerHTML=Object.entries(languages).map(([k,v])=>`<option value="${k}" ${k===lang?'selected':''}>${v}</option>`).join('');if(!logged)return;document.getElementById('screen').innerHTML=({home,assets,budget:budgetPage,ledger:ledgerPage,planning,performance,more}[tab]||home)();document.getElementById('nav').innerHTML=['home','assets','budget','performance','more'].map((k,i)=>`<button class="${tab===k?'active':''}" onclick="go('${k}')"><span>${['⌂','◫','◉','▥','☰'][i]}</span>${['Home','Assets','Budget','Performance','More'][i]}</button>`).join('')};
+let adPreference=localStorage.getItem('duo_ad_preference')||'hide';
+function setAds(value){adPreference=value;localStorage.setItem('duo_ad_preference',value);render()}
+const previousMoreWithCurrency=more;
+more=function(){const zh=lang==='zh';return previousMoreWithCurrency()+`<div class="card"><h3>📣 ${zh?'广告偏好':'Advertisements'}</h3><p class="muted">${zh?'广告为可选内容，登录页永远不展示广告。':'Advertisements are optional and are never shown on the login page.'}</p><div class="flex" style="margin-top:12px"><button class="${adPreference==='show'?'':'secondary'} small" onclick="setAds('show')">${zh?'显示广告':'Show Ads'}</button><button class="${adPreference==='hide'?'':'secondary'} small" onclick="setAds('hide')">${zh?'隐藏广告':'Hide Ads'} ✕</button></div></div>`};
+render();
+</script>
+<script>
+// v0.7 local-only account settings and support extension.
+const duoSettingsKey='duo_v07_settings';
+let duoSettings=Object.assign({defaultAccount:'Main Account',limit:3000,links:[],overseas:[],payments:[]},JSON.parse(localStorage.getItem(duoSettingsKey)||'{}'));
+function duoSave(){localStorage.setItem(duoSettingsKey,JSON.stringify(duoSettings));}
+function duoEsc(v){return escapeHtml(String(v));}
+function duoPopup(html){document.getElementById('modalbody').innerHTML=html+'<div style="text-align:right;margin-top:16px"><button class="secondary small" onclick="closeModal()">Close ✕</button></div>';document.getElementById('overlay').classList.remove('hide');}
+function forgotPassword(){duoPopup('<h2>🔑 Forgot your password?</h2><p class="muted">Enter your registered email to request a password reset.</p><label>Email address</label><input type="email" id="resetEmail" placeholder="you@example.com"><button onclick="duoReset()">Continue</button><p class="notice">Demo only: no reset email is sent and no password is changed. Real recovery requires secure server verification.</p>');}
+function duoReset(){let e=document.getElementById('resetEmail').value.trim();if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)){alert('Enter a valid email address');return;}duoPopup('<h2>✉️ Request received (demo)</h2><p>If an account exists for that address, the real service would send a secure reset link.</p><p class="notice">No email was sent in this prototype.</p>');}
+const duoMoreOld=more;
+more=function(){return `<div class="card"><h3>⚙️ Account & Payments</h3>${[['🏦','Change default account','default'],['💳','Transaction limit','limit'],['📅','Scheduled payment','scheduled'],['🔗','AutoLink other software','autolink'],['🧩','Manage linked accounts','links'],['🌏','Overseas accounts','overseas']].map(a=>`<div class="flex line" style="cursor:pointer" onclick="duoOpen('${a[2]}')"><b>${a[0]} ${a[1]}</b><span>›</span></div>`).join('')}</div><div class="card"><h3>💬 Get Help & Support</h3>${[['❓','FAQ','faq'],['📖','Digital guide','guide'],['💬','Live chat','chat'],['☎️','Contact us','contact']].map(a=>`<div class="flex line" style="cursor:pointer" onclick="duoOpen('${a[2]}')"><b>${a[0]} ${a[1]}</b><span>›</span></div>`).join('')}</div>`+duoMoreOld();};
+function duoOpen(k){let h='';if(k==='default')h=`<h2>🏦 Default account</h2><p class="muted">Select the account used as the default in this demo.</p><select id="duoDefault"><option ${duoSettings.defaultAccount==='Main Account'?'selected':''}>Main Account</option><option ${duoSettings.defaultAccount==='Savings Account'?'selected':''}>Savings Account</option><option ${duoSettings.defaultAccount==='Business Account'?'selected':''}>Business Account</option></select><button onclick="duoSettings.defaultAccount=document.getElementById('duoDefault').value;duoSave();closeModal();render()">Save default account</button>`;
+else if(k==='limit')h=`<h2>💳 Transaction limit</h2><p class="muted">Demo daily limit. Does not change any bank transfer limits.</p><label>Daily limit (MYR)</label><input id="duoLimit" type="number" min="0" max="1000000" value="${duoSettings.limit}"><button onclick="duoSetLimit()">Save limit</button>`;
+else if(k==='scheduled')h=`<h2>📅 Scheduled payments</h2><p class="muted">Manage payment reminders (no actual money transfers).</p>${duoSettings.payments.map((x,i)=>`<div class="flex line"><span>${duoEsc(x.name)} · ${money(Number(x.amount))} · ${duoEsc(x.date)}</span><button class="secondary small" onclick="duoRemove('payments',${i},'scheduled')">Cancel</button></div>`).join('')}<label>Payee</label><input id="duoPayee" placeholder="Electricity"><label>Amount (MYR)</label><input id="duoPayAmount" type="number" min="0.01" step="0.01"><label>Date</label><input id="duoPayDate" type="date"><button onclick="duoAddPayment()">Schedule reminder</button>`;
+else if(k==='autolink'||k==='links')h=`<h2>🔗 Manage AutoLink</h2><p class="muted">Connected software list (local demo entries only).</p>${duoSettings.links.length?duoSettings.links.map((x,i)=>`<div class="flex line"><span>🔗 ${duoEsc(x)}</span><button class="secondary small" onclick="duoRemove('links',${i},'links')">Unlink / 取消连接</button></div>`).join(''):'<p>No linked apps yet.</p>'}<label>Software / app name</label><input id="duoLinkName" placeholder="e.g. bookkeeping software"><button onclick="duoAddLink()">Add demo link</button><p class="notice">No actual third-party authorization or data sharing takes place.</p>`;
+else if(k==='overseas')h=`<h2>🌏 Overseas accounts</h2><p class="muted">Track overseas account labels and currencies. No international bank connectivity.</p>${duoSettings.overseas.map((x,i)=>`<div class="flex line"><span>${duoEsc(x.name)} · ${duoEsc(x.currency)}</span><button class="secondary small" onclick="duoRemove('overseas',${i},'overseas')">Remove</button></div>`).join('')}<label>Account nickname</label><input id="duoOverName" placeholder="Travel account"><label>Currency</label><select id="duoOverCur"><option>USD</option><option>SGD</option><option>EUR</option><option>GBP</option><option>JPY</option><option>CNY</option><option>MYR</option></select><button onclick="duoAddOverseas()">Add overseas account</button>`;
+else if(k==='faq')h=`<h2>❓ Frequently asked questions</h2><b>Can I connect my bank?</b><p>Not in this prototype. Financial institution authorization is required.</p><b>Are exchange rates live?</b><p>No, the demo uses example exchange rates.</p><b>Can I cancel AutoLink?</b><p>Yes, go to More → Manage linked accounts → Unlink.</p><b>Can I recover a password?</b><p>The reset screen is a demo; real recovery is not enabled.</p>`;
+else if(k==='guide')h=`<h2>📖 Digital guide</h2><p><b>1.</b> Choose language and currency in settings.</p><p><b>2.</b> Open Budget to allocate savings, reserved bills, spending and upcoming bills.</p><p><b>3.</b> Use Ledger to record expenses.</p><p><b>4.</b> Use Performance for investment charts.</p><p><b>5.</b> Manage payment reminders and linked apps in More.</p>`;
+else if(k==='chat')h=`<h2>💬 Live chat</h2><p class="muted">Demo support assistant (not connected to a human agent).</p><div id="duoChat" class="card" style="background:#f3f9ff">Hi! I can point you to Budget, AutoLink, or account settings.</div><input id="duoChatMsg" placeholder="Type your question"><button onclick="duoChatSend()">Send</button>`;
+else if(k==='contact')h=`<h2>☎️ Contact us</h2><p>For account or payment issues, use the verified contact information on your actual provider's official website or app.</p><p class="notice">duoMoney Plus is currently a demo. No official customer support phone, email or live agent has been set up.</p>`;
+duoPopup(h);}
+function duoSetLimit(){let n=Number(document.getElementById('duoLimit').value);if(!Number.isFinite(n)||n<0||n>1000000){alert('Enter a valid limit');return;}duoSettings.limit=n;duoSave();closeModal();}
+function duoAddPayment(){let name=document.getElementById('duoPayee').value.trim(),amount=Number(document.getElementById('duoPayAmount').value),date=document.getElementById('duoPayDate').value;if(!name||!(amount>0)||!date){alert('Complete payee, amount and date');return;}duoSettings.payments.push({name,amount,date});duoSave();duoOpen('scheduled');}
+function duoAddLink(){let name=document.getElementById('duoLinkName').value.trim();if(!name)return;duoSettings.links.push(name);duoSave();duoOpen('links');}
+function duoAddOverseas(){let name=document.getElementById('duoOverName').value.trim();if(!name)return;duoSettings.overseas.push({name,currency:document.getElementById('duoOverCur').value});duoSave();duoOpen('overseas');}
+function duoRemove(type,i,page){duoSettings[type].splice(i,1);duoSave();duoOpen(page);}
+function duoChatSend(){let q=document.getElementById('duoChatMsg').value.trim();if(!q)return;let answer=/link|连接/i.test(q)?'Go to More → Manage linked accounts.':/budget|预算|save/i.test(q)?'Open Budget to edit the four allocation categories.':'You can find settings in More, or see FAQ and Digital guide.';document.getElementById('duoChat').innerHTML+=`<p><b>You:</b> ${duoEsc(q)}</p><p><b>Demo assistant:</b> ${answer}</p>`;document.getElementById('duoChatMsg').value='';}
+render();
+</script>
+<style>.promo-title{font-weight:800;font-size:17px;color:#17436c}.risk{background:#fff6e8;color:#9b651e;border-radius:9px;padding:5px 8px;font-size:11px}.deal{border:1px solid #dcecfb;border-radius:14px;padding:12px;margin:9px 0}.mini{font-size:12px;color:#6d839b;line-height:1.5}#subtitle{font-size:14px;font-weight:800;letter-spacing:.55px;line-height:1.55;color:#225c8c}</style>
+<script>
+const duoHomeBase=home;
+home=function(){return duoHomeBase()+`<div class="card"><div class="flex"><div class="promo-title">📊 Fixed Income</div><span class="risk">Low-risk ≠ Risk-free</span></div><p class="mini" style="margin:9px 0">Explore fixed-income investment products and share offerings. Returns, issuer risk, fees, lock-in periods and capital protection vary by product.</p><div class="deal"><div class="flex"><b>Fixed Income Products</b><span class="pill">Explore</span></div><p class="mini">Illustrative listings only — no investment purchase or guaranteed yield.</p><button class="secondary small" onclick="duoInvestInfo()">View product information</button></div></div><div class="card"><div class="promo-title">🔥 热门活动</div><p class="mini" style="margin-top:7px">Featured investment and savings campaigns</p><div class="deal"><b>⭐ Featured Share Offers</b><p class="mini">Demo catalogue · Check official product documents before investing.</p><button class="secondary small" onclick="duoInvestInfo()">Explore offers</button></div><h3>⏳ 仅七天热销</h3><div class="deal"><b>Limited-time Share Highlights</b><p class="mini">7-day promotional showcase (sample only). No real countdown, offer or availability is implied.</p><button class="secondary small" onclick="duoInvestInfo()">View details</button></div></div><div class="card"><div class="flex"><div class="promo-title">🛡️ 保险</div><span class="pill">Protection</span></div><p class="mini" style="margin:10px 0">Explore medical, life, travel and motor insurance. Policy coverage and exclusions must be verified with insurers.</p><button onclick="duoInsurance()">Explore insurance</button></div>`};
+function duoInvestInfo(){duoPopup('<h2>Fixed Income & Shares</h2><p>Explore low-risk-oriented fixed-income products and share investments. Shares can lose value; fixed-income products also carry issuer, interest-rate and liquidity risk.</p><p class="notice">Demo only. No live offers, market data, guaranteed returns or trading integration.</p>')}
+function duoInsurance(){duoPopup('<h2>🛡️ Insurance</h2><div class="line">🏥 Medical insurance</div><div class="line">❤️ Life insurance</div><div class="line">✈️ Travel insurance</div><div class="line">🚘 Motor insurance</div><p class="notice">Demo categories only. No policy purchase or insurer connection.</p>')}
+const duoOriginalSetLang=setLang;
+setLang=function(value){duoOriginalSetLang(value);duoTranslateLogin(value)};
+const duoLoginWords={
+ en:['Welcome','Welcome back','Email / Phone Number','Password','Sign in','Create an account','Full name','Email address','Reset password','Register','Forgot your password?'],
+ zh:['欢迎','欢迎回来','电子邮箱或手机号码','密码','登录','创建账户','姓名','电子邮箱','重设密码','注册','忘记密码？'],
+ ms:['Selamat datang','Selamat kembali','E-mel atau Nombor Telefon','Kata laluan','Log masuk','Cipta akaun','Nama penuh','Alamat e-mel','Tetapkan semula kata laluan','Daftar','Lupa kata laluan?'],
+ fr:['Bienvenue','Bon retour','E-mail ou numéro de téléphone','Mot de passe','Se connecter','Créer un compte','Nom complet','Adresse e-mail','Réinitialiser le mot de passe',"S’inscrire",'Mot de passe oublié ?'],
+ es:['Bienvenido','Bienvenido de nuevo','Correo o número de teléfono','Contraseña','Iniciar sesión','Crear una cuenta','Nombre completo','Correo electrónico','Restablecer contraseña','Registrarse','¿Olvidaste tu contraseña?'],
+ ar:['مرحبًا','مرحبًا بعودتك','البريد الإلكتروني أو رقم الهاتف','كلمة المرور','تسجيل الدخول','إنشاء حساب','الاسم الكامل','البريد الإلكتروني','إعادة تعيين كلمة المرور','التسجيل','هل نسيت كلمة المرور؟'],
+ de:['Willkommen','Willkommen zurück','E-Mail oder Telefonnummer','Passwort','Anmelden','Konto erstellen','Vollständiger Name','E-Mail-Adresse','Passwort zurücksetzen','Registrieren','Passwort vergessen?'],
+ ja:['ようこそ','おかえりなさい','メールまたは電話番号','パスワード','ログイン','アカウント作成','氏名','メールアドレス','パスワードをリセット','登録','パスワードを忘れた場合'],
+ ko:['환영합니다','다시 오신 것을 환영합니다','이메일 또는 전화번호','비밀번호','로그인','계정 만들기','성명','이메일 주소','비밀번호 재설정','가입','비밀번호를 잊으셨나요?']};
+function duoTranslateLogin(l){const w=duoLoginWords[l]||duoLoginWords.en;let byId=(id,txt)=>{let e=document.getElementById(id);if(e)e.textContent=txt};byId('loginHeading',w[0]);byId('welcome',w[1]);byId('loginIdentityLabel',w[2]);byId('pwlabel',w[3]);byId('sign',w[4]);let login=document.getElementById('login');let a=[...login.querySelectorAll('a')];for(let e of a){if(e.getAttribute('onclick')?.includes('showRegister'))e.textContent=w[5];if(e.getAttribute('onclick')?.includes('forgotPassword'))e.textContent=w[10]};let panel=document.getElementById('registerPanel');if(panel){let labels=panel.querySelectorAll('form > label');if(labels[0])labels[0].textContent=w[6];if(labels[1])labels[1].textContent=w[7];if(labels[2])labels[2].textContent=w[3];if(labels[3])labels[3].textContent=w[8];let title=panel.querySelector('h2');if(title)title.textContent=w[5];let submit=panel.querySelector('[type=submit]');if(submit)submit.textContent=w[9]}}
+duoTranslateLogin('en');
+</script>
+
+<script>
+/* v1.5: Language chosen on the welcome screen controls all dashboard pages. */
+const duoUiDictionary = {
+'热门活动': ['Trending Offers','热门活动','Beliebte Angebote','인기 프로모션'],
+'仅七天热销': ['7-Day Hot Deals','仅七天热销','7-Tage-Angebote','7일 한정 특가'],
+'保险': ['Insurance','保险','Versicherung','보험'],
+'现金': ['Cash','现金','Bargeld','현금'],
+'投资': ['Investments','投资','Investitionen','투자'],
+'定存': ['Fixed Deposits','定存','Festgeld','정기예금'],
+'餐饮': ['Dining','餐饮','Essen','식사'],
+'交通': ['Transport','交通','Transport','교통'],
+'账单': ['Bills','账单','Rechnungen','청구서'],
+'购物': ['Shopping','购物','Einkaufen','쇼핑'],
+'其他': ['Other','其他','Sonstiges','기타'],
+'午餐': ['Lunch','午餐','Mittagessen','점심'],
+'电费': ['Electricity','电费','Strom','전기요금'],
+'我': ['Me','我','Ich','나'],
+'首页': ['Home','首页','Start','홈'],
+'资产': ['Assets','资产','Vermögen','자산'],
+'预算': ['Budget','预算','Budget','예산'],
+'更多': ['More','更多','Mehr','더보기'],
+'广告展示区': ['Ad Space','广告展示区','Werbefläche','광고 영역'],
+'可随时关闭': ['Dismiss anytime','可随时关闭','Jederzeit schließen','언제든 닫기'],
+'早上好': ['Good morning','早上好','Guten Morgen','좋은 아침'],
+'智能预算': ['Smart Budget','智能预算','Smartes Budget','스마트 예산'],
+'资产分析': ['Asset Analysis','资产分析','Vermögensanalyse','자산 분석'],
+'Smart Ledger': ['Smart Ledger','Smart Ledger','Smartes Haushaltsbuch','스마트 가계부'],
+'Shared Ledger': ['Shared Ledger','Shared Ledger','Gemeinsames Haushaltsbuch','공유 가계부'],
+'总资产': ['Total Assets','总资产','Gesamtvermögen','총자산']
+};
+const duoLanguageIndex={en:0,zh:1,de:2,ko:3};
+function duoTranslateDashboard(){
+  const area=document.getElementById('app');
+  if(!area)return;
+  const idx=duoLanguageIndex[lang]??0;
+  const walker=document.createTreeWalker(area,NodeFilter.SHOW_TEXT);
+  let node;
+  while((node=walker.nextNode())){
+    if(node.parentElement && ['SCRIPT','STYLE','TEXTAREA'].includes(node.parentElement.tagName))continue;
+    let value=node.nodeValue;
+    for(const [original,translations] of Object.entries(duoUiDictionary)){
+      value=value.split(original).join(translations[idx]);
+    }
+    // Replace stray EUR labels in MYR mode, without touching legitimate selected currencies.
+    if(typeof currency!=='undefined' && currency==='MYR'){
+      // Currency conversion is performed by money() at the source.
+    }
+    node.nodeValue=value;
+  }
+}
+const duoRenderBeforeLanguage=render;
+render=function(){
+  duoRenderBeforeLanguage();
+  if(logged)duoTranslateDashboard();
+};
+const duoSetLanguageBeforeV15=setLang;
+setLang=function(next){
+  duoSetLanguageBeforeV15(next);
+  if(logged)duoTranslateDashboard();
+};
+document.documentElement.lang=lang;
+const duoSetLanguageForHtml=setLang;
+setLang=function(next){duoSetLanguageForHtml(next);document.documentElement.lang=next};
+render();
+</script>
+
+<style>
+.qr-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:14px 0}
+.qr-actions button{font-size:13px;padding:12px 5px}
+.qr-box{background:#fff;border:1px solid #e4eef8;border-radius:16px;padding:16px;text-align:center;margin:12px auto;max-width:260px}
+.qr-box img{width:200px;max-width:100%;height:200px;object-fit:contain}
+</style>
+<script>
+const duoOldHomeQR=home;
+home=function(){
+let result=duoOldHomeQR();
+const actions='<h3>QR Payments</h3><div class="qr-actions"><button onclick="duoQRScan()">📷 Scan QR</button><button onclick="duoQRReceive()">⬇ Receive</button><button onclick="duoQRPay()">⬆ Pay QR</button></div>';
+return result.replace('<h3>Quick services</h3>',actions+'<h3>Quick services</h3>');
+};
+function duoQRModal(body){
+document.getElementById('modalbody').innerHTML=body+'<div style="text-align:right;margin-top:14px"><button class="secondary small" onclick="duoQRStop();closeModal()">Close ✕</button></div>';
+document.getElementById('overlay').classList.remove('hide');
+}
+let duoQRStream=null;
+function duoQRStop(){if(duoQRStream){duoQRStream.getTracks().forEach(t=>t.stop());duoQRStream=null}}
+function duoQRScan(){
+duoQRStop();
+duoQRModal('<h2>📷 Scan QR</h2><p class="muted">Scan a QR code to preview its contents. This demo does not send payments.</p><button onclick="duoQRCamera()">Open Camera</button><label>Or select a QR image</label><input type="file" accept="image/*" onchange="duoQRReadFile(this)"><video id="duoQRVideo" playsinline autoplay muted style="width:100%;border-radius:12px;display:none;margin-top:10px"></video><p id="duoQRResult" class="notice">No QR scanned yet.</p>');
+}
+async function duoQRReadFile(input){
+const f=input.files&&input.files[0];if(!f)return;
+const target=document.getElementById('duoQRResult');
+if(!('BarcodeDetector' in window)){target.textContent='QR image decoding is not supported in this browser. Try Chrome on Android.';return}
+try{
+const image=await createImageBitmap(f),detector=new BarcodeDetector({formats:['qr_code']});
+const results=await detector.detect(image);image.close();
+target.textContent=results.length?'Scanned content (preview only): '+results[0].rawValue:'No QR code found in image.';
+}catch(e){target.textContent='Unable to read this QR image.'}
+}
+async function duoQRCamera(){
+const target=document.getElementById('duoQRResult');
+if(!navigator.mediaDevices?.getUserMedia || !('BarcodeDetector' in window)){
+target.textContent='Live QR scanning is not supported in this browser. Try Chrome on Android with camera permission.';return;
+}
+try{
+duoQRStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false});
+const video=document.getElementById('duoQRVideo');if(!video){duoQRStop();return}
+video.srcObject=duoQRStream;video.style.display='block';await video.play();
+const detector=new BarcodeDetector({formats:['qr_code']});
+const loop=async()=>{
+if(!duoQRStream||!document.getElementById('duoQRVideo'))return;
+try{const found=await detector.detect(video);if(found.length){target.textContent='Scanned content (preview only): '+found[0].rawValue;duoQRStop();return}}catch(e){}
+setTimeout(loop,400);
+};loop();
+}catch(e){target.textContent='Camera unavailable or permission denied. You can try uploading an image.';duoQRStop()}
+}
+function duoQRReceive(){
+duoQRStop();
+duoQRModal('<h2>⬇ Receive Money</h2><p class="muted">Create a demonstration QR for sharing a payment request. Not a bank or DuitNow QR.</p><label>Display Name</label><input id="duoQRName" value="duoMoney Plus Demo"><label>Amount (MYR)</label><input id="duoQRAmount" type="number" min="0.01" step="0.01" placeholder="Optional amount"><button onclick="duoQRMake()">Generate Demo QR</button><div id="duoQRGenerated"></div>');
+}
+function duoQRMake(){
+const name=document.getElementById('duoQRName').value.trim()||'Demo User';
+const amount=document.getElementById('duoQRAmount').value;
+const payload='duoMoney Plus DEMO REQUEST | '+name+(amount?' | MYR '+Number(amount).toFixed(2):'');
+const dest=document.getElementById('duoQRGenerated');
+dest.innerHTML='<div class="qr-box"><div id="duoQRCanvas"></div><p class="muted">DEMO ONLY — not a real payment QR</p></div>';
+if(window.QRCode){new QRCode(document.getElementById('duoQRCanvas'),{text:payload,width:200,height:200});}
+else {dest.innerHTML='<p class="notice">QR generator could not load offline. Demo request: '+escapeHtml(payload)+'</p>'}
+}
+function duoQRPay(){
+duoQRStop();
+duoQRModal('<h2>⬆ Pay QR</h2><p class="muted">Enter a payment amount for a simulated payment preview. No money will be transferred.</p><label>Recipient</label><input id="duoPayTo" placeholder="Recipient name"><label>Amount (MYR)</label><input id="duoPayAmount" type="number" min="0.01" step="0.01" placeholder="0.00"><button onclick="duoQRPayPreview()">Preview Payment</button><p id="duoPayResult" class="notice"></p>');
+}
+function duoQRPayPreview(){
+const to=document.getElementById('duoPayTo').value.trim(),amount=Number(document.getElementById('duoPayAmount').value);
+document.getElementById('duoPayResult').textContent=to&&Number.isFinite(amount)&&amount>0?'Demo payment preview: RM '+amount.toFixed(2)+' to '+to+'. No actual transfer has occurred.':'Enter a recipient and valid amount.';
+}
+const duoOldCloseQR=closeModal;
+closeModal=function(){duoQRStop();duoOldCloseQR()};
+const duoOldRenderQR=render;
+render=function(){duoOldRenderQR()};
+render();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+
+<script>
+(function(){
+const previousRender=render;
+const translations=[
+['Display Currency · Display Currency','Display Currency'],
+['Display currency · Display Currency','Display Currency'],
+['Smart Budget Smart Budget','Smart Budget'],
+['Cash Cash','Cash'],
+['Trending Offers Trending Offers','Trending Offers'],
+['Services & Settings Services & Settings','Services & Settings'],
+['广告展示区（Demo）','Ad Space (Demo)'],
+['可随时关闭','Dismiss anytime'],
+['长期规划','Future Planner'],
+['显示货币','Display Currency'],
+['智能预算','Smart Budget'],
+['资产分析','Asset Analysis'],
+['账户与支付','Account & Payments'],
+['服务与设置','Services & Settings'],
+['帮助与支持','Help & Support'],
+['解除绑定','Unlink'],
+['管理已绑定账户','Manage Linked Accounts'],
+['更换默认账户','Change Default Account']
+];
+function normalizeMoreAndFinance(){
+if(!logged)return;
+const screen=document.getElementById('screen');
+if(!screen)return;
+const walker=document.createTreeWalker(screen,NodeFilter.SHOW_TEXT);
+let n;
+while(n=walker.nextNode()){
+if(n.parentElement&&['SCRIPT','STYLE','OPTION','TEXTAREA'].includes(n.parentElement.tagName))continue;
+let v=n.nodeValue;
+if(lang==='en')for(const [a,b] of translations)v=v.split(a).join(b);
+if(currency!=='MYR'){
+// Legacy labels containing a MYR amount are converted from MYR, never relabeled at face value.
+v=v.replace(/\bRM\s+([\d,]+(?:\.\d{1,2})?)/g,(_,a)=>money(Number(a.replaceAll(',',''))));
+}
+n.nodeValue=v;
+}
+}
+render=function(){previousRender();normalizeMoreAndFinance()};
+const originalCurrencyChange=changeCurrency;
+changeCurrency=function(v){originalCurrencyChange(v);normalizeMoreAndFinance()};
+render();
+})();
+</script>
+<style>
+.ai-field{display:grid;grid-template-columns:1fr 1fr;gap:9px}.ai-field label{font-size:12px;color:#56728d}.ai-field input,.ai-field select{margin-top:5px}.ai-result{background:#eff8ff;border-radius:13px;padding:12px;margin:9px 0;line-height:1.6}.ai-alert{background:#fff0ee;color:#a63e37;border:1px solid #ffd3ce;border-radius:13px;padding:12px;margin:10px 0}.ai-good{background:#ebfbf4;color:#167453;border-radius:13px;padding:12px;margin:10px 0}.ai-pill{font-size:11px;border-radius:12px;padding:4px 8px;background:#e7f3ff;color:#247bb9}.ai-input{width:100%;min-height:85px;border:1px solid #d5e5f4;border-radius:12px;padding:12px;font:inherit}.ai-mini{font-size:12px;color:#607d96;line-height:1.6}.ai-card-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
+</style>
+<script>
+/* Smart Budget assistant: on-device rules and projections; all figures use MYR as base. */
+const duoAIKey='duo_finance_inputs_v21';
+const duoAIDefault={income:2200,fixed:750,essential:500,discretionary:450,savings:200,opening:1600,goal:3000,saved:500,goalMonths:12};
+let duoAI=Object.assign({},duoAIDefault,JSON.parse(localStorage.getItem(duoAIKey)||'{}'));
+const duoEscAI=(v)=>escapeHtml(String(v??''));
+const duoDayCount=()=>{let d=new Date();return new Date(d.getFullYear(),d.getMonth()+1,0).getDate()};
+const duoDaysLeft=()=>duoDayCount()-new Date().getDate()+1;
+const duoMonthTx=()=>{let key=new Date().toISOString().slice(0,7);return ledger.filter(x=>String(x.date||'').startsWith(key))};
+const duoSpent=()=>duoMonthTx().reduce((sum,x)=>sum+Number(x.amount||0),0);
+function duoField(key,label){return `<label>${label}<input type="number" min="0" step="0.01" value="${Number(duoAI[key]||0)}" onchange="duoSetAI('${key}',this.value)"></label>`}
+function duoSetAI(key,v){let n=Number(v);if(!Number.isFinite(n)||n<0)return;duoAI[key]=n;localStorage.setItem(duoAIKey,JSON.stringify(duoAI));render()}
+function duoCalc(){let days=duoDaysLeft(),spent=duoSpent(),monthly=duoAI.fixed+duoAI.essential+duoAI.discretionary+duoAI.savings,available=duoAI.opening+duoAI.income-duoAI.fixed-duoAI.essential-duoAI.savings-spent;return {days,spent,monthly,available,daily:available/days,projected:duoAI.opening+duoAI.income-monthly,over:spent>duoAI.discretionary,shortfall:Math.max(0,-available)}}
+function duoBudgetAssistant(){let x=duoCalc(),cap=Math.max(0,x.daily);let weekly=duoMonthTx().filter(t=>Date.now()-new Date(t.date).getTime()<7*86400000),delivery=weekly.filter(t=>/grabfood|foodpanda|delivery|takeaway|外卖/i.test(t.name));let subscriptions=duoMonthTx().filter(t=>/netflix|spotify|subscription|premium|会员/i.test(t.name));return `<div class="card"><div class="ai-card-title"><h3>✨ Smart Budget AI Planner</h3><span class="ai-pill">On-device demo</span></div><p class="ai-mini">Enter your actual finances. Projections are estimates, not bank balances or live AI advice.</p><div class="ai-field">${duoField('opening','Starting Balance (MYR)')}${duoField('income','Monthly Income (MYR)')}${duoField('fixed','Fixed Bills (MYR)')}${duoField('essential','Essential Living Costs (MYR)')}${duoField('discretionary','Optional Spending Budget (MYR)')}${duoField('savings','Monthly Savings (MYR)')}</div><div class="ai-result"><b>Daily spending guide</b><div style="font-size:20px;font-weight:800">${money(cap)} / day</div><div class="ai-mini">${x.days} days remaining · Expenses logged this month: ${money(x.spent)}</div><div>Projected month-end balance: <b>${money(x.projected)}</b></div><div>Projected total monthly outflow: <b>${money(x.monthly)}</b></div></div>${x.over?`<div class="ai-alert"><b>⚠️ OVER BUDGET</b><div>Logged spending exceeds your optional spending budget by ${money(x.spent-duoAI.discretionary)}. Revisit non-essential expenses.</div></div>`:''}${x.available<0?`<div class="ai-alert">⚠️ Based on your inputs, you may run short by ${money(-x.available)} before month-end.</div>`:''}${delivery.length>=5?`<div class="ai-alert">You recorded ${delivery.length} delivery orders in the past 7 days. Try cooking or limiting delivery days.</div>`:''}${subscriptions.length>=2?`<div class="ai-alert">You have ${subscriptions.length} possible subscription transactions this month. Review any unused services.</div>`:''}<p class="ai-mini">The guide reserves fixed bills, essential costs and savings before calculating optional spending. Your logged expenses are treated as additional spending; avoid entering the same expense twice.</p></div>
+<div class="card"><h3>🧪 What-if Situation</h3><p class="ai-mini">Test an unexpected bill or spending cut without changing your actual ledger.</p><div class="ai-field"><label>Extra Expense (MYR)<input id="duoExtra" type="number" min="0" value="500"></label><label>Optional Spending Cut (MYR)<input id="duoCut" type="number" min="0" value="150"></label></div><button onclick="duoWhatIf()">Simulate Scenario</button><div id="duoScenario" class="ai-result">Example: an unexpected RM 500 school fee.</div></div>
+<div class="card"><h3>💻 Can I Afford It?</h3><p class="ai-mini">Compare buying now, saving first, or instalments against essential expenses—not just your balance.</p><div class="ai-field"><label>Item Price (MYR)<input id="duoPrice" type="number" min="0" value="2500"></label><label>Instalment Months<input id="duoTerms" type="number" min="1" max="60" value="6"></label></div><button onclick="duoPurchase()">Compare Plans</button><div id="duoPurchaseResult" class="ai-result">Enter a purchase price to compare your options.</div></div>
+<div class="card"><h3>🎯 Savings Goal</h3><div class="ai-field">${duoField('goal','Savings Goal (MYR)')}${duoField('saved','Already Saved (MYR)')}${duoField('goalMonths','Target in Months')}${duoField('savings','Monthly Savings Plan (MYR)')}</div><button onclick="duoGoal()">Check Goal Feasibility</button><div id="duoGoalResult" class="ai-result">See how much to save monthly and when you might reach your goal.</div></div>
+<div class="card"><h3>🧾 Scan / Chat Expense Entry</h3><p class="ai-mini">Paste receipt or transfer details, or dictate using supported browsers. Attach an image for reference and confirm extracted fields before saving. Image text recognition is not connected in this offline demo.</p><textarea id="duoText" class="ai-input" placeholder="e.g. GrabFood RM 24.50 on 2026-10-09"></textarea><input type="file" id="duoReceipt" accept="image/*,application/pdf" onchange="duoAttachment(this)"><div id="duoFileNote" class="ai-mini"></div><div class="flex"><button class="secondary small" onclick="duoVoice()">🎤 Voice</button><button onclick="duoParse()">Extract Details</button></div><div id="duoParsed" class="ai-result">No expense extracted yet.</div></div>`}
+function duoWhatIf(){let extra=Math.max(0,Number(document.getElementById('duoExtra').value)||0),cut=Math.max(0,Number(document.getElementById('duoCut').value)||0),x=duoCalc(),balance=x.projected-extra+cut;document.getElementById('duoScenario').innerHTML=`<b>Projected month-end:</b> ${money(balance)}<div>Without changes: ${money(x.projected-extra)} · With cuts: ${money(balance)}</div><div>${balance<0?'⚠️ Shortfall: '+money(-balance):'✓ Non-negative projected balance'} · ${cut>=extra?'Spending cuts fully offset the extra cost.':'Cuts offset '+money(Math.min(cut,extra))+' of the extra cost.'}</div>`}
+function duoPurchase(){let price=Math.max(0,Number(document.getElementById('duoPrice').value)||0),months=Math.max(1,Math.floor(Number(document.getElementById('duoTerms').value)||1)),x=duoCalc(),free=duoAI.income-duoAI.fixed-duoAI.essential-duoAI.savings-duoAI.discretionary,monthly=price/months,savePerMonth=Math.max(0,duoAI.income-duoAI.fixed-duoAI.essential-duoAI.savings),wait=savePerMonth>0?Math.ceil(price/savePerMonth):null;document.getElementById('duoPurchaseResult').innerHTML=`<b>Buy now:</b> ${money(x.projected-price)} estimated month-end balance ${x.projected-price<0?'⚠️ High risk':''}<div><b>Save first:</b> ${wait===null?'Not feasible at current income and costs':wait+' month(s) if you put aside '+money(savePerMonth)+' monthly'}</div><div><b>${months}-month instalments:</b> ${money(monthly)} / month, excluding interest and fees. ${free>=monthly?'Fits estimated surplus.':'⚠️ Exceeds estimated surplus of '+money(free)+'.'}</div><p class="ai-mini">Review emergencies, future bills, instalment fees and affordability before buying.</p>`}
+function duoGoal(){let remaining=Math.max(0,duoAI.goal-duoAI.saved),months=Math.max(1,Math.floor(duoAI.goalMonths||1)),needed=remaining/months,room=duoAI.income-duoAI.fixed-duoAI.essential-duoAI.discretionary,plan=duoAI.savings;document.getElementById('duoGoalResult').innerHTML=`<b>Required savings:</b> ${money(needed)} / month<div>Current plan: ${money(plan)} / month · ${plan>0?Math.ceil(remaining/plan)+' months to goal':'Set a monthly savings amount'}</div><div>${needed<=room?'✓ Goal appears feasible based on your entered costs.':'⚠️ Goal may require an extra '+money(needed-room)+' per month or a later deadline.'}</div>`}
+function duoAttachment(el){let f=el.files?.[0];document.getElementById('duoFileNote').textContent=f?'Attached for manual reference: '+f.name+'. Automatic OCR is not available in this demo.':''}
+function duoVoice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){alert('Voice recognition is unavailable in this browser. Please type your expense.');return}let r=new SR();r.lang=lang==='zh'?'zh-CN':lang==='ms'?'ms-MY':'en-MY';r.onresult=e=>{document.getElementById('duoText').value=e.results[0][0].transcript;duoParse()};r.onerror=()=>alert('Voice recognition was unavailable. Please type the expense.');r.start()}
+function duoParse(){let text=document.getElementById('duoText').value.trim(),amountMatch=text.match(/(?:RM|MYR|HK\$|HKD|S\$|SGD|\$)\s*([\d,]+(?:\.\d{1,2})?)/i)||text.match(/\b([\d,]+\.\d{2})\b/),dateMatch=text.match(/\b(20\d{2}[-/]\d{1,2}[-/]\d{1,2})\b/),amount=amountMatch?Number(amountMatch[1].replace(/,/g,'')):0,category=/food|lunch|dinner|coffee|grabfood|foodpanda|餐|饭/i.test(text)?'Dining':/grab|petrol|bus|train|taxi|交通/i.test(text)?'Transport':/rent|bill|electric|water|fee|学费/i.test(text)?'Bills':/shop|phone|laptop|computer|购物/i.test(text)?'Shopping':'Other';let merchant=text.replace(/(?:RM|MYR|HK\$|HKD|S\$|SGD|\$)\s*[\d,.]+/ig,'').replace(/20\d{2}[-/]\d{1,2}[-/]\d{1,2}/g,'').trim().slice(0,65)||'Expense';document.getElementById('duoParsed').innerHTML=`<label>Merchant / Description<input id="duoParsedName" value="${duoEsc(merchant)}"></label><label>Amount (MYR base)<input id="duoParsedAmount" type="number" min="0.01" step="0.01" value="${amount||''}"></label><label>Date<input id="duoParsedDate" type="date" value="${dateMatch?dateMatch[1].replaceAll('/','-'):new Date().toISOString().slice(0,10)}"></label><label>Category<select id="duoParsedCat">${['Dining','Transport','Bills','Shopping','Other'].map(x=>`<option ${x===category?'selected':''}>${x}</option>`).join('')}</select></label><button onclick="duoSaveParsed()">Confirm & Save Expense</button><p class="ai-mini">Check all fields before saving. Only MYR values are supported for this extraction demo.</p>`}
+function duoSaveParsed(){let name=document.getElementById('duoParsedName').value.trim(),amount=Number(document.getElementById('duoParsedAmount').value),date=document.getElementById('duoParsedDate').value,category=document.getElementById('duoParsedCat').value;if(!name||!Number.isFinite(amount)||amount<=0||!/^20\d{2}-\d{2}-\d{2}$/.test(date)){alert('Please enter a valid name, MYR amount and date.');return}ledger.push({name,amount,date,category,who:'Me'});localStorage.setItem('mmp_ledger',JSON.stringify(ledger));render()}
+const duoOldBudgetAI=budgetPage;budgetPage=function(){return duoOldBudgetAI()+duoBudgetAssistant()};
+const duoOldLedgerAI=ledgerPage;ledgerPage=function(){return duoOldLedgerAI()+`<div class="card"><h3>✨ Scan / Chat Expenses</h3><p class="ai-mini">Open Smart Budget to enter expenses by text, voice, receipt or transfer screenshot.</p><button onclick="go('budget')">Open Smart Budget →</button></div>`};
+render();
+</script>
+<script>
+/* v2.2: user-entered monthly forecast with recorded expenses and explicit remaining-cost assumptions. */
+(function(){
+const key='duo_finance_inputs_v21';
+if(!localStorage.getItem(key)){
+  for(const field of ['opening','income','fixed','essential','discretionary','savings'])duoAI[field]=0;
+  localStorage.setItem(key,JSON.stringify(duoAI));
+}
+const originalCalc=duoCalc;
+duoCalc=function(){
+ const today=new Date(), days=new Date(today.getFullYear(),today.getMonth()+1,0).getDate()-today.getDate()+1;
+ const entries=duoMonthTx();
+ const spent=entries.reduce((sum,t)=>sum+Math.max(0,Number(t.amount)||0),0);
+ const fixedPaid=entries.filter(t=>/bill|rent|utilities|electric|water|fee|insurance/i.test(String(t.category||''))).reduce((a,t)=>a+Number(t.amount||0),0);
+ const essentialPaid=entries.filter(t=>/grocer|essential|food|dining|transport/i.test(String(t.category||''))).reduce((a,t)=>a+Number(t.amount||0),0);
+ const otherPaid=Math.max(0,spent-fixedPaid-essentialPaid);
+ const remainingFixed=Math.max(0,duoAI.fixed-fixedPaid);
+ const remainingEssential=Math.max(0,duoAI.essential-essentialPaid);
+ const remainingOptional=Math.max(0,duoAI.discretionary-otherPaid);
+ const future=remainingFixed+remainingEssential+remainingOptional+duoAI.savings;
+ const monthly=spent+future;
+ const projected=duoAI.opening+duoAI.income-monthly;
+ const available=duoAI.opening+duoAI.income-spent-remainingFixed-remainingEssential-duoAI.savings;
+ return {days,spent,monthly,available,daily:(available/days),projected,over:otherPaid>duoAI.discretionary,shortfall:Math.max(0,-projected),remainingFixed,remainingEssential,remainingOptional,otherPaid,entries};
+};
+const oldAssistant=duoBudgetAssistant;
+duoBudgetAssistant=function(){
+ let html=oldAssistant(), x=duoCalc();
+ const card=`<div class="card"><h3>📅 Month-End Expense Forecast</h3><p class="ai-mini">Enter your own starting balance, income and planned monthly costs above. Record each expense in the ledger or Scan / Chat Expense Entry. The forecast updates when you save an expense.</p><div class="ai-result"><div>Expenses entered this month: <b>${money(x.spent)}</b> (${x.entries.length} entries)</div><div>Estimated remaining fixed bills: <b>${money(x.remainingFixed)}</b></div><div>Estimated remaining essentials: <b>${money(x.remainingEssential)}</b></div><div>Estimated remaining optional spending: <b>${money(x.remainingOptional)}</b></div><div>Planned savings: <b>${money(duoAI.savings)}</b></div><hr><div><b>Projected Total Expenses + Savings: ${money(x.monthly)}</b></div><div><b>Projected Month-End Balance: ${money(x.projected)}</b></div></div>${x.projected<0?'<div class="ai-alert">⚠️ OVER BUDGET — Your projected month-end balance is negative.</div>':''}<p class="ai-mini">Assumptions: monthly income is received once; starting balance is the balance at the beginning of the month; logged expenses are counted once. Bills and essential expenses logged under matching categories reduce the corresponding remaining monthly allowance. The forecast is an estimate, not an account balance.</p></div>`;
+ return card+html;
+};
+render();
+})();
+</script>
+
+<style>
+.duo-buy-options{display:grid;gap:10px;margin-top:12px}
+.duo-buy-option{border:1px solid #dceaf5;border-radius:13px;padding:12px;background:#f8fcff}
+.duo-buy-option b{display:block;margin-bottom:5px}
+.duo-buy-option.recommended{border-color:#51a8db;background:#edf8ff}
+</style>
+<script>
+/* v2.3: student purchase affordability based on user-supplied obligations, not balance alone. */
+(function(){
+const originalAssistant=duoBudgetAssistant;
+duoBudgetAssistant=function(){
+ let html=originalAssistant();
+ const begin=html.indexOf('<div class="card"><h3>💻 Can I Afford It?</h3>');
+ const end=html.indexOf('<div class="card"><h3>🎯 Savings Goal</h3>',begin);
+ if(begin<0||end<0)return html;
+ const replacement=`<div class="card"><h3>💻 Student Purchase Planner</h3>
+ <p class="ai-mini">Planning a laptop or phone? Enter your real costs. We check living expenses, bills, savings and an emergency buffer before comparing options. No recommendation is based on account balance alone.</p>
+ <div class="ai-field">
+ <label>What do you want to buy?<input id="duoItemName" placeholder="e.g. Laptop for school"></label>
+ <label>Item Price (MYR)<input id="duoPrice" type="number" min="0.01" step="0.01" placeholder="Enter price"></label>
+ <label>Emergency Buffer to Protect (MYR)<input id="duoEmergency" type="number" min="0" step="0.01" placeholder="Enter your safety buffer"></label>
+ <label>Monthly Instalments<input id="duoTerms" type="number" min="1" max="60" value="6"></label>
+ <label>Total Instalment Fees / Interest (MYR)<input id="duoFees" type="number" min="0" step="0.01" placeholder="0 if interest-free"></label>
+ <label>Monthly Extra Income (MYR, optional)<input id="duoExtraIncome" type="number" min="0" step="0.01" placeholder="e.g. part-time work"></label>
+ </div>
+ <button onclick="duoPurchase()">Compare Purchase Plans</button>
+ <div id="duoPurchaseResult" class="ai-result">Fill in your financial profile above and the item details to compare buying now, saving first and instalments.</div>
+ </div>`;
+ return html.slice(0,begin)+replacement+html.slice(end);
+};
+duoPurchase=function(){
+ const val=id=>Number(document.getElementById(id)?.value);
+ const price=val('duoPrice'),buffer=val('duoEmergency'),terms=Math.floor(val('duoTerms')),fees=val('duoFees'),extra=val('duoExtraIncome');
+ const name=(document.getElementById('duoItemName')?.value||'This item').trim();
+ const output=document.getElementById('duoPurchaseResult');
+ if(!Number.isFinite(price)||price<=0||!Number.isFinite(buffer)||buffer<0||!Number.isFinite(fees)||fees<0||!Number.isFinite(extra)||extra<0||terms<1||terms>60){
+ output.textContent='Please enter a valid item price, emergency buffer, instalment term, fees and extra income (use 0 where applicable).';return;
+ }
+ const keys=['opening','income','fixed','essential','discretionary','savings'];
+ if(keys.some(k=>!Number.isFinite(Number(duoAI[k]))||Number(duoAI[k])<0)||!duoAI.income&&!duoAI.opening){
+ output.textContent='First enter your own Starting Balance, Monthly Income, Fixed Bills, Essential Living Costs, Optional Spending Budget and Monthly Savings in Smart Budget.';return;
+ }
+ const x=duoCalc();
+ const surplus=duoAI.income+extra-duoAI.fixed-duoAI.essential-duoAI.discretionary-duoAI.savings;
+ const afterBuy=x.projected+extra-price;
+ const safetyAfterBuy=afterBuy-buffer;
+ const total=price+fees,installment=total/terms;
+ const wait=surplus>0?Math.ceil(price/surplus):null;
+ const buySafe=safetyAfterBuy>=0&&surplus>=0;
+ const installmentSafe=surplus>=installment&&x.projected+extra-buffer>=installment;
+ const options=[
+ {name:'Buy now',ok:buySafe,desc:'Projected month-end after purchase: '+money(afterBuy)+'. Emergency buffer remaining: '+money(safetyAfterBuy)+'.',detail:buySafe?'Meets your entered expense and emergency-buffer targets.':'Risks essential spending, savings or your emergency buffer.'},
+ {name:'Save first',ok:wait!==null,desc:wait===null?'No monthly surplus under the current plan.':'About '+wait+' month(s), saving '+money(surplus)+' each month.',detail:'Avoids borrowing and preserves money needed for bills while you save.'},
+ {name:terms+'-month instalments',ok:installmentSafe,desc:money(installment)+' per month · total '+money(total)+' including '+money(fees)+' fees.',detail:installmentSafe?'Estimated monthly surplus covers instalments.':'Monthly surplus or safety buffer may not cover repayments.'}
+ ];
+ let recommended=buySafe?0:wait!==null?1:installmentSafe?2:-1;
+ output.innerHTML='<b>'+duoEsc(name)+' — Affordability Comparison</b><p class="ai-mini">After living costs, bills, optional spending and planned savings, your estimated monthly surplus is <b>'+money(surplus)+'</b>.</p><div class="duo-buy-options">'+options.map((o,i)=>'<div class="duo-buy-option '+(recommended===i?'recommended':'')+'"><b>'+(recommended===i?'✓ Suggested starting option: ':'')+o.name+'</b><div>'+o.desc+'</div><p class="ai-mini">'+o.detail+'</p></div>').join('')+'</div>'+(recommended<0?'<p class="ai-alert">⚠️ None of these options appears comfortable with the entered budget. Consider a cheaper item, more time or reducing optional costs.</p>':'')+'<p class="ai-mini">Illustrative rule-based estimate, not a loan approval or financial guarantee. Check future bills, irregular costs and actual instalment terms.</p>';
+};
+render();
+})();
+</script>
+<script>
+/* v2.4: make purchase planner visible immediately at top of Budget. */
+(function(){
+const priorBudgetPage=budgetPage;
+budgetPage=function(){
+  let page=priorBudgetPage();
+  const start=page.indexOf('<div class="card"><h3>💻 Student Purchase Planner</h3>');
+  const legacy=page.indexOf('<div class="card"><h3>💻 Can I Afford It?</h3>');
+  const pos=start>=0?start:legacy;
+  const end=page.indexOf('<div class="card"><h3>🎯 Savings Goal</h3>',pos);
+  if(pos<0||end<0)return page;
+  const card=page.slice(pos,end);
+  page=page.slice(0,pos)+page.slice(end);
+  const headingEnd=page.indexOf('</p>')+4;
+  return page.slice(0,headingEnd)+card+page.slice(headingEnd);
+};
+render();
+})();
+</script><style>
+.duo-plan-panel{border:1px solid #dceaf6;background:#fff;border-radius:18px;padding:16px;margin:14px 0}
+.duo-plan-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.duo-plan-panel input{width:100%;box-sizing:border-box}
+.duo-plan-result{background:#f0f8ff;padding:13px;border-radius:12px;margin-top:12px;line-height:1.7}
+.duo-plan-warn{color:#a83831;font-weight:700}
+@media(max-width:370px){.duo-plan-grid{grid-template-columns:1fr}}
+</style>
+<script>
+/* v2.5: clearly visible, user-entered emergency scenario and savings-goal projections. */
+(function(){
+const prevBudget=budgetPage;
+budgetPage=function(){
+ let page=prevBudget();
+ // Remove older duplicates, leaving one clear card for each feature.
+ page=page.replace(/<div class="card"><h3>🧪 What-if Situation<\/h3>[\s\S]*?(?=<div class="card"><h3>💻)/,'');
+ page=page.replace(/<div class="card"><h3>🎯 Savings Goal<\/h3>[\s\S]*?(?=<div class="card"><h3>🧾 Scan)/,'');
+ const cards=`<section class="duo-plan-panel" id="duoEmergencyPlanner"><h3>🧪 What-if: Unexpected Expenses</h3><p class="ai-mini">A surprise school fee? Compare your unchanged plan against reducing optional spending. This simulation never changes your actual transactions.</p>
+ <div class="duo-plan-grid"><label>Unexpected Expense (MYR)<input id="v25Unexpected" type="number" min="0" step="0.01" placeholder="e.g. 500"></label><label>Optional Spending to Cut (MYR)<input id="v25Cut" type="number" min="0" step="0.01" placeholder="e.g. 150"></label></div>
+ <button onclick="duoEmergencyForecast()">Simulate What-if</button><div id="v25EmergencyResult" class="duo-plan-result">Enter an unexpected cost and an optional spending cut to see whether your money lasts until month-end.</div></section>
+ <section class="duo-plan-panel" id="duoSavingsPlanner"><h3>🎯 Savings Goal Planner</h3><p class="ai-mini">Set your own goal, savings already held, and target date. Compare the required monthly savings with what is available after living costs.</p>
+ <div class="duo-plan-grid"><label>Target Amount (MYR)<input id="v25Goal" type="number" min="0.01" step="0.01" placeholder="e.g. 3000"></label><label>Already Saved (MYR)<input id="v25Saved" type="number" min="0" step="0.01" placeholder="e.g. 500"></label><label>Target in Months<input id="v25Months" type="number" min="1" step="1" placeholder="e.g. 12"></label><label>Planned Monthly Savings (MYR)<input id="v25Plan" type="number" min="0" step="0.01" placeholder="e.g. 200"></label></div>
+ <button onclick="duoSavingsForecast()">Analyze Savings Goal</button><div id="v25SavingsResult" class="duo-plan-result">Enter your goal and timeline to check feasibility and the estimated completion date.</div></section>`;
+ const idx=page.indexOf('<div class="card">');
+ return idx<0?cards+page:page.slice(0,idx)+cards+page.slice(idx);
+};
+const num=(id)=>{const el=document.getElementById(id);return el&&el.value.trim()!==''?Number(el.value):NaN};
+const formatMonth=(n)=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+n);return d.toLocaleDateString(lang==='zh'?'zh-CN':'en-GB',{month:'long',year:'numeric'})};
+window.duoEmergencyForecast=function(){
+ const extra=num('v25Unexpected'),cut=num('v25Cut'),out=document.getElementById('v25EmergencyResult');
+ if(!Number.isFinite(extra)||extra<0||!Number.isFinite(cut)||cut<0){out.textContent='Enter both amounts (use 0 if no cut is planned).';return}
+ const x=duoCalc(),applied=Math.min(cut,x.remainingOptional),unchanged=x.projected-extra,adjusted=unchanged+applied;
+ const current=duoAI.opening+duoAI.income-x.spent;
+ const futureEssential=x.remainingFixed+x.remainingEssential+duoAI.savings;
+ const dailyGap=adjusted/Math.max(1,x.days);
+ const status=adjusted>=0?'✓ Projected to last through month-end based on entered costs.':'⚠️ OVER BUDGET — estimated shortfall of '+money(-adjusted)+'.';
+ out.innerHTML='<div>Baseline month-end forecast: <b>'+money(x.projected)+'</b></div><div>After unexpected expense (no other changes): <b>'+money(unchanged)+'</b></div><div>Optional spending reduction applied: <b>'+money(applied)+'</b></div><div>After cutting optional spending: <b>'+money(adjusted)+'</b></div><div>Remaining optional spending allowance: <b>'+money(Math.max(0,x.remainingOptional-applied))+'</b></div><div>Estimated month-end buffer per remaining day: <b>'+money(dailyGap)+'</b></div><div class="'+(adjusted<0?'duo-plan-warn':'')+'">'+status+'</div><p class="ai-mini">Cuts are capped at remaining optional spending. Fixed bills, essentials and planned savings are kept unchanged. Projection only; expense dates and irregular bills can affect actual cash flow.</p>';
+};
+window.duoSavingsForecast=function(){
+ const goal=num('v25Goal'),saved=num('v25Saved'),months=num('v25Months'),plan=num('v25Plan'),out=document.getElementById('v25SavingsResult');
+ if(!Number.isFinite(goal)||goal<=0||!Number.isFinite(saved)||saved<0||!Number.isInteger(months)||months<1||!Number.isFinite(plan)||plan<0){out.textContent='Enter a valid target, saved amount, whole number of months and monthly savings plan.';return}
+ const remain=Math.max(0,goal-saved),required=remain/months;
+ const room=duoAI.income-duoAI.fixed-duoAI.essential-duoAI.discretionary;
+ const plannedMonths=remain===0?0:plan>0?Math.ceil(remain/plan):null;
+ const feasible=required<=room&&room>=0;
+ const targetDate=formatMonth(months),planDate=plannedMonths===null?'Not reached with a zero monthly contribution':formatMonth(plannedMonths);
+ out.innerHTML='<div>Amount still needed: <b>'+money(remain)+'</b></div><div>Required monthly savings: <b>'+money(required)+'</b></div><div>Monthly capacity after planned costs: <b>'+money(room)+'</b></div><div>Target date: <b>'+targetDate+'</b></div><div>With your entered savings plan: <b>'+(plannedMonths===null?planDate:planDate+' ('+plannedMonths+' months)')+'</b></div><div class="'+(!feasible?'duo-plan-warn':'')+'">'+(feasible?'✓ Target looks feasible under the entered monthly budget.':'⚠️ Target may not be feasible without reducing optional costs, increasing income or extending the deadline.')+'</div><p class="ai-mini">This assumes a stable monthly income and spending, without investment returns, interest or unexpected bills.</p>';
+};
+render();
+})();
+</script>
+
+<style>
+.duo-v26{background:#fff;border:1px solid #cfe4f6;border-radius:18px;padding:16px;margin:12px 0}
+.duo-v26-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.duo-v26 input{box-sizing:border-box;width:100%;margin-top:5px}
+.duo-v26 label{font-size:12px}
+.duo-v26-result{background:#eff8ff;border-radius:12px;padding:13px;margin-top:12px;line-height:1.8}
+.duo-v26-result strong{color:#246ca0}
+@media(max-width:370px){.duo-v26-grid{grid-template-columns:1fr}}
+</style>
+<script>
+/* v2.6: self-contained and executable student purchase scenario */
+(function(){
+ const oldBudgetPageV26=budgetPage;
+ budgetPage=function(){
+   let html=oldBudgetPageV26();
+   const panel=`<section class="duo-v26" id="studentWhatIf">
+   <h3>🎓 What-if Scenario Simulation</h3>
+   <p class="ai-mini">Can you afford a RM300 purchase without affecting living costs or your savings goal? Use your own numbers to find out.</p>
+   <div class="duo-v26-grid">
+   <label>Current Balance (MYR)<input id="v26Balance" type="number" min="0" step=".01" placeholder="Enter balance"></label>
+   <label>Income Still Expected This Month (MYR)<input id="v26Income" type="number" min="0" step=".01" placeholder="Enter remaining income"></label>
+   <label>Fixed Bills Still Due (MYR)<input id="v26Bills" type="number" min="0" step=".01" placeholder="Rent, tuition, bills"></label>
+   <label>Living Costs per Day (MYR)<input id="v26Daily" type="number" min="0" step=".01" placeholder="Food, travel, etc."></label>
+   <label>Days Left This Month<input id="v26Days" type="number" min="1" max="31" step="1" value="${new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate()-new Date().getDate()+1}"></label>
+   <label>Savings Goal for This Month (MYR)<input id="v26Savings" type="number" min="0" step=".01" placeholder="Savings to protect"></label>
+   <label>Item Price (MYR)<input id="v26Item" type="number" min="0.01" step=".01" value="300"></label>
+   <label>Optional Spending You Can Cut (MYR)<input id="v26Cut" type="number" min="0" step=".01" value="0"></label>
+   </div>
+   <button type="button" onclick="window.duoStudentScenarioV26()">Run Simulation</button>
+   <div id="v26Result" class="duo-v26-result" aria-live="polite">Enter your financial details and press Run Simulation.</div>
+   </section>`;
+   const p=html.indexOf('</p>');
+   return p>=0?html.slice(0,p+4)+panel+html.slice(p+4):panel+html;
+ };
+ window.duoStudentScenarioV26=function(){
+   const out=document.getElementById('v26Result');
+   if(!out)return;
+   const ids=['v26Balance','v26Income','v26Bills','v26Daily','v26Days','v26Savings','v26Item','v26Cut'];
+   const values=ids.map(id=>{
+     const el=document.getElementById(id);
+     return el&&el.value.trim()!==''?Number(el.value):NaN;
+   });
+   if(values.some((n,i)=>!Number.isFinite(n)||n<0||(i===4&&(!Number.isInteger(n)||n<1||n>31))||(i===6&&n<=0))){
+     out.textContent='Please fill in all fields with valid amounts (enter 0 when not applicable).';
+     return;
+   }
+   const [balance,income,bills,daily,days,savings,item,cut]=values;
+   const living=daily*days;
+   const baseline=balance+income-bills-living-savings;
+   const after=baseline-item;
+   const adjusted=after+cut;
+   const dailySafe=(balance+income-bills-savings-item+cut)/days;
+   const status=after>=0?'Purchase fits the entered living costs and savings target.':'⚠️ OVER BUDGET — this purchase would use money reserved for living costs or savings.';
+   const adjustedStatus=adjusted>=0?'With the planned spending cut, the projection is non-negative.':'Even with the spending cut, a shortfall remains.';
+   out.innerHTML='<div>Remaining living costs: <strong>'+money(living)+'</strong></div>'+
+   '<div>Month-end without purchase: <strong>'+money(baseline)+'</strong></div>'+
+   '<div>Month-end after purchase: <strong>'+money(after)+'</strong></div>'+
+   '<div>Month-end after spending cut: <strong>'+money(adjusted)+'</strong></div>'+
+   '<div>Daily amount available after purchase (after reserving bills and savings): <strong>'+money(dailySafe)+'</strong></div>'+
+   '<p><b>'+status+'</b></p><p>'+adjustedStatus+'</p>'+
+   '<p class="ai-mini">This is a simulation based only on your entries. No real payment is made and your ledger is unchanged. Avoid counting the same future expense twice.</p>';
+ };
+ render();
+})();
+</script>
+
+<script>
+/* v2.7 repairs both simulation buttons and avoids undefined forecast fields. */
+(function(){
+function readAmount(id){
+ const el=document.getElementById(id);
+ if(!el||el.value.trim()==='')return NaN;
+ return Number(el.value);
+}
+function show(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html}
+function amount(n){return money(n)}
+window.duoEmergencyForecast=function(){
+ const extra=readAmount('v25Unexpected'),cut=readAmount('v25Cut');
+ if(!Number.isFinite(extra)||extra<0||!Number.isFinite(cut)||cut<0){
+ show('v25EmergencyResult','Please enter both amounts (use 0 if no spending cut is planned).');return;
+ }
+ const x=duoCalc();
+ const optional=Math.max(0,Number(duoAI.discretionary)||0);
+ const applied=Math.min(cut,optional);
+ const before=x.projected,after=before-extra,afterCut=after+applied;
+ const status=afterCut>=0?'✓ Projected funds cover your planned expenses through month-end.':'⚠️ OVER BUDGET — projected shortfall: '+amount(-afterCut)+'.';
+ show('v25EmergencyResult',
+ '<div>Original projected month-end: <b>'+amount(before)+'</b></div>'+
+ '<div>After extra expense: <b>'+amount(after)+'</b></div>'+
+ '<div>Spending reduction applied: <b>'+amount(applied)+'</b></div>'+
+ '<div>After spending reduction: <b>'+amount(afterCut)+'</b></div>'+
+ '<div>Daily projected buffer ('+x.days+' days left): <b>'+amount(afterCut/Math.max(1,x.days))+'</b></div>'+
+ '<p class="'+(afterCut<0?'duo-plan-warn':'')+'">'+status+'</p>'+
+ '<p class="ai-mini">The cut cannot exceed the optional spending budget. Fixed bills, essential costs and planned savings stay protected. This is an estimate only.</p>');
+};
+window.duoSavingsForecast=function(){
+ const goal=readAmount('v25Goal'),saved=readAmount('v25Saved'),months=readAmount('v25Months'),plan=readAmount('v25Plan');
+ if(!Number.isFinite(goal)||goal<=0||!Number.isFinite(saved)||saved<0||!Number.isInteger(months)||months<1||!Number.isFinite(plan)||plan<0){
+ show('v25SavingsResult','Please enter a target, amount already saved, whole number of months and planned monthly savings (0 is allowed).');return;
+ }
+ const remaining=Math.max(0,goal-saved),required=remaining/months;
+ const capacity=Number(duoAI.income||0)-Number(duoAI.fixed||0)-Number(duoAI.essential||0)-Number(duoAI.discretionary||0);
+ const actualMonths=remaining===0?0:plan>0?Math.ceil(remaining/plan):null;
+ const dateAfter=n=>{const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+n);return d.toLocaleDateString('en-GB',{month:'long',year:'numeric'})};
+ const feasible=capacity>=required&&capacity>=0;
+ const actualDate=actualMonths===null?'Not reachable with RM 0 monthly savings':dateAfter(actualMonths);
+ show('v25SavingsResult',
+ '<div>Remaining to save: <b>'+amount(remaining)+'</b></div>'+
+ '<div>Required monthly savings: <b>'+amount(required)+'</b></div>'+
+ '<div>Estimated monthly capacity: <b>'+amount(capacity)+'</b></div>'+
+ '<div>Target date: <b>'+dateAfter(months)+'</b></div>'+
+ '<div>With your chosen contribution: <b>'+actualDate+'</b></div>'+
+ '<p class="'+(!feasible?'duo-plan-warn':'')+'">'+(feasible?'✓ Target appears achievable with the entered budget.':'⚠️ The target may need a longer timeline, higher income or lower optional spending.')+'</p>'+
+ '<p class="ai-mini">Estimates assume stable income and expenses. All financial inputs come from you.</p>');
+};
+})();
+</script>
+
+<style>
+.duo-subscribe{background:linear-gradient(140deg,#e9f6ff,#fff);border:1px solid #cbe5f7;border-radius:18px;padding:16px;margin:12px 0}
+.duo-sub-plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.duo-sub-plan{padding:12px;border:1px solid #cbe0f0;border-radius:14px;background:white}
+.duo-sub-plan h4{margin:2px 0 8px}.duo-sub-plan p{font-size:12px;line-height:1.5}
+.duo-sub-plan button{width:100%}
+</style>
+<script>
+/* v2.8: bind planner buttons directly after Budget render; calculations independent of old broken helpers. */
+(function(){
+function v(id){const e=document.getElementById(id);return !e||e.value.trim()===''?NaN:Number(e.value)}
+function fmt(n){return new Intl.NumberFormat('en-MY',{style:'currency',currency:'MYR'}).format(n)}
+function profile(){
+const a=typeof duoAI!=='undefined'?duoAI:{};
+const keys=['opening','income','fixed','essential','discretionary','savings'];
+if(keys.some(k=>!Number.isFinite(Number(a[k]))))return null;
+return {opening:+a.opening,income:+a.income,fixed:+a.fixed,essential:+a.essential,optional:+a.discretionary,savings:+a.savings};
+}
+function result(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html}
+window.duoEmergencyForecast=function(){
+const extra=v('v25Unexpected'),cut=v('v25Cut'),p=profile();
+if(!Number.isFinite(extra)||extra<0||!Number.isFinite(cut)||cut<0){result('v25EmergencyResult','Please enter both amounts; use 0 if you plan no cuts.');return}
+if(!p){result('v25EmergencyResult','Enter your financial profile in Smart Budget first.');return}
+const baseline=p.opening+p.income-p.fixed-p.essential-p.optional-p.savings;
+const reduction=Math.min(cut,Math.max(0,p.optional));
+const after=baseline-extra,adjusted=after+reduction;
+result('v25EmergencyResult','<b>Scenario Results</b><div>Before unexpected expense: '+fmt(baseline)+'</div><div>After extra expense: '+fmt(after)+'</div><div>After cutting optional spending: '+fmt(adjusted)+'</div><div>Possible cut applied: '+fmt(reduction)+'</div><b>'+(adjusted<0?'⚠️ OVER BUDGET — projected shortfall '+fmt(-adjusted):'✓ Projected month-end funds remain non-negative')+'</b><p class="ai-mini">Estimate only. Do not double-count expenses already included in your profile.</p>');
+};
+window.duoSavingsForecast=function(){
+const goal=v('v25Goal'),saved=v('v25Saved'),months=v('v25Months'),planned=v('v25Plan'),p=profile();
+if(!Number.isFinite(goal)||goal<=0||!Number.isFinite(saved)||saved<0||!Number.isInteger(months)||months<1||!Number.isFinite(planned)||planned<0){result('v25SavingsResult','Please enter a valid goal, saved amount, whole number of months and planned contribution (0 allowed).');return}
+if(!p){result('v25SavingsResult','Enter your financial profile in Smart Budget first.');return}
+const left=Math.max(0,goal-saved),needed=left/months;
+const capacity=p.income-p.fixed-p.essential-p.optional;
+const feasible=capacity>=needed;
+const actual=left===0?0:planned>0?Math.ceil(left/planned):null;
+const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+months);
+result('v25SavingsResult','<b>Savings Goal Results</b><div>Still needed: '+fmt(left)+'</div><div>Required each month: '+fmt(needed)+'</div><div>Estimated capacity per month: '+fmt(capacity)+'</div><div>Target date: '+d.toLocaleDateString('en-MY',{month:'long',year:'numeric'})+'</div><div>With your chosen monthly contribution: '+(actual===null?'No completion date at RM0 per month':actual+' month(s)')+'</div><b>'+(feasible?'✓ Goal appears feasible based on the entered budget.':'⚠️ Goal may require more time, more income or lower optional spending.')+'</b>');
+};
+const originalBudget=budgetPage;
+budgetPage=function(){
+let page=originalBudget();
+const card=`<section class="duo-subscribe"><h3>✨ duoMoney Plus Membership</h3><p class="ai-mini">No ads on either plan. Essential budgeting stays free; advanced planning is optional.</p>
+<div class="duo-sub-plans">
+<div class="duo-sub-plan"><h4>Free</h4><b>RM 0</b><p>Ad-free · Unlimited manual expense entries · Basic monthly forecast · Daily spending guide · One savings goal · Simple what-if</p><button type="button" onclick="duoPlanDetails('free')">Current Free Plan</button></div>
+<div class="duo-sub-plan"><h4>Plus</h4><b>RM 9.90 / month</b><p>Ad-free · Multiple what-if scenarios · 12–24 month projections · Student purchase comparisons · Unlimited savings goals · Advanced spending insights</p><button type="button" onclick="duoPlanDetails('plus')">Explore Plus</button></div>
+</div><p class="ai-mini">Proposed pricing only. No payment, trial, subscription or automatic renewal is activated in this demo.</p>
+<div id="duoPlanMessage" class="ai-mini"></div></section>`;
+return card+page;
+};
+window.duoPlanDetails=function(which){
+const e=document.getElementById('duoPlanMessage');
+if(e)e.textContent=which==='plus'?'Plus is a concept preview only. No checkout is connected, and no payment will be charged.':'Free includes the essential finance tools and no ads.';
+};
+render();
+})();
+</script>
+<style>
+.duo29-panel{background:#fff;border:1px solid #d8e9f7;border-radius:16px;padding:14px;margin:12px 0}
+.duo29-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.duo29-grid label{font-size:12px;display:block}.duo29-grid input{width:100%;box-sizing:border-box;margin-top:4px}
+.duo29-note{font-size:12px;color:#52718b;margin:8px 0}.duo29-output{background:#eef8ff;border-radius:12px;padding:12px;margin-top:10px;line-height:1.8}
+@media(max-width:380px){.duo29-grid{grid-template-columns:1fr}}
+</style>
+<script>
+(function(){
+const LIMIT=3;
+const MONTH=new Date().toISOString().slice(0,7);
+const KEY='duomoney_free_simulations_'+MONTH;
+function used(){try{return Math.max(0,Number(localStorage.getItem(KEY))||0)}catch(e){return window.__duo29Used||0}}
+function record(){let n=used()+1;try{localStorage.setItem(KEY,String(n))}catch(e){window.__duo29Used=n}}
+function allowed(){return used()<LIMIT}
+function num(id){let e=document.getElementById(id);return e&&e.value.trim()!==''?Number(e.value):NaN}
+function money29(n){return typeof money==='function'?money(n):'RM '+n.toFixed(2)}
+function out(id,html){const e=document.getElementById(id);if(e)e.innerHTML=html}
+function refreshQuota(){document.querySelectorAll('.duo29-count').forEach(e=>e.textContent=Math.max(0,LIMIT-used())+' of '+LIMIT+' free simulations remaining this month')}
+function gate(id){if(allowed())return true;out(id,'<b>Free limit reached.</b> You have used '+LIMIT+' simulations this month. Plus would unlock unlimited simulations. This demo has no real checkout.');refreshQuota();return false}
+function result(id,html){record();out(id,html);refreshQuota()}
+window.duo29Unexpected=function(){
+ const ids=['d29Balance','d29Income','d29Bills','d29Living','d29Savings','d29Extra','d29Cut'];const a=ids.map(num);
+ if(a.some(n=>!Number.isFinite(n)||n<0)){out('d29WhatResult','Enter all amounts. Use 0 where not applicable.');return}
+ if(!gate('d29WhatResult'))return;
+ const [balance,income,bills,living,savings,extra,cut]=a;
+ const baseline=balance+income-bills-living-savings,after=baseline-extra,adjusted=after+cut;
+ result('d29WhatResult','<b>Scenario results</b><div>Before extra expense: <b>'+money29(baseline)+'</b></div><div>After extra expense: <b>'+money29(after)+'</b></div><div>After cutting optional spending: <b>'+money29(adjusted)+'</b></div><div>'+(adjusted<0?'⚠️ OVER BUDGET — projected shortfall '+money29(-adjusted):'✓ Projected to cover entered expenses through month-end')+'</div><p class="duo29-note">Only include cuts you can realistically make. No transactions are changed.</p>');
+};
+window.duo29Savings=function(){
+ const a=['d29Goal','d29Saved','d29Months','d29Monthly','d29IncomeS','d29CostsS'].map(num);
+ if(a.some((n,i)=>!Number.isFinite(n)||n<0||(i===0&&n<=0)||(i===2&&(!Number.isInteger(n)||n<1)))){out('d29SaveResult','Enter valid numbers in every field; use 0 for none.');return}
+ if(!gate('d29SaveResult'))return;
+ const [goal,saved,months,planned,income,costs]=a;
+ const remaining=Math.max(0,goal-saved),required=remaining/months,capacity=income-costs;
+ const actual=remaining===0?0:planned>0?Math.ceil(remaining/planned):null;
+ const date=new Date();date.setDate(1);date.setMonth(date.getMonth()+months);
+ result('d29SaveResult','<b>Savings analysis</b><div>Still needed: <b>'+money29(remaining)+'</b></div><div>Required monthly saving: <b>'+money29(required)+'</b></div><div>Estimated monthly capacity: <b>'+money29(capacity)+'</b></div><div>Target month: <b>'+date.toLocaleDateString('en-GB',{month:'long',year:'numeric'})+'</b></div><div>At your chosen monthly contribution: <b>'+(actual===null?'Not achievable at zero contribution':actual+' month(s)')+'</b></div><div>'+(capacity>=required?'✓ Goal appears feasible with these inputs.':'⚠️ Your planned timeline may be too short for your current budget.')+'</div>');
+};
+const originalBudget29=budgetPage;
+budgetPage=function(){
+ let html=originalBudget29();
+ // Remove the old panels and subscription comparison; replace with a single working set.
+ html=html.replace(/<section class="duo-plan-panel" id="duoEmergencyPlanner">[\s\S]*?<\/section>/,'');
+ html=html.replace(/<section class="duo-plan-panel" id="duoSavingsPlanner">[\s\S]*?<\/section>/,'');
+ html=html.replace(/<section class="duo-subscribe">[\s\S]*?<\/section>/,'');
+ const panels=`<section class="duo29-panel"><h3>🧪 What-if: Unexpected Expenses</h3><p class="duo29-note">No Financial Profile required. Enter only what is still available or due for the rest of this month.</p>
+ <div class="duo29-grid"><label>Current Balance (MYR)<input id="d29Balance" type="number" min="0" placeholder="e.g. 1000"></label><label>Remaining Income (MYR)<input id="d29Income" type="number" min="0" value="0"></label><label>Unpaid Fixed Bills (MYR)<input id="d29Bills" type="number" min="0" value="0"></label><label>Remaining Living Costs (MYR)<input id="d29Living" type="number" min="0" value="0"></label><label>Savings to Protect (MYR)<input id="d29Savings" type="number" min="0" value="0"></label><label>Unexpected Expense (MYR)<input id="d29Extra" type="number" min="0" value="500"></label><label>Optional Spending You Can Cut (MYR)<input id="d29Cut" type="number" min="0" value="0"></label></div>
+ <button type="button" onclick="duo29Unexpected()">Run What-if Simulation</button><div id="d29WhatResult" class="duo29-output" aria-live="polite">Enter your amounts and run the simulation.</div></section>
+ <section class="duo29-panel"><h3>🎯 Savings Goal Planner</h3><p class="duo29-note">No Financial Profile required. Enter your savings goal and monthly budget.</p>
+ <div class="duo29-grid"><label>Savings Goal (MYR)<input id="d29Goal" type="number" min="0.01" placeholder="e.g. 3000"></label><label>Already Saved (MYR)<input id="d29Saved" type="number" min="0" value="0"></label><label>Target in Months<input id="d29Months" type="number" min="1" value="12"></label><label>Planned Monthly Savings (MYR)<input id="d29Monthly" type="number" min="0" value="200"></label><label>Monthly Income (MYR)<input id="d29IncomeS" type="number" min="0" placeholder="Enter monthly income"></label><label>Monthly Living Costs + Bills (MYR)<input id="d29CostsS" type="number" min="0" placeholder="Enter monthly expenses"></label></div>
+ <button type="button" onclick="duo29Savings()">Analyze Savings Goal</button><div id="d29SaveResult" class="duo29-output" aria-live="polite">Enter your goal and run the analysis.</div></section>
+ <section class="duo29-panel"><h3>✨ Simulation Subscription</h3><p><b>Free: RM 0</b> — ad-free, 3 successful What-if / Savings Goal simulations per month, basic budgeting and manual expense entry.</p><p class="duo29-count">${Math.max(0,LIMIT-used())} of ${LIMIT} free simulations remaining this month</p><p><b>Plus: RM 9.90 / month (proposed)</b> — ad-free, unlimited simulations, advanced multi-scenario planning and longer-term forecasts.</p><button type="button" onclick="alert('Plus is a demo only. No payment or subscription is active.')">Explore Plus</button><p class="duo29-note">Only successful simulations use the free allowance. Counts are saved in this browser and reset each calendar month. This is a prototype, not secure billing enforcement.</p></section>`;
+ return panels+html;
+};
+render();
+})();
+</script>
+<style>
+.duo30{background:#fff;border:1px solid #c9e3f6;border-radius:17px;padding:15px;margin:12px 0}.duo30-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.duo30 label{font-size:12px}.duo30 input{width:100%;box-sizing:border-box;margin-top:4px}.duo30-result{padding:12px;background:#eef8ff;border-radius:10px;margin-top:10px;line-height:1.8}.duo30 button{margin-top:10px}.duo30 small{color:#53718b}@media(max-width:380px){.duo30-grid{grid-template-columns:1fr}}
+</style>
+<script>
+(function(){
+const SUBKEY='duomoney_demo_subscription_v30',USEKEY='duomoney_sim_use_v30_'+new Date().toISOString().slice(0,7),LIMIT=3;
+const get=(k)=>{try{return localStorage.getItem(k)}catch(e){return null}},set=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const subscribed=()=>get(SUBKEY)==='active';const used=()=>Math.max(0,Number(get(USEKEY))||0);
+const fmt=n=>'RM '+n.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
+const val=id=>{const e=document.getElementById(id);return e&&e.value.trim()!==''?Number(e.value):NaN};
+const put=(id,msg)=>{const e=document.getElementById(id);if(e)e.innerHTML=msg};
+function permit(id){if(subscribed()||used()<LIMIT)return true;put(id,'⚠️ You have used all 3 free simulations this month. Activate the Plus demo subscription below to continue.');return false}
+function complete(id,html){if(!subscribed())set(USEKEY,String(used()+1));put(id,html);update()}
+function update(){document.querySelectorAll('.duo30-status').forEach(e=>e.textContent=subscribed()?'Plus demo active — unlimited simulations':'No subscription — '+Math.max(0,LIMIT-used())+' of '+LIMIT+' free simulations left this month')}
+window.duo30Subscribe=function(){set(SUBKEY,'active');update();put('duo30SubscriptionMessage','✓ Plus demo activated on this browser. You can now run unlimited simulations. No real payment was collected.')};
+window.duo30Unsubscribe=function(){set(SUBKEY,'inactive');update();put('duo30SubscriptionMessage','Demo Plus deactivated. Free simulation allowance applies again.')};
+window.duo30What=function(){const ids=['d30Balance','d30Income','d30Bills','d30Living','d30Saving','d30Extra','d30Cut'];const a=ids.map(val);if(a.some(n=>!Number.isFinite(n)||n<0)){put('d30WhatResult','Please enter valid amounts in every field; enter 0 if not applicable.');return}if(!permit('d30WhatResult'))return;const [balance,income,bills,living,saving,extra,cut]=a;const baseline=balance+income-bills-living-saving;const after=baseline-extra;const final=after+cut;complete('d30WhatResult','<b>What-if results</b><div>Expected month-end before extra expense: <b>'+fmt(baseline)+'</b></div><div>After unexpected expense: <b>'+fmt(after)+'</b></div><div>After reducing optional spending: <b>'+fmt(final)+'</b></div><div>'+(final<0?'⚠️ Projected shortfall: '+fmt(-final):'✓ Projected to cover entered costs and protected savings')+'</div><small>Enter only remaining costs. The spending cut must be a real future cost you can avoid; do not double-count it.</small>')};
+window.duo30Save=function(){const a=['d30Goal','d30Saved','d30Months','d30Monthly','d30IncomeS','d30CostsS'].map(val);if(a.some((n,i)=>!Number.isFinite(n)||n<0||(i===0&&n<=0)||(i===2&&(!Number.isInteger(n)||n<1)))){put('d30SaveResult','Enter all amounts and a positive whole number of months.');return}if(!permit('d30SaveResult'))return;const [goal,saved,months,monthly,income,costs]=a;const remain=Math.max(0,goal-saved),required=remain/months,capacity=income-costs,actual=remain===0?0:monthly>0?Math.ceil(remain/monthly):null;complete('d30SaveResult','<b>Savings goal results</b><div>Still to save: <b>'+fmt(remain)+'</b></div><div>Required each month: <b>'+fmt(required)+'</b></div><div>Estimated available per month: <b>'+fmt(capacity)+'</b></div><div>At planned savings: <b>'+(actual===null?'No completion date at RM 0/month':actual+' months')+'</b></div><div>'+(capacity>=required?'✓ Target may be achievable.':'⚠️ Monthly budget may not support the target timeline.')+'</div>')};
+const previous=budgetPage;
+budgetPage=function(){let html=previous();
+// Remove older, conflicting planners and the old subscription panels.
+html=html.replace(/<section class="duo29-panel">[\s\S]*?<\/section>/g,'');
+html=html.replace(/<section class="duo-v26"[\s\S]*?<\/section>/g,'');
+html=html.replace(/<section class="duo-subscribe">[\s\S]*?<\/section>/g,'');
+html=html.replace(/<section class="duo-plan-panel"[\s\S]*?<\/section>/g,'');
+const panels=`<section class="duo30"><h3>✨ Simulation Membership</h3><p>Choose how you want to use simulations. Both options are ad-free.</p><div class="duo30-grid"><div><b>Without subscription</b><p>RM 0 · 3 simulations per month</p></div><div><b>Plus subscription</b><p>RM 9.90/month proposed · Unlimited simulations</p></div></div><p class="duo30-status"></p><button type="button" onclick="duo30Subscribe()">Activate Plus Demo</button> <button type="button" onclick="duo30Unsubscribe()">Switch to No Subscription</button><div id="duo30SubscriptionMessage" class="duo30-result">Demo only: activating Plus remembers your choice on this browser, but does not charge money or verify a payment.</div></section>
+<section class="duo30"><h3>🧪 What-if: Unexpected Expenses</h3><p><small>Enter remaining amounts for this month. No Financial Profile needed.</small></p><div class="duo30-grid"><label>Current balance (RM)<input id="d30Balance" type="number" min="0" placeholder="1000"></label><label>Remaining income (RM)<input id="d30Income" type="number" min="0" value="0"></label><label>Unpaid bills (RM)<input id="d30Bills" type="number" min="0" value="0"></label><label>Remaining living costs (RM)<input id="d30Living" type="number" min="0" value="0"></label><label>Savings to protect (RM)<input id="d30Saving" type="number" min="0" value="0"></label><label>Unexpected expense (RM)<input id="d30Extra" type="number" min="0" value="500"></label><label>Optional spending cut (RM)<input id="d30Cut" type="number" min="0" value="0"></label></div><button type="button" onclick="duo30What()">Run What-if Simulation</button><div id="d30WhatResult" class="duo30-result">Your result appears here.</div></section>
+<section class="duo30"><h3>🎯 Savings Goal Planner</h3><div class="duo30-grid"><label>Target amount (RM)<input id="d30Goal" type="number" min="1" placeholder="3000"></label><label>Already saved (RM)<input id="d30Saved" type="number" min="0" value="0"></label><label>Target in months<input id="d30Months" type="number" min="1" value="12"></label><label>Monthly contribution (RM)<input id="d30Monthly" type="number" min="0" value="200"></label><label>Monthly income (RM)<input id="d30IncomeS" type="number" min="0" placeholder="1500"></label><label>Monthly costs (RM)<input id="d30CostsS" type="number" min="0" placeholder="900"></label></div><button type="button" onclick="duo30Save()">Analyze Savings Goal</button><div id="d30SaveResult" class="duo30-result">Your result appears here.</div></section>`;
+return panels+html;
+};
+render();update();
+})();
+</script>
+
+<style>.v31{background:#fff;border:1px solid #bcdcf3;border-radius:18px;padding:16px;margin:12px 0}.v31-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.v31 label{font-size:12px}.v31 input{width:100%;box-sizing:border-box;margin-top:5px}.v31-output{background:#eef7ff;padding:12px;border-radius:12px;margin-top:10px;line-height:1.8}.v31-note{font-size:12px;color:#56748d}@media(max-width:390px){.v31-grid{grid-template-columns:1fr}}</style>
+<script>
+(function(){
+const old=budgetPage;
+const val=id=>{const e=document.getElementById(id);return e&&e.value.trim()!==''?Number(e.value):NaN};
+const rm=n=>'RM '+n.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
+const el=id=>document.getElementById(id);
+const key='duomoney_demo_subscription_v30';
+const subscribed=()=>{try{return localStorage.getItem(key)==='active'}catch(e){return false}};
+const countKey='duomoney_sim_use_v30_'+new Date().toISOString().slice(0,7);
+const used=()=>{try{return Number(localStorage.getItem(countKey))||0}catch(e){return 0}};
+const canRun=()=>subscribed()||used()<3;
+window.v31Run=function(){
+ const ids=['v31Price','v31Balance','v31Income','v31Bills','v31Daily','v31Days','v31Savings','v31Optional','v31Cut','v31Months','v31Fee'];
+ const a=ids.map(val),out=el('v31Result');if(!out)return;
+ if(a.some((x,i)=>!Number.isFinite(x)||x<0||(i===0&&x<=0)||(i===5&&(x<1||x>31||!Number.isInteger(x)))||(i===9&&(x<1||x>36||!Number.isInteger(x))))){out.textContent='Please enter valid values in all fields. Enter 0 when not applicable.';return}
+ if(!canRun()){out.textContent='Free simulations used up. Activate Plus demo in the Subscription section to run more.';return}
+ const [price,balance,income,bills,daily,days,savings,optional,cut,months,fee]=a;
+ const living=daily*days;
+ const base=balance+income-bills-living-savings-optional;
+ const now=base-price;
+ const actualCut=Math.min(cut,optional);
+ const cutNow=now+actualCut;
+ const monthly=price/months+fee;
+ const monthlyHeadroom=balance+income-bills-living-savings-optional;
+ const instalment=monthlyHeadroom-monthly;
+ const saveMonths=monthlyHeadroom>0?Math.ceil(price/monthlyHeadroom):null;
+ const safeNow=now>=0;
+ const safeCut=cutNow>=0;
+ const safeInstalment=instalment>=0;
+ let suggestion='';
+ if(safeNow)suggestion='Buy now appears affordable after protecting living costs, bills and savings.';
+ else if(safeCut)suggestion='Cutting optional spending could make buying now affordable, but only if those cuts are realistic.';
+ else if(safeInstalment)suggestion='Instalments may fit this month, but check that future monthly budgets can also cover them and all fees.';
+ else suggestion='Save first or postpone the purchase; buying now would put essential costs or savings at risk.';
+ const plans=[{name:'Buy now',left:now,ok:safeNow},{name:'Cut optional spending + buy',left:cutNow,ok:safeCut},{name:'Instalments (first month)',left:instalment,ok:safeInstalment}];
+ out.innerHTML='<b>Student affordability analysis</b><div>Protected living costs for '+days+' days: <b>'+rm(living)+'</b></div><div>Month-end without purchase: <b>'+rm(base)+'</b></div>'+plans.map(p=>'<div>'+p.name+': <b>'+rm(p.left)+'</b> '+(p.ok?'✓':'⚠️ shortfall')+'</div>').join('')+'<div>Save-first estimate: <b>'+(saveMonths===null?'No positive surplus; adjust your budget first':saveMonths+' month(s) at current surplus')+'</b></div><div>Instalment amount (including monthly fee): <b>'+rm(monthly)+'/month</b></div><p><b>Recommendation:</b> '+suggestion+'</p><p class="v31-note">An instalment is a continuing obligation, not a discount. Future affordability requires future income and expenses to remain similar. Results are estimates based only on your entries.</p>';
+ if(!subscribed()){try{localStorage.setItem(countKey,String(used()+1))}catch(e){}}
+ };
+ budgetPage=function(){
+ let html=old();
+ const card=`<section class="v31" id="studentPurchaseV31"><h3>🎓 Student Shopping Decision Simulator</h3><p class="v31-note">Thinking about buying a laptop or phone? A RM300 item might look affordable from your balance, but can you still pay for food, transport, bills and savings? Compare buying now, cutting optional spending, saving first, or instalments.</p>
+ <div class="v31-grid">
+ <label>Item Price (RM)<input id="v31Price" type="number" min="0" value="300"></label>
+ <label>Current Balance (RM)<input id="v31Balance" type="number" min="0" placeholder="e.g. 900"></label>
+ <label>Remaining Income This Month (RM)<input id="v31Income" type="number" min="0" value="0"></label>
+ <label>Unpaid Fixed Bills (RM)<input id="v31Bills" type="number" min="0" placeholder="e.g. 100"></label>
+ <label>Essential Living Cost per Day (RM)<input id="v31Daily" type="number" min="0" placeholder="e.g. 20"></label>
+ <label>Days Left This Month<input id="v31Days" type="number" min="1" max="31" value="${new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate()-new Date().getDate()+1}"></label>
+ <label>Savings to Protect (RM)<input id="v31Savings" type="number" min="0" value="0"></label>
+ <label>Other Optional Spending Remaining (RM)<input id="v31Optional" type="number" min="0" value="0"></label>
+ <label>Optional Spending You Could Cut (RM)<input id="v31Cut" type="number" min="0" value="0"></label>
+ <label>Instalment Months<input id="v31Months" type="number" min="1" max="36" value="3"></label>
+ <label>Monthly Instalment Fee (RM)<input id="v31Fee" type="number" min="0" value="0"></label>
+ </div><button type="button" onclick="v31Run()">Compare Purchase Plans</button><div class="v31-output" id="v31Result" aria-live="polite">Enter your numbers, then compare the plans. You do not need to complete Financial Profile first.</div></section>`;
+ return card+html;
+ };
+ render();
+})();
+</script>
+<style>
+.dm32{background:linear-gradient(135deg,#eaf6ff,#fff);border:1px solid #c5e1f6;border-radius:18px;padding:15px;margin:12px 0}.dm32grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dm32 input,.dm32 select,.dm32 textarea{width:100%;box-sizing:border-box;margin:5px 0 10px}.dm32 button{margin:5px 3px 5px 0}.dm32small{font-size:12px;color:#58758b}.dm32status{font-weight:700;color:#176b9e}
+</style><script>
+(function(){
+const esc32=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const subKey='duo_plus_demo_active';
+function memberCard(){let active=localStorage.getItem(subKey)==='1';return `<section class="dm32" id="membership32"><h3>✨ Membership</h3><div class="dm32status">${active?'✓ Plus Subscriber · Active':'Non-subscriber · Free access'}</div><p class="dm32small">No ads · Non-subscribers get 3 simulations per month · Plus offers unlimited simulations.</p><div><b>Plus · RM9.90/month</b> <span class="dm32small">(proposed price)</span></div><button onclick="dm32Subscribe()">${active?'Manage demo subscription':'Activate Plus Demo'}</button>${active?'<button class="secondary" onclick="dm32Cancel()">End Demo Membership</button>':''}<p class="dm32small">Demo activation only. No payment is collected or charged. Real subscriptions require verified checkout and server-side membership status.</p></section>`}
+window.dm32Subscribe=function(){localStorage.setItem(subKey,'1');localStorage.setItem('duo_plus_demo','1');render()};
+window.dm32Cancel=function(){localStorage.removeItem(subKey);localStorage.removeItem('duo_plus_demo');render()};
+// Keep a single shared balance figure across Home, Assets and Smart Budget.
+const originalHome32=home, originalAssets32=assets, originalBudget32=budgetPage;
+const total32=()=>Number(budget.balance)||0;
+home=function(){let html=originalHome32();html=html.replace(/\$\{money\(24680\.50\)\}/g,''); // originalHome32 is already evaluated HTML
+html=html.replace(money(24680.50),money(total32()));return memberCard()+html;};
+assets=function(){let html=originalAssets32();return html.replace(money(24680.50),money(total32()));};
+budgetPage=function(){let html=originalBudget32();return html;};
+function paymentForm32(type){let receive=type==='Receive';let cashback=type==='Cashback';return `<div class="dm32"><h2>${receive?'⬇ Receive Money':cashback?'🎁 Cashback':'⬆ Pay / Transfer'}</h2><p class="dm32small">Demo only. No real money will be sent or received.</p><label>${receive?'Sender':'Recipient'} phone number</label><div class="dm32grid"><select id="dm32Country"><option value="+60">🇲🇾 +60 Malaysia</option><option value="+65">🇸🇬 +65 Singapore</option><option value="+852">🇭🇰 +852 Hong Kong</option><option value="+86">🇨🇳 +86 China</option><option value="+62">🇮🇩 +62 Indonesia</option><option value="+66">🇹🇭 +66 Thailand</option><option value="+44">🇬🇧 +44 UK</option><option value="+1">🇺🇸 +1 USA/Canada</option><option value="+91">🇮🇳 +91 India</option><option value="+61">🇦🇺 +61 Australia</option></select><input id="dm32Phone" inputmode="tel" type="tel" placeholder="123456789"></div><label>Amount (MYR)</label><input id="dm32Amount" type="number" min="0.01" step="0.01" value="${cashback?'10':''}" placeholder="e.g. 25"><label>Note / Purpose</label><textarea id="dm32Note" rows="2" placeholder="e.g. Transfer for food">${cashback?'Tealive cashback RM10':''}</textarea>${cashback?'<p class="dm32small">Featured reward: Tealive RM10 cashback (illustrative offer, not redeemable).</p>':''}<button onclick="dm32Preview('${type}')">Preview ${receive?'Receive':cashback?'Cashback':'Transfer'}</button><div id="dm32Preview"></div></div>`}
+window.dm32Open=function(type){document.getElementById('modalbody').innerHTML=paymentForm32(type)+'<button class="secondary" onclick="closeModal()">Close</button>';document.getElementById('overlay').classList.remove('hide')};
+window.dm32Preview=function(type){let phone=document.getElementById('dm32Phone').value.replace(/[\s()\-]/g,''),country=document.getElementById('dm32Country').value,amt=Number(document.getElementById('dm32Amount').value),note=document.getElementById('dm32Note').value.trim(),out=document.getElementById('dm32Preview');if(!/^\+?\d{6,15}$/.test(phone)||!Number.isFinite(amt)||amt<=0){out.textContent='Please enter a valid phone number (6–15 digits) and amount.';return}phone=phone.replace(/^\+/,'').replace(/^0+/,'');out.innerHTML='<div class="dm32"><b>Preview only · '+esc32(type)+'</b><p>Phone: '+esc32(country+phone)+'</p><p>Amount: RM '+amt.toFixed(2)+'</p><p>Note: '+esc32(note||'No note')+'</p><p class="dm32small">This demo does not make a transfer or claim cashback.</p></div>'};
+const oldService32=openService;openService=function(name){if(name==='Transfer'||name==='Cashback'){dm32Open(name);return}oldService32(name)};
+const oldReceive32=typeof duoQRReceive==='function'?duoQRReceive:null;
+if(oldReceive32)duoQRReceive=function(){dm32Open('Receive')};
+const oldPay32=typeof duoQRPay==='function'?duoQRPay:null;
+if(oldPay32)duoQRPay=function(){dm32Open('Pay')};
+render();
+})();
+</script><script>
+/* v3.3: shared account balance, membership location, cashback points, vouchers */
+(function(){
+const priorHome33=home, priorBudget33=budgetPage, priorAssets33=assets, priorMore33=more, priorService33=openService;
+function sharedBalance33(){return Number(budget.balance)||0}
+function membership33(){let active=localStorage.getItem('duo_plus_demo_active')==='1';return `<section class="dm32" id="membership33"><h3>✨ Membership</h3><b>${active?'✓ Plus Subscriber · Active':'Non-subscriber'}</b><p class="dm32small">${active?'Unlimited simulations':'3 free simulations per month'} · No ads</p><p><b>Plus · RM9.90 / month</b> (proposed price)</p><button type="button" onclick="dm32Subscribe()">${active?'Membership active · Demo':'Activate Plus Demo'}</button>${active?'<button type="button" class="secondary" onclick="dm32Cancel()">Cancel demo membership</button>':''}<p class="dm32small">Demo only — no real payment or renewal. Membership state is stored in this browser.</p></section>`}
+function stripMember33(html){let start=html.indexOf('<section class="dm32" id="membership32">');if(start<0)return html;let end=html.indexOf('</section>',start);return end<0?html:html.slice(0,start)+html.slice(end+10)}
+home=function(){let html=stripMember33(priorHome33());let total=sharedBalance33();
+// The base Home has three unrelated static demo figures; display a single consistent total.
+html=html.replace(/(<div class="balance">)[^<]*(<\/div>)/,(_,a,b)=>a+money(total)+b);
+return html;
+};
+budgetPage=function(){let html=priorBudget33();return membership33()+html};
+assets=function(){let html=priorAssets33();let total=sharedBalance33();html=html.replace(/(<div class="balance">)[^<]*(<\/div>)/,(_,a,b)=>a+money(total)+b);return html};
+more=function(){return priorMore33()+membership33()};
+const pointsKey='duo_cashback_points_demo';
+window.duoPoints33=function(){let n=Number(localStorage.getItem(pointsKey));return Number.isFinite(n)&&n>=0?Math.floor(n):0};
+window.duoCashback33=function(){let pts=duoPoints33();document.getElementById('modalbody').innerHTML=`<div class="dm32"><h2>🎁 Cashback Points</h2><p>Earn and track reward points here, not by phone number.</p><div class="balance">${pts} pts</div><p class="dm32small">Demo points only. Points are not cash and cannot be redeemed.</p><button type="button" onclick="duoEarnPoints33()">Demo: Earn 10 Points</button><button class="secondary" type="button" onclick="closeModal()">Close</button></div>`;document.getElementById('overlay').classList.remove('hide')};
+window.duoEarnPoints33=function(){localStorage.setItem(pointsKey,String(duoPoints33()+10));duoCashback33()};
+window.duoVoucher33=function(){document.getElementById('modalbody').innerHTML=`<div class="dm32"><h2>🎟️ Vouchers & Offers</h2><p class="dm32small">Illustrative offers only; not real or redeemable.</p><div class="card"><b>🧋 Tealive</b><p>RM10 voucher · Demo offer</p></div><div class="card"><b>🍨 Häagen-Dazs</b><p>Ice cream voucher · Demo offer</p></div><div class="card"><b>🛍️ Taobao</b><p>Shopping voucher · Demo offer</p></div><button type="button" class="secondary" onclick="closeModal()">Close</button></div>`;document.getElementById('overlay').classList.remove('hide')};
+openService=function(name){if(name==='Cashback'){duoCashback33();return}if(name==='Voucher'){duoVoucher33();return}priorService33(name)};
+render();
+})();
+</script><script>
+/* v3.4: investments are an allocation of the same Total Assets, not additional money. */
+(function(){
+const key='duo_asset_allocation_v34';
+function get(){try{const v=JSON.parse(localStorage.getItem(key)||'{}');return {investment:Number(v.investment)||0,deposit:Number(v.deposit)||0,other:Number(v.other)||0}}catch(e){return {investment:0,deposit:0,other:0}}}
+const previousAssets=assets;
+assets=function(){
+ let html=previousAssets();const total=Math.max(0,Number(budget.balance)||0),a=get();
+ const cash=total-a.investment-a.deposit-a.other;
+ const fmt=n=>money(n);
+ const summary=`<div class="card" id="assetAllocation34"><h3>Asset Allocation · Synced with Smart Budget</h3><p class="muted">Total Assets and Set Budget Amounts share one total. Investments are part of the total, not added twice.</p><div class="flex"><b>Total Assets</b><b>${fmt(total)}</b></div><div class="flex"><span>Cash / Available</span><b>${fmt(cash)}</b></div><div class="flex"><span>Investments</span><b>${fmt(a.investment)}</b></div><div class="flex"><span>Fixed Deposits</span><b>${fmt(a.deposit)}</b></div><div class="flex"><span>Others</span><b>${fmt(a.other)}</b></div><p>Set Investments (MYR) <input id="assetInvest34" type="number" min="0" step="0.01" value="${a.investment}"></p><p>Fixed Deposits (MYR) <input id="assetDeposit34" type="number" min="0" step="0.01" value="${a.deposit}"></p><p>Other Assets (MYR) <input id="assetOther34" type="number" min="0" step="0.01" value="${a.other}"></p><button type="button" onclick="saveAssetAllocation34()">Save Asset Allocation</button><div id="assetError34" role="status"></div></div>`;
+ const start=html.indexOf('<h3>Asset allocation</h3>');
+ if(start>=0){const after=html.indexOf('<h3>',start+4);html=html.slice(0,start)+summary+(after>=0?html.slice(after):'')}
+ else html+=summary;
+ return html;
+};
+window.saveAssetAllocation34=function(){const fields=['assetInvest34','assetDeposit34','assetOther34'];const n=fields.map(id=>Number(document.getElementById(id).value));const total=Number(budget.balance)||0;const e=document.getElementById('assetError34');if(n.some(x=>!Number.isFinite(x)||x<0)||n.reduce((a,b)=>a+b,0)>total){e.textContent='Invalid allocation: Investments + Deposits + Others must not exceed Total Assets.';return}localStorage.setItem(key,JSON.stringify({investment:n[0],deposit:n[1],other:n[2]}));render()};
+})();
+</script><style>
+.dm35-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dm35-grid label{font-size:13px}.dm35-grid input,.dm35-grid select{box-sizing:border-box;width:100%;margin-top:5px}.dm35-result{background:#eaf7ff;border-radius:12px;padding:12px;margin-top:12px;line-height:1.7}.dm35-row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #e4eef5}.dm35-actions{display:flex;gap:8px;flex-wrap:wrap}.dm35-actions button{flex:1;min-width:110px}
+</style><script>
+/* v3.5 standalone transaction tracking, profile and bill splitting. All data stored locally. */
+(function(){
+const txKey='duo_v35_transactions';const profileKey='duo_v35_profile';
+function load(key, fallback){try{const x=JSON.parse(localStorage.getItem(key));return x===null?fallback:x}catch(e){return fallback}}
+function safe(x){return escapeHtml(String(x))}
+function amt(x){return money(x)}
+function transactions(){return load(txKey,[])}
+function field(id){const el=document.getElementById(id);return el?el.value.trim():''}
+function val(id){const str=field(id);return str===''?NaN:Number(str)}
+function displayModal(html){document.getElementById('modalbody').innerHTML=html;document.getElementById('overlay').classList.remove('hide')}
+function summary(){const tx=transactions();return {received:tx.filter(t=>t.type==='received').reduce((a,t)=>a+t.amount,0),spent:tx.filter(t=>t.type==='spent').reduce((a,t)=>a+t.amount,0),count:tx.length}}
+function txSection(){const q=summary(),tx=transactions();return `<div class="card" id="dm35Transactions"><h3>💸 Transaction Overview</h3><p class="muted">Record money received and paid. Every saved transaction updates Account Balance, Home Total Balance and Total Assets.</p><div class="dm35-row"><span>Total received</span><b class="green">+${amt(q.received)}</b></div><div class="dm35-row"><span>Total spent</span><b>${amt(q.spent)}</b></div><div class="dm35-row"><span>Net movement</span><b>${amt(q.received-q.spent)}</b></div><div class="dm35-row"><span>Current total assets</span><b>${amt(Number(budget.balance)||0)}</b></div><div class="dm35-actions"><button type="button" onclick="dm35Transaction('received')">+ Received</button><button type="button" class="secondary" onclick="dm35Transaction('spent')">− Pay / Spent</button></div><p class="muted">${q.count} recorded transaction(s). Transactions are local demo entries, not real bank transfers.</p>${tx.slice(-8).reverse().map(t=>`<div class="dm35-row"><span>${t.type==='received'?'↙':'↗'} ${safe(t.note||'Transaction')}<small class="muted"> · ${safe(t.date)}</small></span><b>${t.type==='received'?'+':'−'}${amt(t.amount)}</b></div>`).join('')}</div>`}
+window.dm35Transaction=function(type){displayModal(`<h2>${type==='received'?'↙ Receive Money':'↗ Record Payment'}</h2><p class="muted">Demo transaction · saved to this browser only</p><label>Amount (MYR)</label><input id="dm35TxAmount" type="number" min="0.01" step="0.01" placeholder="100.00"><label>Phone / sender or recipient (optional)</label><input id="dm35TxPhone" type="tel" placeholder="+60 12 345 6789"><label>Note / purpose (optional)</label><input id="dm35TxNote" placeholder="Food, allowance, school fees"><div id="dm35TxError" role="status"></div><button type="button" onclick="dm35SaveTransaction('${type}')">Save Transaction</button><button type="button" class="secondary" onclick="closeModal()">Cancel</button>`)};
+window.dm35SaveTransaction=function(type){const n=val('dm35TxAmount'),e=document.getElementById('dm35TxError');if(!Number.isFinite(n)||n<=0||n>100000000){e.textContent='Enter a valid positive amount.';return}const old=Number(budget.balance)||0;const next=old+(type==='received'?n:-n);if(next<0){e.textContent='Not enough balance to record this payment.';return}const tx=transactions();tx.push({type,amount:n,phone:field('dm35TxPhone'),note:field('dm35TxNote'),date:new Date().toISOString().slice(0,10)});localStorage.setItem(txKey,JSON.stringify(tx));budget.balance=Math.round(next*100)/100;localStorage.setItem('duo_budget',JSON.stringify(budget));closeModal();render()};
+function splitForm(){return `<h2>👥 Split a Bill</h2><p class="muted">Plan a shared bill without sending money.</p><label>1. What's the bill for?</label><input id="dm35BillName" placeholder="Dinner / Groceries / Taxi"><label>2. Add notes (optional)</label><input id="dm35BillNotes" placeholder="Birthday dinner"><label>Total bill (MYR)</label><input id="dm35BillAmount" type="number" min="0.01" step="0.01" placeholder="120"><label>Number of people (including you)</label><input id="dm35BillPeople" type="number" min="2" max="30" value="2"><label>How'd you like to split the bill?</label><select id="dm35BillMode" onchange="dm35BillModeChange()"><option value="even">Evenly</option><option value="separate">Separately</option></select><div id="dm35SeparateFields"></div><button type="button" onclick="dm35CalculateBill()">Calculate Split</button><div id="dm35BillResult" class="dm35-result" role="status">Choose a split method and calculate.</div><p class="notice">Calculation only. No real transfer is made.</p>`}
+window.dm35BillModeChange=function(){const e=document.getElementById('dm35SeparateFields');if(!e)return;const n=Number(field('dm35BillPeople'));if(field('dm35BillMode')!=='separate'){e.innerHTML='';return}if(!Number.isInteger(n)||n<2||n>30){e.textContent='Enter 2–30 people.';return}e.innerHTML='<p class="muted">Enter the amount owed by each person (MYR):</p>'+Array.from({length:n},(_,i)=>`<label>Person ${i+1}<input id="dm35Person${i}" type="number" min="0" step="0.01" placeholder="0.00"></label>`).join('')};
+window.dm35CalculateBill=function(){const name=field('dm35BillName'),total=val('dm35BillAmount'),n=val('dm35BillPeople'),mode=field('dm35BillMode'),out=document.getElementById('dm35BillResult');if(!name||!Number.isFinite(total)||total<=0||!Number.isInteger(n)||n<2||n>30){out.textContent='Enter the bill name, a positive amount, and 2–30 people.';return}let cents=Math.round(total*100),parts=[];if(mode==='even'){const each=Math.floor(cents/n);parts=Array.from({length:n},(_,i)=>each+(i<cents%n?1:0))}else{parts=Array.from({length:n},(_,i)=>val('dm35Person'+i));if(parts.some(x=>!Number.isFinite(x)||x<0)){out.textContent='Enter each person’s amount.';return}parts=parts.map(x=>Math.round(x*100));if(parts.reduce((a,b)=>a+b,0)!==cents){out.textContent='The separate amounts must add up to the total bill ('+amt(total)+').';return}}out.innerHTML='<b>'+safe(name)+'</b>'+(field('dm35BillNotes')?'<p>'+safe(field('dm35BillNotes'))+'</p>':'')+parts.map((p,i)=>'<div class="dm35-row"><span>Person '+(i+1)+'</span><b>'+amt(p/100)+'</b></div>').join('')+'<p>Total: <b>'+amt(total)+'</b> · No payment made.</p>'};
+const previousService=openService;openService=function(name){if(name==='Split Bill'){displayModal(splitForm());return}return previousService(name)};
+const previousAssets=assets;assets=function(){return previousAssets()+txSection()};
+const previousHome=home;home=function(){return previousHome()+`<div class="card"><h3>↙ Received & ↗ Pay</h3><p class="muted">Record a transaction with an optional phone number and your own note.</p><div class="dm35-actions"><button onclick="dm35Transaction('received')">Received</button><button class="secondary" onclick="dm35Transaction('spent')">Pay</button></div></div>`};
+const previousMore=more;more=function(){const profile=load(profileKey,{});return `<div class="card"><h3>👤 Financial Profile</h3><p class="muted">${logged?'Signed in (demo session)':'Not signed in'}</p><p>${safe(profile.name||'No profile name set')} ${profile.email?'· '+safe(profile.email):''}</p><button onclick="dm35Profile()">Financial Profile / Sign In</button><button class="secondary" onclick="logout()">Log Out</button></div>`+previousMore()};
+window.dm35Profile=function(){const p=load(profileKey,{});displayModal(`<h2>👤 Financial Profile</h2><p class="muted">Save your display name and contact information locally. This does not create a real bank account.</p><label>Display name</label><input id="dm35ProfileName" value="${safe(p.name||'')}" placeholder="Your name"><label>Email / Phone</label><input id="dm35ProfileEmail" value="${safe(p.email||'')}" placeholder="Email or phone"><button onclick="dm35SaveProfile()">Save Profile</button><button class="secondary" onclick="logout();closeModal()">Log Out</button>`)};
+window.dm35SaveProfile=function(){localStorage.setItem(profileKey,JSON.stringify({name:field('dm35ProfileName'),email:field('dm35ProfileEmail')}));closeModal();render()};
+render();
+})();
+</script>
+<style>
+.dm36-nav{display:flex;gap:8px;margin:12px 0}.dm36-nav button{flex:1;padding:12px 7px;font-size:13px}.dm36-hidden{display:none!important}.dm36-offer{border:1px solid #d7e9f7;border-radius:12px;padding:11px;margin:9px 0;background:#fff}.dm36-offer small{display:block;color:#697e8c;margin:4px 0}.dm36-split-tabs{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}.dm36-split-tabs button{flex:1;min-width:70px;font-size:12px}.dm36-list{max-height:260px;overflow:auto}.dm36-line{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #e5eef5}
+</style>
+<script>
+/* v3.6 separate budget workflows, verified offer links, split-bill tracking */
+(function(){
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const key='duo_v36_split_bills';
+const get=()=>{try{return JSON.parse(localStorage.getItem(key))||[]}catch(e){return []}};
+const save=rows=>localStorage.setItem(key,JSON.stringify(rows));
+const field=id=>{const e=document.getElementById(id);return e?e.value.trim():''};
+const n=id=>field(id)===''?NaN:Number(field(id));
+const cash=x=>'RM '+Number(x).toFixed(2);
+const modal=html=>{document.getElementById('modalbody').innerHTML=html;document.getElementById('overlay').classList.remove('hide')};
+const oldBudget=budgetPage;
+budgetPage=function(){let h=oldBudget();
+  h=h.replace('<div class="card"><h3>🧾 Scan / Chat Expense Entry','<div class="card dm36-expense"><h3>🧾 Scan / Chat Expense Entry');
+  const patterns=['<section class="duo-plan-panel" id="duoEmergencyPlanner"','<section class="duo29-panel"><h3>🧪','<section class="duo30"><h3>🧪','<section class="v31" id="studentPurchaseV31"','<section class="duo-v26" id="studentWhatIf"'];
+  for(const p of patterns)h=h.replace(p,p.replace('class="','class="dm36-sim '));
+  const nav='<div class="card"><h3>🗂️ Budget Workspace</h3><p class="muted">Expense Entry and Simulators are separate. Choose what you want to do.</p><div class="dm36-nav"><button type="button" onclick="dm36Mode(\'expense\')">🧾 Expense Entry</button><button type="button" onclick="dm36Mode(\'sim\')">🧪 Simulators</button><button type="button" class="secondary" onclick="dm36Mode(\'all\')">Show All</button></div><p id="dm36ModeStatus" class="muted">Select a workspace above.</p></div>';
+  return nav+h;
+};
+window.dm36Mode=function(mode){
+  const expense=document.querySelectorAll('.dm36-expense'),sim=document.querySelectorAll('.dm36-sim');
+  expense.forEach(e=>e.classList.toggle('dm36-hidden',mode==='sim'));
+  sim.forEach(e=>e.classList.toggle('dm36-hidden',mode==='expense'));
+  const status=document.getElementById('dm36ModeStatus');if(status)status.textContent=mode==='expense'?'Expense Entry mode — recording tools are visible.':mode==='sim'?'Simulator mode — scenario tools are visible.':'All tools visible.';
+  const target=mode==='expense'?expense[0]:mode==='sim'?sim[0]:null;if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+};
+window.duoVoucher33=function(){
+const offers=[
+ ['🎬 TGV Cinemas','Early Bird tickets from RM10','Selected movies before noon; eligibility and availability apply.','https://www.tgv.com.my/contents/promotions/promotabitems-early-bird-from-rm9'],
+ ['🎟️ TGV Cinemas','RM10 ticket with Maybank Mastercard debit','Thursday–Sunday, eligible card and ticket quotas; until 31 Dec 2026.','https://www.tgv.com.my/contents/promotions/promotabitems-with-maybank-mastercard-debit-card-rm10-movie-ticket-when-you-pay'],
+ ['🍿 TGV Cinemas','Members Wednesday: RM2 off','MovieClub members; selected screenings and exclusions.','https://www.tgv.com.my/contents/promotions/promotabitems-members-wednesday-rm2-off-movies'],
+ ['🎫 WeTix','Compare cinema tickets','Ticketing platform; promotions and booking fees vary. Not a guaranteed discount.','https://wetix.my/movies/cinemas'],
+ ['🧋 Tealive','Thursday second cup RM1.10','Thursday 3–6 PM; check participating outlets and terms.','https://www.tealive.com.my/'],
+ ['🍨 Häagen-Dazs','HSBC cardholder single scoop RM9.99','Eligible HSBC card payment, 1 Oct 2026–30 Sep 2027.','https://sp.hsbc.com.my/offers/2783/haagen-dazs'],
+ ['🛒 Taobao','Browse current marketplace deals','Prices and vouchers vary by region and account.','https://www.taobao.com/']];
+modal('<h2>🎟️ Vouchers & Deals</h2><p class="muted">Offers are external and not issued by duoMoney. Check eligibility, dates and terms on each provider’s website.</p>'+offers.map(o=>'<div class="dm36-offer"><b>'+esc(o[0])+' — '+esc(o[1])+'</b><small>'+esc(o[2])+'</small><a href="'+o[3]+'" target="_blank" rel="noopener noreferrer">View official offer ↗</a></div>').join(''));
+};
+function tabs(active){return '<div class="dm36-split-tabs">'+[['create','New Bill'],['pay','To Pay'],['past','Past'],['group','Groups']].map(([id,label])=>'<button type="button" class="'+(id===active?'':'secondary')+'" onclick="dm36Split(\''+id+'\')">'+label+'</button>').join('')+'</div>'}
+window.dm36Split=function(tab='create'){
+const rows=get();let body='';
+if(tab==='create')body='<label>What’s the bill for?</label><input id="dm36Name" placeholder="Dinner, cinema, groceries"><label>Notes (optional)</label><input id="dm36Notes" placeholder="Movie night"><label>Group name</label><input id="dm36Group" placeholder="Friends"><label>Total (RM)</label><input id="dm36Total" type="number" min="0.01" step="0.01" placeholder="120"><label>Number of people</label><input id="dm36People" type="number" min="2" max="30" value="2"><label>Split method</label><select id="dm36Method" onchange="dm36Parts()"><option value="even">Evenly</option><option value="separate">Separately</option></select><div id="dm36Parts"></div><button type="button" onclick="dm36SaveSplit()">Save Split Bill</button><div id="dm36Error" role="status"></div>';
+if(tab==='pay')body='<p class="muted">Outstanding shares for your saved bills (Person 1 is you).</p>'+ (rows.filter(r=>!r.paid).map(r=>'<div class="dm36-line"><span><b>'+esc(r.name)+'</b><small> · '+esc(r.group)+'</small><br>Your share '+cash(r.parts[0]/100)+'</span><button onclick="dm36MarkPaid(\''+r.id+'\')">Mark Paid</button></div>').join('')||'<p>No outstanding bills.</p>');
+if(tab==='past')body='<div class="dm36-list">'+(rows.map(r=>'<div class="dm36-line"><span><b>'+esc(r.name)+'</b> · '+esc(r.group)+'<br><small>'+esc(r.date)+' · '+(r.paid?'Paid':'Unpaid')+'</small></span><b>'+cash(r.total/100)+'</b></div>').join('')||'<p>No saved bills yet.</p>')+'</div>';
+if(tab==='group'){const groups=[...new Set(rows.map(r=>r.group))];body=groups.map(g=>'<div class="dm36-offer"><b>'+esc(g)+'</b><p>'+rows.filter(r=>r.group===g).length+' saved bills · '+cash(rows.filter(r=>r.group===g).reduce((a,r)=>a+r.total,0)/100)+'</p></div>').join('')||'<p>No groups yet. Save a bill with a group name to create one.</p>'}
+modal('<h2>👥 Split a Bill</h2>'+tabs(tab)+body+'<p class="muted">Local planning only. Mark Paid does not transfer money or change your account balance.</p>');
+};
+window.dm36Parts=function(){const e=document.getElementById('dm36Parts');if(!e)return;e.innerHTML=field('dm36Method')==='separate'?Array.from({length:Math.max(0,Math.min(30,Number(field('dm36People'))||0))},(_,i)=>'<label>Person '+(i+1)+' amount (RM)</label><input id="dm36Part'+i+'" type="number" min="0" step="0.01">').join(''):''};
+window.dm36SaveSplit=function(){const name=field('dm36Name'),total=n('dm36Total'),people=n('dm36People'),error=document.getElementById('dm36Error');if(!name||!Number.isFinite(total)||total<=0||!Number.isInteger(people)||people<2||people>30){error.textContent='Enter a bill name, valid amount and 2–30 people.';return}const cents=Math.round(total*100);let parts;if(field('dm36Method')==='even'){const base=Math.floor(cents/people);parts=Array.from({length:people},(_,i)=>base+(i<cents%people?1:0))}else{parts=Array.from({length:people},(_,i)=>n('dm36Part'+i));if(parts.some(x=>!Number.isFinite(x)||x<0)){error.textContent='Enter every person’s share.';return}parts=parts.map(x=>Math.round(x*100));if(parts.reduce((a,b)=>a+b,0)!==cents){error.textContent='Shares must add up exactly to '+cash(total)+'.';return}}
+const rows=get();rows.push({id:String(Date.now())+'-'+rows.length,name,notes:field('dm36Notes'),group:field('dm36Group')||'Friends',total:cents,parts,paid:false,date:new Date().toISOString().slice(0,10)});save(rows);dm36Split('pay')};
+window.dm36MarkPaid=function(id){const rows=get();const r=rows.find(r=>r.id===id);if(r)r.paid=true;save(rows);dm36Split('pay')};
+const oldService=openService;openService=function(name){if(name==='Split Bill'){dm36Split('create');return}if(name==='Voucher'){duoVoucher33();return}return oldService(name)};
+render();
+})();
+</script>
+</body></html>
