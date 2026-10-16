@@ -13,8 +13,14 @@ import {
 } from 'lucide-react';
 import { useCtrlPayStore } from '@/lib/store';
 import { requestProposal, submitDecision } from '@/lib/api-client';
+import {
+  approveProposal,
+  declineProposal,
+  dismissProposal,
+  modifyProposal,
+} from '@/lib/tool-resolution';
 import { formatRM } from '@/lib/utils';
-import type { SignedProposal, EscrowTerms, QuarantineTerms, SweepTerms } from '@/lib/types';
+import type { SignedProposal, EscrowTerms, ModifiedTerms, QuarantineTerms, SweepTerms } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -78,35 +84,31 @@ function useProposalCard(kind: Kind, args: Record<string, unknown>, toolCallId: 
       // eslint-disable-next-line react-hooks/exhaustive-deps
       if (!resolvedRef.current && Date.now() - mountedAtRef.current > 600) {
         resolvedRef.current = true;
-        addToolResult({
-          toolCallId,
-          result: { status: 'DECLINED', reason: 'DISMISSED', proposalId: null },
-        });
+        addToolResult({ toolCallId, result: dismissProposal().resolution });
       }
     };
   }, [addToolResult, toolCallId]);
 
-  async function decide(status: 'APPROVED' | 'DECLINED' | 'MODIFIED', newTerms?: Record<string, unknown>) {
+  async function decide(status: 'APPROVED' | 'DECLINED' | 'MODIFIED', newTerms?: ModifiedTerms) {
     if (!proposal) return;
     setBusy(true);
     setError(null);
     try {
-      const cur = useCtrlPayStore.getState();
-      const authorizationRef = `USER_CLICK_APPROVE_PROPOSAL_${proposal.proposalId.slice(-4)}`;
-      const decision =
-        status === 'MODIFIED'
-          ? { status: 'MODIFIED' as const, proposalId: proposal.proposalId, newTerms: newTerms ?? {}, authorizationRef }
-          : status === 'APPROVED'
-            ? { status: 'APPROVED' as const, proposalId: proposal.proposalId, authorizationRef }
-            : { status: 'DECLINED' as const, proposalId: proposal.proposalId, reason: 'not now' };
+      const built =
+        status === 'APPROVED'
+          ? approveProposal(proposal.proposalId, proposal.terms)
+          : status === 'MODIFIED'
+            ? modifyProposal(proposal.proposalId, newTerms ?? {}, proposal.terms)
+            : declineProposal(proposal.proposalId);
 
-      const out = await submitDecision(proposal.proposalId, decision);
+      if (!built.decision) throw new Error('DECISION_MISSING');
+
+      const out = await submitDecision(proposal.proposalId, built.decision);
       if (status !== 'DECLINED') {
-        applyDecision(out.proposal, status, newTerms as { durationDays?: number; dailyBudgetReduction?: number });
+        applyDecision(out.proposal, status, newTerms);
       }
-      void cur;
       finish({
-        status,
+        ...built.resolution,
         proposalId: proposal.proposalId,
         authorizationRef: out.authorizationRef,
         terms: out.proposal.terms,
