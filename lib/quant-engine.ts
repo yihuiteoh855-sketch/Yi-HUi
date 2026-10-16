@@ -296,7 +296,7 @@ export function validateEscrowFloor(args: {
   if (maxAllowedReduction <= 0) {
     // Too little daily allowance to lock anything without breaking the survival floor.
     reasons.push('BELOW_SURVIVAL_FLOOR');
-  } else {
+  } else if (args.dailyBudgetReduction > maxAllowedReduction + 1e-9) {
     if (args.dailyBudgetReduction > byRatio + 1e-9) reasons.push('REDUCTION_OVER_40_PERCENT');
     if (dda - args.dailyBudgetReduction < ESCROW_RULES.minDailySurvivalFloorRM - 1e-9) {
       reasons.push('BELOW_SURVIVAL_FLOOR');

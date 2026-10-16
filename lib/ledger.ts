@@ -15,10 +15,12 @@ import {
   INITIAL_AI_MANDATE,
   INITIAL_USER_LIMITS,
 } from './mock-data';
+import { z } from 'zod';
 import { SUBSCRIPTION_REGISTRY } from './subscription-registry';
 import { calculateAmortizedSubscriptions } from './quant-engine';
 import { remainingDaysInMonth } from './utils';
 import type { FixedBill, Subscription, WhatIfInput } from './domain';
+import { AiMandateSchema, UserSpendingLimitSchema } from './types';
 import type { AiMandate, SpendCategory, UserSpendingLimit } from './types';
 
 export interface LedgerSnapshot {
@@ -119,5 +121,67 @@ export function buildWhatIfInput(
     historicalDailySpending: snapshot.historicalDailySpending,
     proposedExpense,
     seed,
+  };
+}
+
+/* ------------------------------------------------------------------ *
+ * Server-side intake validation
+ *
+ * The client POSTs a ledgerSnapshot. The server treats it as USER-SUPPLIED DATA:
+ * it re-validates the shape and re-computes every derived figure itself.
+ * ------------------------------------------------------------------ */
+
+const FixedBillSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  amountRM: z.number().finite(),
+  dueDay: z.number().int().min(1).max(31),
+  paid: z.boolean(),
+});
+
+const SubscriptionLiteSchema = z.object({
+  subscriptionId: z.string(),
+  amountRM: z.number().finite(),
+  billingCycle: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUAL']),
+  nextBillingDate: z.string(),
+});
+
+export const LedgerSnapshotSchema = z
+  .object({
+    userId: z.string().min(1),
+    sandboxClock: z.number().int().nonnegative(),
+    currentBalance: z.number().finite(),
+    defenseVault: z.number().finite(),
+    rewardPool: z.number().min(0).finite(),
+    monthlySavingsGoal: z.number().min(0).finite(),
+    spentThisWeek: z.number().min(0).finite(),
+    spentThisMonth: z.number().min(0).finite(),
+    userLimits: UserSpendingLimitSchema,
+    aiMandate: AiMandateSchema,
+    amortizeAnnualFees: z.boolean(),
+    fixedBills: z.array(FixedBillSchema).max(64),
+    subscriptions: z.array(SubscriptionLiteSchema).max(64),
+    historicalDailySpending: z.array(z.number().min(0).finite()).max(4000),
+  })
+  .strict();
+
+/**
+ * Parse an untrusted ledger snapshot from the request body. On failure we throw a
+ * descriptive Error (the route converts it to HTTP 400) — we never trust the body.
+ */
+export function parseLedgerSnapshot(raw: unknown): LedgerSnapshot {
+  const parsed = LedgerSnapshotSchema.safeParse(raw);
+  if (!parsed.success) {
+    throw new Error(`INVALID_LEDGER_SNAPSHOT: ${parsed.error.issues[0]?.message ?? 'bad shape'}`);
+  }
+  // The server also re-derives the fixed bills itself rather than trusting the client view.
+  return {
+    ...parsed.data,
+    subscriptions: parsed.data.subscriptions as LedgerSnapshot['subscriptions'],
+    fixedBills: upcomingFixedBills(
+      parsed.data.sandboxClock,
+      parsed.data.subscriptions as LedgerSnapshot['subscriptions'],
+      parsed.data.amortizeAnnualFees,
+    ),
   };
 }
