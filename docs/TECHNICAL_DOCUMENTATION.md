@@ -210,7 +210,10 @@ es95 = round2( (1/|T|) · Σ_{i ∈ T} L_(i) ),   T = { i : i ≥ ceil(0.95 · N
 i.e. the mean of the worst 5% of month-end shortfalls — the expected loss *given* the loss has
 breached its 95% quantile. ES is a **coherent** risk measure (monotone, sub-additive, positively
 homogeneous) whereas a bare quantile is not, so `es95 ≥ cfar95` holds by construction on the same
-sample; the Phase 8 test suite asserts the coherence relation for every scenario.
+sample; the Phase 8 test suite asserts the coherence relation for every scenario. This is also the
+CVaR estimator of Rockafellar & Uryasev (2000), whose convex-programming representation is what made
+tail-mean risk the standard replacing quantiles in Basel III's FRTB internal-models approach: the
+worst-5% mean is directly minimisable, while a quantile is not.
 
 **Intra-month liquidity barrier (Basel III LCR analogue).** A month-end-only projection is
 mathematically blind to mid-month non-sufficient-funds (NSF) events: with no committed inflow a

@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RiskTailStrip } from '@/components/risk-tail-strip';
+import { TierGateHint } from '@/components/tier-gate-hint';
 
 interface Units {
   mixedRiceMeals: number;
@@ -181,6 +182,7 @@ export function PaymentInterceptorModal() {
           )}
 
           {error && <p className="rounded-md bg-destructive/10 p-2 text-xs text-destructive">{error}</p>}
+          <TierGateHint error={error} />
 
           <p className="text-xs text-muted-foreground">
             You are always in control. Nothing moves until you click.

@@ -135,12 +135,14 @@ export function MobileAppShell({ copilot, initialTab = 'home', className }: Mobi
               {active && (
                 <motion.span
                   layoutId="duo-nav-pill"
-                  className="absolute inset-0 -z-10 rounded-2xl bg-[#e7f3ff]"
+                  className="absolute inset-0 rounded-2xl bg-[#e7f3ff]"
                   transition={{ type: 'spring', stiffness: 420, damping: 32 }}
                 />
               )}
-              <Icon className="h-[18px] w-[18px]" />
-              {t.label}
+              <span className="relative flex flex-col items-center gap-1">
+                <Icon className="h-[18px] w-[18px]" />
+                {t.label}
+              </span>
             </button>
           );
         })}

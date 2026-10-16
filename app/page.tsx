@@ -116,12 +116,14 @@ export default function Page() {
                 {selected && (
                   <motion.span
                     layoutId="layout-pill"
-                    className="absolute inset-0 -z-10 rounded-full bg-[#1688ee]"
+                    className="absolute inset-0 rounded-full bg-[#1688ee]"
                     transition={{ type: 'spring', stiffness: 420, damping: 34 }}
                   />
                 )}
-                <Icon className="h-3.5 w-3.5" />
-                {l.label}
+                <span className="relative flex items-center gap-1.5">
+                  <Icon className="h-3.5 w-3.5" />
+                  {l.label}
+                </span>
               </button>
             );
           })}

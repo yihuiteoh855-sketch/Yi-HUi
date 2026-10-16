@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
 import { RiskTailStrip } from '@/components/risk-tail-strip';
+import { TierGateHint } from '@/components/tier-gate-hint';
 
 export interface CardProps {
   toolCallId: string;
@@ -197,6 +198,7 @@ export function QuarantineCard({ toolCallId, args, result, addToolResult }: Card
       <CardContent className="space-y-3">
         {!proposal && !error && <p className="text-xs text-muted-foreground">Computing signed terms…</p>}
         {error && <p className="rounded-md bg-destructive/10 p-2 text-xs text-destructive">{error}</p>}
+        <TierGateHint error={error} />
         {terms && (
           <>
             <div className="flex items-center justify-between rounded-md border p-3">
@@ -298,6 +300,7 @@ export function EscrowCard({ toolCallId, args, result, addToolResult }: CardProp
       <CardContent className="space-y-3">
         {!base && !error && <p className="text-xs text-muted-foreground">Computing signed terms…</p>}
         {error && <p className="rounded-md bg-destructive/10 p-2 text-xs text-destructive">{error}</p>}
+        <TierGateHint error={error} />
         {base && (
           <>
             <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -410,6 +413,7 @@ export function SweepCard({ toolCallId, args, result, addToolResult }: CardProps
       <CardContent className="space-y-3">
         {!terms && !error && <p className="text-xs text-muted-foreground">Computing signed terms…</p>}
         {error && <p className="rounded-md bg-destructive/10 p-2 text-xs text-destructive">{error}</p>}
+        <TierGateHint error={error} />
         {terms && (
           <>
             <div className="flex items-center justify-between rounded-md border p-3">

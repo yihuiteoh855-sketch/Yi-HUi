@@ -5,6 +5,7 @@ import { BadgeCheck, ExternalLink, GraduationCap, Mail, ShieldCheck, X } from 'l
 import { useCtrlPayStore } from '@/lib/store';
 import { SUBSCRIPTION_REGISTRY, type SubscriptionId } from '@/lib/subscription-registry';
 import { ZOMBIE_RULES } from '@/lib/zombie-radar';
+import { TierGateHint } from '@/components/tier-gate-hint';
 import { calculateSubscriptionMetrics } from '@/lib/quant-engine';
 import { PROFILE } from '@/lib/mock-data';
 import { buildMailto, requestProposal, submitDecision } from '@/lib/api-client';
@@ -183,6 +184,7 @@ export function StudentDowngradeDrawer({ subscriptionId, open, onClose }: Props)
           )}
 
           {error && <p className="rounded-md bg-destructive/10 p-2 text-xs text-destructive">{error}</p>}
+          <TierGateHint error={error} />
         </CardContent>
       </Card>
     </div>
