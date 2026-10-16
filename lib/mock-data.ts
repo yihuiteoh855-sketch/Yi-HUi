@@ -175,7 +175,7 @@ export const MOCK_RECEIPTS: MockReceipt[] = [
 export const USAGE_SIGNALS: UsageSignal[] = [
   { subscriptionId: 'spotify_my', lastUsedDaysAgo: 1 },
   { subscriptionId: 'youtube_my', lastUsedDaysAgo: 2 },
-  { subscriptionId: 'netflix_my', lastUsedDaysAgo: 25 }, // low activity -> zombie candidate
+  { subscriptionId: 'netflix_my', lastUsedDaysAgo: 42 }, // no use in ~6 weeks -> zombie
   { subscriptionId: 'icloud_my', lastUsedDaysAgo: 0 },
   { subscriptionId: 'disney_plus_my', lastUsedDaysAgo: null }, // no telemetry -> suspected zombie
   { subscriptionId: 'anytime_fitness_my', lastUsedDaysAgo: 9 },
