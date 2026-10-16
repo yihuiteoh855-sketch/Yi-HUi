@@ -19,6 +19,7 @@ const INLINE_TYPES: SandboxEvent['type'][] = [
   'ESCROW_COMPLETED',
   'MONTH_END_ROAST',
   'PAYMENT_OK',
+  'BOOKING',
 ];
 
 interface Units {
@@ -80,11 +81,21 @@ function describe(e: SandboxEvent): { title: string; body: string; variant: 'inf
     case 'MONTH_END_ROAST': {
       const units = p.units as Units;
       return {
-        title: 'Month-End Subscription Roast',
+        title: `Month-End Subscription Roast (${String(p.tone ?? 'GENTLE')})`,
         body: `Wasted subscription spend ~${formatRM(
           Number(p.wastedMonthly),
         )}/month (${formatRM(Number(p.wastedAnnual))}/year) · about ${units.mixedRiceMeals} USM cafeteria mixed-rice meals a month.`,
         variant: 'danger',
+      };
+    }
+    case 'BOOKING': {
+      const units = p.units as Units;
+      return {
+        title: `Booked: ${String(p.merchant)}`,
+        body: `${formatRM(Number(p.amount))} · ${String(p.category).replaceAll('_', ' ')} · ${
+          p.isNeed ? 'NEED' : 'WANT'
+        } · ${units.mixedRiceMeals} mixed-rice meals.`,
+        variant: 'success',
       };
     }
     case 'PAYMENT_OK':

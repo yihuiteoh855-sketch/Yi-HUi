@@ -70,7 +70,8 @@ export type SandboxEventType =
   | 'DAILY_SUMMARY'
   | 'MONTH_END_ROAST'
   | 'PAYMENT_OK'
-  | 'PAYMENT_INTERCEPT';
+  | 'PAYMENT_INTERCEPT'
+  | 'BOOKING';
 
 export interface SandboxEvent {
   id: string;
@@ -124,6 +125,7 @@ export interface CtrlPayState {
   aiMandate: AiMandate;
   amortizeAnnualFees: boolean;
   plan: 'FREE' | 'PRO';
+  roastTone: 'GENTLE' | 'SPICY';
   spentThisWeek: number;
   spentThisMonth: number;
   studentVerified: boolean;
@@ -148,10 +150,18 @@ export interface CtrlPayState {
   setTier(tier: PermissionTier, on: boolean): void;
   setAmortize(on: boolean): void;
   setPlan(plan: 'FREE' | 'PRO'): void;
+  setRoastTone(tone: 'GENTLE' | 'SPICY'): void;
   setStudentVerified(on: boolean): void;
   setGmailConsent(on: boolean): void;
   simulatePaymentIntent(intent: PaymentIntent): void;
   proceedPayment(intent: PaymentIntent): void;
+  bookExpense(booking: {
+    merchant: string;
+    amount: number;
+    category: SpendCategory;
+    isNeed: boolean;
+    source?: string;
+  }): void;
   refreshZombieTags(): void;
   answerZombie(subscriptionId: SubscriptionId, usedInPast30Days: boolean): void;
   dismissEvent(id: string): void;
@@ -198,6 +208,7 @@ export const useCtrlPayStore = create<CtrlPayState>((set, get) => ({
   aiMandate: INITIAL_AI_MANDATE,
   amortizeAnnualFees: false,
   plan: 'FREE',
+  roastTone: 'GENTLE',
   spentThisWeek: SPENT_THIS_WEEK,
   spentThisMonth: SPENT_THIS_MONTH,
   studentVerified: false,
@@ -312,6 +323,11 @@ export const useCtrlPayStore = create<CtrlPayState>((set, get) => ({
     console.info('[SANDBOX] setPlan', plan);
   },
 
+  setRoastTone(tone) {
+    set({ roastTone: tone });
+    console.info('[SANDBOX] setRoastTone', tone);
+  },
+
   setStudentVerified(on) {
     const s = get();
     set({ studentVerified: on });
@@ -421,6 +437,40 @@ export const useCtrlPayStore = create<CtrlPayState>((set, get) => ({
       status: 'EXECUTED',
     });
     console.info('[SANDBOX] proceedPayment', intent.merchant, intent.amount);
+  },
+
+  bookExpense(b) {
+    const s = get();
+    const at = s.sandboxClock;
+    const amount = round2(b.amount);
+    set({
+      currentBalance: round2(s.currentBalance - amount),
+      spentThisWeek: round2(s.spentThisWeek + amount),
+      spentThisMonth: round2(s.spentThisMonth + amount),
+      events: pushEvent(s.events, {
+        id: `evt_BOOKING_${at}_${b.merchant}_${amount}`,
+        type: 'BOOKING',
+        at,
+        payload: {
+          merchant: b.merchant,
+          amount,
+          category: b.category,
+          isNeed: b.isNeed,
+          source: b.source ?? 'CHAT',
+          units: toStudentUnits(amount),
+        },
+      }),
+    });
+    audit(s, {
+      actor: 'USER',
+      actionType: 'USER_BOOK_EXPENSE',
+      permissionTier: 'T1',
+      data_accessed: ['transactions', 'balance'],
+      authorization_ref: 'USER_CONFIRM_BOOKING',
+      proposal_hash: null,
+      status: 'EXECUTED',
+    });
+    console.info('[SANDBOX] bookExpense', b.merchant, amount, b.category);
   },
 
   applyDecision(p, decision, newTerms) {
@@ -687,6 +737,7 @@ export function resolveClock(
         wastedAnnual,
         units: toStudentUnits(round2(wasted)),
         unitsAnnual: toStudentUnits(wastedAnnual),
+        tone: s.roastTone,
       },
     });
   }

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { EscrowCard, QuarantineCard, SweepCard } from '@/components/contract-cards';
+import { MultimodalBookkeeping } from '@/components/multimodal-bookkeeping';
 
 /** Loose UI-part shapes (kept local so we are resilient to SDK type drift). */
 interface LooseToolInvocation {
@@ -32,12 +33,15 @@ interface LooseMessage {
 
 const T3_TOOLS = new Set(['propose_quarantine', 'propose_escrow', 'propose_sweep']);
 
-const QUICK_CHIPS = [
-  { label: 'Can I buy RM 180 shoes today?', prompt: 'Can I buy RM 180 shoes today?' },
-  { label: "What's my safe daily allowance?", prompt: "What's my safe daily allowance?" },
-  { label: 'Analyze my zombie subscriptions', prompt: 'Analyze my zombie subscriptions.' },
-  { label: 'Roast my subscriptions 🔥', prompt: 'Roast my subscriptions. Tone: SPICY.' },
-];
+/** Plug into the bookkeeping panel? Kept separate for layout clarity. */
+function buildQuickChips(roastTone: 'GENTLE' | 'SPICY') {
+  return [
+    { label: 'Spending Analysis', prompt: 'Give me a spending analysis of my last 45 days.' },
+    { label: 'Ways to Save', prompt: 'What are the best ways I can save money this month?' },
+    { label: 'Budget Insights', prompt: "What's my safe daily allowance and budget breakdown?" },
+    { label: 'Month-End Roast 🔥', prompt: `Roast my subscriptions using the month-end numbers. Tone: ${roastTone}.` },
+  ];
+}
 
 function ToolSummary({ inv }: { inv: LooseToolInvocation }) {
   const result = inv.result as Record<string, unknown> | undefined;
@@ -76,6 +80,10 @@ function ToolSummary({ inv }: { inv: LooseToolInvocation }) {
 }
 
 export function AgentChat() {
+  const roastTone = useCtrlPayStore((s) => s.roastTone);
+  const setRoastTone = useCtrlPayStore((s) => s.setRoastTone);
+  const QUICK_CHIPS = React.useMemo(() => buildQuickChips(roastTone), [roastTone]);
+
   // A stable body object whose getters read the freshest sandbox state at request time.
   const body = React.useMemo(
     () => ({
@@ -114,7 +122,26 @@ export function AgentChat() {
             Numbers come from the server-side engine, never the model. You approve every state change.
           </CardDescription>
         </div>
-        <Badge variant="outline">AI SDK v4 · Gemini</Badge>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline">AI SDK v4 · Gemini</Badge>
+          <div className="flex items-center gap-1">
+            <span className="mr-1 text-[11px] text-muted-foreground">Roast tone</span>
+            <Button
+              size="sm"
+              variant={roastTone === 'GENTLE' ? 'secondary' : 'ghost'}
+              onClick={() => setRoastTone('GENTLE')}
+            >
+              Gentle
+            </Button>
+            <Button
+              size="sm"
+              variant={roastTone === 'SPICY' ? 'secondary' : 'ghost'}
+              onClick={() => setRoastTone('SPICY')}
+            >
+              Spicy
+            </Button>
+          </div>
+        </div>
       </CardHeader>
 
       <CardContent className="flex flex-1 flex-col gap-3 overflow-hidden">
@@ -247,6 +274,8 @@ export function AgentChat() {
             {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </form>
+
+        <MultimodalBookkeeping />
       </CardContent>
     </Card>
   );
