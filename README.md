@@ -13,6 +13,20 @@ ringgit** with a tamper-evident audit trail.
 
 ---
 
+## 2026 Shenzhen FinTechathon — Submission Checklist & Evidence Index
+
+| # | Deliverable | Where |
+|---|---|---|
+| 01 | Technical documentation (architecture, algorithms, security design) | `docs/TECHNICAL_DOCUMENTATION.md` |
+| 04 | Source code & tests | `README.md`, `tests/`, `THIRD_PARTY_LICENSES.md` |
+| 05 | Security self-assessment report | `SECURITY_REPORT.md` |
+| 06 | Execution evidence (sandbox operation logs) | `docs/SANDBOX_EXECUTION_EVIDENCE.md`, `docs/sandbox-operation-log.json` |
+
+The execution evidence is produced deterministically by `npm run generate:evidence` (it runs the
+7-step judge workflow against the real engine, store and audit logger).
+
+---
+
 ## Quick start
 
 ```bash

@@ -1,0 +1,400 @@
+{
+  "schema": "ctrlpay.sandbox-execution-evidence.v1",
+  "topic": "2026 Shenzhen FinTechathon — International Track, Topic A",
+  "deliverable": "Submission Checklist Item 06 — Execution Evidence (sandbox operation logs)",
+  "userId": "student_usm_001",
+  "sandboxStartClock": "2026-03-12T09:00:00.000Z",
+  "deterministic": true,
+  "reproducibilityNote": "The wall clock is frozen at the sandbox start and Math.random is pinned; proposals use fixed ids. Re-running \"npm run generate:evidence\" reproduces this file byte-for-byte.",
+  "summary": {
+    "auditEntries": 10,
+    "chainVerified": true,
+    "finalSandboxClock": "2026-03-31T23:59:59.999Z",
+    "finalLedger": {
+      "currentBalance": 1240,
+      "defenseVault": 16.4,
+      "rewardPool": 22.4
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "title": "Default-OFF safety gate (T0 advisory only)",
+      "sandboxClock": "2026-03-12T09:00:00.000Z",
+      "ledger": {
+        "currentBalance": 1240,
+        "defenseVault": 0,
+        "rewardPool": 24
+      },
+      "observations": {
+        "masterAutonomyEnabled": false,
+        "t0": {
+          "shortfallProbability": 77.3,
+          "cfar95": 171.13,
+          "riskLevel": "CRITICAL"
+        },
+        "t3Attempt": {
+          "ok": false,
+          "reason": "MASTER_AUTONOMY_OFF: CtrlPay is in T0 advisory/analysis mode only."
+        }
+      }
+    },
+    {
+      "step": 2,
+      "title": "Payment interceptor — Shopee RM 180 impulse buy",
+      "sandboxClock": "2026-03-12T09:00:00.000Z",
+      "ledger": {
+        "currentBalance": 1240,
+        "defenseVault": 0,
+        "rewardPool": 24
+      },
+      "observations": {
+        "seed": 42,
+        "shortfallProbability": 77.3,
+        "cfar95": 171.13,
+        "projectedMonthEndBalance": 244.97,
+        "dynamicDailyAllowance": 17.82,
+        "riskLevel": "CRITICAL",
+        "limitBreach": {
+          "weekly": true,
+          "monthly": true
+        },
+        "studentUnits": {
+          "mixedRiceMeals": 20,
+          "bubbleTea": 12
+        }
+      }
+    },
+    {
+      "step": 3,
+      "title": "24h Commitment Quarantine lock (early claim refused)",
+      "sandboxClock": "2026-03-12T09:00:00.000Z",
+      "ledger": {
+        "currentBalance": 1240,
+        "defenseVault": 0,
+        "rewardPool": 24
+      },
+      "observations": {
+        "proposalId": "prop_quarantine_0001",
+        "authorizationRef": "USER_CLICK_APPROVE_PROPOSAL_0001",
+        "terms": {
+          "kind": "QUARANTINE",
+          "targetItem": "Shopee impulse buy (RM 180)",
+          "itemPrice": 180,
+          "premiumReward": 9,
+          "quarantineHours": 24,
+          "shortfallProbability": 81.7,
+          "cfar95": 166.84,
+          "riskLevel": "CRITICAL"
+        },
+        "status": "LOCKED_24H",
+        "earlyClaimRefused": true,
+        "rewardPoolUnchangedAt": 24
+      }
+    },
+    {
+      "step": 4,
+      "title": "Fast-forward +24h and claim the quarantine reward",
+      "sandboxClock": "2026-03-13T09:00:00.000Z",
+      "ledger": {
+        "currentBalance": 1240,
+        "defenseVault": 9,
+        "rewardPool": 15
+      },
+      "observations": {
+        "proposalId": "prop_quarantine_0001",
+        "status": "CLAIMED",
+        "rewardClaimed": 9,
+        "rewardPoolBefore": 24,
+        "rewardPoolAfter": 15,
+        "defenseVaultBefore": 0,
+        "defenseVaultAfter": 9
+      }
+    },
+    {
+      "step": 5,
+      "title": "Zombie Radar and Spotify student downgrade sweep",
+      "sandboxClock": "2026-03-13T09:00:00.000Z",
+      "ledger": {
+        "currentBalance": 1240,
+        "defenseVault": 9,
+        "rewardPool": 15
+      },
+      "observations": {
+        "zombieTags": {
+          "netflix_my": "ZOMBIE",
+          "spotify_my": "ACTIVE",
+          "youtube_my": "ENDANGERED",
+          "disney_plus_my": "SUSPECTED_ZOMBIE",
+          "icloud_my": "ACTIVE"
+        },
+        "studentDowngradeCandidates": [
+          "spotify_my",
+          "youtube_my"
+        ],
+        "studentVerified": true,
+        "spotifyFullPriceRM": 15.9,
+        "spotifyStudentPriceRM": 8.5,
+        "monthlySavings": 7.4,
+        "sweepStatus": "PENDING_NEXT_BILLING_VERIFICATION",
+        "defenseVaultNotCreditedYet": 9
+      }
+    },
+    {
+      "step": 6,
+      "title": "Jump to Month-End — two-stage sweep settlement",
+      "sandboxClock": "2026-03-31T23:59:59.999Z",
+      "ledger": {
+        "currentBalance": 1240,
+        "defenseVault": 16.4,
+        "rewardPool": 22.4
+      },
+      "observations": {
+        "sweepStatus": "VERIFIED",
+        "monthlySavings": 7.4,
+        "defenseVaultGrowth": 7.4,
+        "rewardPoolGrowth": 7.4,
+        "conservationHolds": true,
+        "dailySummaryFired": true,
+        "monthEndRoast": {
+          "wastedMonthly": 109.9,
+          "wastedAnnual": 1318.8,
+          "units": {
+            "mixedRiceMeals": 12,
+            "bubbleTea": 7
+          },
+          "unitsAnnual": {
+            "mixedRiceMeals": 146,
+            "bubbleTea": 87
+          },
+          "tone": "GENTLE"
+        }
+      }
+    },
+    {
+      "step": 7,
+      "title": "Cryptographic audit-chain verification",
+      "sandboxClock": "2026-03-31T23:59:59.999Z",
+      "ledger": {
+        "currentBalance": 1240,
+        "defenseVault": 16.4,
+        "rewardPool": 22.4
+      },
+      "observations": {
+        "verified": true,
+        "entryCount": 10,
+        "genesisPrevHash": "GENESIS",
+        "finalEntryHash": "4910e429120b0221030d80ce207e02c76577cf6648a5942c1805b04133c12068"
+      }
+    }
+  ],
+  "sandboxOperationLog": [
+    {
+      "sandboxClock": "2026-03-12T09:00:00.000Z",
+      "line": "[SANDBOX] simulatePaymentIntent Shopee 180 CRITICAL"
+    },
+    {
+      "sandboxClock": "2026-03-12T09:00:00.000Z",
+      "line": "[SANDBOX] setMasterAutonomy true"
+    },
+    {
+      "sandboxClock": "2026-03-12T09:00:00.000Z",
+      "line": "[SANDBOX] setTier T3 true"
+    },
+    {
+      "sandboxClock": "2026-03-12T09:00:00.000Z",
+      "line": "[SANDBOX] applyDecision APPROVED prop_quarantine_0001"
+    },
+    {
+      "sandboxClock": "2026-03-12T09:00:00.000Z",
+      "line": "[SANDBOX] claim refused (not ready) prop_quarantine_0001"
+    },
+    {
+      "sandboxClock": "2026-03-13T09:00:00.000Z",
+      "line": "[SANDBOX] advanceClock 1773306000000 -> 1773392400000 2 event(s)"
+    },
+    {
+      "sandboxClock": "2026-03-13T09:00:00.000Z",
+      "line": "[SANDBOX] claimQuarantineReward prop_quarantine_0001 9"
+    },
+    {
+      "sandboxClock": "2026-03-13T09:00:00.000Z",
+      "line": "[SANDBOX] setStudentVerified true"
+    },
+    {
+      "sandboxClock": "2026-03-13T09:00:00.000Z",
+      "line": "[SANDBOX] applyDecision APPROVED prop_sweep_0001"
+    },
+    {
+      "sandboxClock": "2026-03-31T23:59:59.999Z",
+      "line": "[SANDBOX] advanceClock 1773392400000 -> 1775001599999 21 event(s)"
+    }
+  ],
+  "auditLog": [
+    {
+      "logId": "log_mmn8luo0_1_f9tfnfse",
+      "timestamp": "2026-03-12T09:00:00.000Z",
+      "sandboxClock": "2026-03-12T09:00:00.000Z",
+      "actor": "AGENT",
+      "actionType": "PROPOSE_QUARANTINE_BLOCKED",
+      "permissionTier": "T3",
+      "data_accessed": [],
+      "authorization_ref": "TIER_GATE_REJECTED",
+      "proposal_hash": null,
+      "status": "DECLINED",
+      "prevHash": "GENESIS",
+      "entryHash": "3adfcb04a4b13a5c599bd5da2663b2e3a23f36b17325cc2e48dc116fe62779d6"
+    },
+    {
+      "logId": "log_mmn8luo0_2_f9tfnfse",
+      "timestamp": "2026-03-12T09:00:00.000Z",
+      "sandboxClock": "2026-03-12T09:00:00.000Z",
+      "actor": "AGENT",
+      "actionType": "PAYMENT_INTERCEPT",
+      "permissionTier": "T0",
+      "data_accessed": [
+        "transactions.last45d",
+        "bills.unpaid",
+        "userPayLimits"
+      ],
+      "authorization_ref": "MANDATE_DEFAULT_T0",
+      "proposal_hash": null,
+      "status": "EXECUTED",
+      "prevHash": "3adfcb04a4b13a5c599bd5da2663b2e3a23f36b17325cc2e48dc116fe62779d6",
+      "entryHash": "01eff1ce0514134ea4923825a05bf4d8a04ae272a3350ecde99503b92ce52b68"
+    },
+    {
+      "logId": "log_mmn8luo0_3_f9tfnfse",
+      "timestamp": "2026-03-12T09:00:00.000Z",
+      "sandboxClock": "2026-03-12T09:00:00.000Z",
+      "actor": "USER",
+      "actionType": "SET_MASTER_AUTONOMY",
+      "permissionTier": "T0",
+      "data_accessed": [
+        "settings.masterAutonomy"
+      ],
+      "authorization_ref": "USER_TOGGLE_MASTER_ON",
+      "proposal_hash": null,
+      "status": "MODIFIED",
+      "prevHash": "01eff1ce0514134ea4923825a05bf4d8a04ae272a3350ecde99503b92ce52b68",
+      "entryHash": "5a7db43cbeb9dda5db41c01f3c00bafebb2f46c701d00cce5840b66315db1ee0"
+    },
+    {
+      "logId": "log_mmn8luo0_4_f9tfnfse",
+      "timestamp": "2026-03-12T09:00:00.000Z",
+      "sandboxClock": "2026-03-12T09:00:00.000Z",
+      "actor": "USER",
+      "actionType": "SET_TIER_T3",
+      "permissionTier": "T0",
+      "data_accessed": [
+        "settings.permissionTiers"
+      ],
+      "authorization_ref": "USER_TOGGLE_T3_ON",
+      "proposal_hash": null,
+      "status": "MODIFIED",
+      "prevHash": "5a7db43cbeb9dda5db41c01f3c00bafebb2f46c701d00cce5840b66315db1ee0",
+      "entryHash": "4f9589dedac8cb345a1e7c68547dee2e4e89e7fee7440c7e0f807de557c6c23f"
+    },
+    {
+      "logId": "log_mmn8luo0_5_f9tfnfse",
+      "timestamp": "2026-03-12T09:00:00.000Z",
+      "sandboxClock": "2026-03-12T09:00:00.000Z",
+      "actor": "USER",
+      "actionType": "USER_DECISION",
+      "permissionTier": "T3",
+      "data_accessed": [
+        "proposals",
+        "balance"
+      ],
+      "authorization_ref": "USER_CLICK_APPROVE_PROPOSAL_0001",
+      "proposal_hash": "414cc3fc30bd94e1a210789ea436832f24a892cb9d87e6a52a14617ff9007a04",
+      "status": "APPROVED",
+      "prevHash": "4f9589dedac8cb345a1e7c68547dee2e4e89e7fee7440c7e0f807de557c6c23f",
+      "entryHash": "00f2fe66ae89a5278bb289ca9cdde2aec397fc611a35e47f251fb34df16d5b3b"
+    },
+    {
+      "logId": "log_mmn8luo0_6_f9tfnfse",
+      "timestamp": "2026-03-12T09:00:00.000Z",
+      "sandboxClock": "2026-03-13T09:00:00.000Z",
+      "actor": "AGENT",
+      "actionType": "ADVANCE_CLOCK",
+      "permissionTier": "T0",
+      "data_accessed": [
+        "sandboxClock"
+      ],
+      "authorization_ref": "USER_SIMULATION_TOOLBAR",
+      "proposal_hash": null,
+      "status": "EXECUTED",
+      "prevHash": "00f2fe66ae89a5278bb289ca9cdde2aec397fc611a35e47f251fb34df16d5b3b",
+      "entryHash": "bdfa623c1404bc60d064db30dcbb61287c495ac14042629c47d27f334b655677"
+    },
+    {
+      "logId": "log_mmn8luo0_7_f9tfnfse",
+      "timestamp": "2026-03-12T09:00:00.000Z",
+      "sandboxClock": "2026-03-13T09:00:00.000Z",
+      "actor": "USER",
+      "actionType": "CLAIM_QUARANTINE_REWARD",
+      "permissionTier": "T3",
+      "data_accessed": [
+        "quarantines",
+        "rewardPool",
+        "defenseVault"
+      ],
+      "authorization_ref": "USER_CLICK_CLAIM_REWARD_0001",
+      "proposal_hash": null,
+      "status": "EXECUTED",
+      "prevHash": "bdfa623c1404bc60d064db30dcbb61287c495ac14042629c47d27f334b655677",
+      "entryHash": "25656b486ba26e82cef11fa45164c36597489ce20565d4c34b9e99bd65f7f939"
+    },
+    {
+      "logId": "log_mmn8luo0_8_f9tfnfse",
+      "timestamp": "2026-03-12T09:00:00.000Z",
+      "sandboxClock": "2026-03-13T09:00:00.000Z",
+      "actor": "USER",
+      "actionType": "STUDENT_EMAIL_OTP_VERIFIED",
+      "permissionTier": "T2",
+      "data_accessed": [
+        "profile.studentEmail",
+        "verification.studentStatus"
+      ],
+      "authorization_ref": "USER_SUBMIT_STUDENT_OTP",
+      "proposal_hash": null,
+      "status": "MODIFIED",
+      "prevHash": "25656b486ba26e82cef11fa45164c36597489ce20565d4c34b9e99bd65f7f939",
+      "entryHash": "4f5b84d4c2ee50be4c6e8727eeae86e070339a99da83aee39b99553b700e8150"
+    },
+    {
+      "logId": "log_mmn8luo0_9_f9tfnfse",
+      "timestamp": "2026-03-12T09:00:00.000Z",
+      "sandboxClock": "2026-03-13T09:00:00.000Z",
+      "actor": "USER",
+      "actionType": "USER_DECISION",
+      "permissionTier": "T3",
+      "data_accessed": [
+        "proposals",
+        "balance"
+      ],
+      "authorization_ref": "USER_CLICK_APPROVE_PROPOSAL_0001",
+      "proposal_hash": "4f042f0ebb574f5ec653ca3a32c6d87c334735d85ea2b111061358fb1e96e863",
+      "status": "APPROVED",
+      "prevHash": "4f5b84d4c2ee50be4c6e8727eeae86e070339a99da83aee39b99553b700e8150",
+      "entryHash": "c50932d017bf3cded3b06bbbb1dc1e2fa95a0e8a286910a60616cc447df7eb8d"
+    },
+    {
+      "logId": "log_mmn8luo0_a_f9tfnfse",
+      "timestamp": "2026-03-12T09:00:00.000Z",
+      "sandboxClock": "2026-03-31T23:59:59.999Z",
+      "actor": "AGENT",
+      "actionType": "ADVANCE_CLOCK",
+      "permissionTier": "T0",
+      "data_accessed": [
+        "sandboxClock"
+      ],
+      "authorization_ref": "USER_SIMULATION_TOOLBAR",
+      "proposal_hash": null,
+      "status": "EXECUTED",
+      "prevHash": "c50932d017bf3cded3b06bbbb1dc1e2fa95a0e8a286910a60616cc447df7eb8d",
+      "entryHash": "4910e429120b0221030d80ce207e02c76577cf6648a5942c1805b04133c12068"
+    }
+  ]
+}

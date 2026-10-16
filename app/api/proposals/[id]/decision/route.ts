@@ -3,15 +3,18 @@ import { parseLedgerSnapshot } from '@/lib/ledger';
 import { decideProposal, getStoredProposal, ProposalError } from '@/lib/proposals';
 import { assertTier, type TierState } from '@/lib/permissions';
 import { auditLog } from '@/lib/audit-logger';
-import { CardDecisionSchema } from '@/lib/types';
+import { CardDecisionSchema, SignedProposalSchema, type SignedProposal } from '@/lib/types';
 import { toISODateTime } from '@/lib/utils';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 interface Body {
   decision?: unknown;
   ledgerSnapshot?: unknown;
   autonomy?: TierState;
+  /** The signed proposal being decided on, echoed by the client for stateless verification. */
+  proposal?: unknown;
 }
 
 const TOOL_FOR_KIND: Record<string, string> = {
@@ -64,10 +67,20 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     enabledTiers: { T0: true, T1: false, T2: false, T3: false },
   };
 
+  // Optional stateless fallback: verify the echoed proposal's shape (hash is verified in decideProposal).
+  let echoedProposal: SignedProposal | undefined;
+  if (body.proposal !== undefined) {
+    const parsedProposal = SignedProposalSchema.safeParse(body.proposal);
+    if (!parsedProposal.success) {
+      return Response.json({ error: 'INVALID_PROPOSAL_PAYLOAD' }, { status: 400 });
+    }
+    echoedProposal = parsedProposal.data;
+  }
+
   // Tier gate. A DECLINE is always allowed (it is not a financial state change).
   if (decision.status !== 'DECLINED') {
-    const stored = getStoredProposal(params.id);
-    const toolName = stored ? TOOL_FOR_KIND[stored.terms.kind] ?? 'propose_quarantine' : 'propose_quarantine';
+    const source = getStoredProposal(params.id) ?? echoedProposal;
+    const toolName = source ? TOOL_FOR_KIND[source.terms.kind] ?? 'propose_quarantine' : 'propose_quarantine';
     const check = assertTier(toolName, autonomy, { authorizationRef: decision.authorizationRef });
     if (!check.ok) {
       auditLog.append(
@@ -94,6 +107,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       decision,
       mandate: snapshot.aiMandate,
       snapshot,
+      proposal: echoedProposal,
     });
 
     auditLog.append(

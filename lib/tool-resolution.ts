@@ -90,12 +90,12 @@ export function declineProposal(
 
 /**
  * Unmount safety: a card that goes away before a decision still resolves the tool
- * call with `{ status: 'DECLINED', reason: 'DISMISSED' }`.
+ * call with `{ status: 'DECLINED', proposalId, reason: 'DISMISSED' }`.
  */
-export function dismissProposal(): ResolvedDecision<never, DeclineResolution> {
+export function dismissProposal(proposalId: string | null = null): ResolvedDecision<never, DeclineResolution> {
   return {
     decision: null,
-    resolution: { status: 'DECLINED', proposalId: null, reason: DISMISSED_REASON },
+    resolution: { status: 'DECLINED', proposalId, reason: DISMISSED_REASON },
   };
 }
 

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useCtrlPayStore } from '@/lib/store';
 import { requestProposal, submitDecision } from '@/lib/api-client';
+import { syncServerAudit } from '@/lib/audit-sync';
 import {
   approveProposal,
   declineProposal,
@@ -52,12 +53,16 @@ function useProposalCard(kind: Kind, args: Record<string, unknown>, toolCallId: 
   const [busy, setBusy] = React.useState(false);
   const resolvedRef = React.useRef(Boolean(result));
   const mountedAtRef = React.useRef(Date.now());
+  const proposalIdRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
     let cancelled = false;
     requestProposal(kind, args)
       .then((p) => {
-        if (!cancelled) setProposal(p);
+        if (!cancelled) {
+          proposalIdRef.current = p.proposalId;
+          setProposal(p);
+        }
       })
       .catch((e) => {
         if (!cancelled) setError((e as Error).message);
@@ -84,7 +89,7 @@ function useProposalCard(kind: Kind, args: Record<string, unknown>, toolCallId: 
       // eslint-disable-next-line react-hooks/exhaustive-deps
       if (!resolvedRef.current && Date.now() - mountedAtRef.current > 600) {
         resolvedRef.current = true;
-        addToolResult({ toolCallId, result: dismissProposal().resolution });
+        addToolResult({ toolCallId, result: dismissProposal(proposalIdRef.current).resolution });
       }
     };
   }, [addToolResult, toolCallId]);
@@ -103,10 +108,12 @@ function useProposalCard(kind: Kind, args: Record<string, unknown>, toolCallId: 
 
       if (!built.decision) throw new Error('DECISION_MISSING');
 
-      const out = await submitDecision(proposal.proposalId, built.decision);
+      const out = await submitDecision(proposal, built.decision);
       if (status !== 'DECLINED') {
         applyDecision(out.proposal, status, newTerms);
       }
+      // Fold the server-recorded AGENT decision entry into the local audit chain.
+      void syncServerAudit();
       finish({
         ...built.resolution,
         proposalId: proposal.proposalId,

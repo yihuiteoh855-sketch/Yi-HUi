@@ -82,6 +82,29 @@ function hashEntry(head: Omit<AuditEntry, 'entryHash'>): string {
   return sha256Hex(canonicalJson(head));
 }
 
+/** Shape guard for untrusted external entries (from the server). */
+function isAuditEntry(value: unknown): value is AuditEntry {
+  if (!value || typeof value !== 'object') return false;
+  const e = value as Record<string, unknown>;
+  return (
+    typeof e.logId === 'string' &&
+    typeof e.timestamp === 'string' &&
+    typeof e.sandboxClock === 'string' &&
+    (e.actor === 'AGENT' || e.actor === 'USER') &&
+    typeof e.actionType === 'string' &&
+    (e.permissionTier === 'T0' ||
+      e.permissionTier === 'T1' ||
+      e.permissionTier === 'T2' ||
+      e.permissionTier === 'T3') &&
+    Array.isArray(e.data_accessed) &&
+    typeof e.authorization_ref === 'string' &&
+    (e.proposal_hash === null || typeof e.proposal_hash === 'string') &&
+    typeof e.status === 'string' &&
+    typeof e.prevHash === 'string' &&
+    typeof e.entryHash === 'string'
+  );
+}
+
 export const auditLog = {
   append(e: AuditInput, userId: string = CURRENT_USER_ID): AuditEntry {
     const entries = hydrate(userId);
@@ -119,6 +142,44 @@ export const auditLog = {
       prevHash = entryHash;
     }
     return true;
+  },
+
+  /**
+   * Merge externally-recorded entries (e.g. server-side AGENT tool invocations) into this
+   * chain. Entries already present (by `logId`) are skipped, so repeated syncs are
+   * idempotent. Hashes are RECOMPUTED locally so the merged chain still satisfies
+   * `verifyChain() === true`. All original descriptive fields are preserved.
+   */
+  mergeExternal(external: readonly unknown[], userId: string = CURRENT_USER_ID): number {
+    const entries = hydrate(userId);
+    const seen = new Set(entries.map((e) => e.logId));
+    let prevHash = entries.length > 0 ? entries[entries.length - 1].entryHash : GENESIS_HASH;
+    let added = 0;
+
+    for (const raw of external) {
+      if (!isAuditEntry(raw) || seen.has(raw.logId)) continue;
+      const head: Omit<AuditEntry, 'entryHash'> = {
+        logId: raw.logId,
+        timestamp: raw.timestamp,
+        sandboxClock: raw.sandboxClock,
+        actor: raw.actor,
+        actionType: raw.actionType,
+        permissionTier: raw.permissionTier,
+        data_accessed: raw.data_accessed,
+        authorization_ref: raw.authorization_ref,
+        proposal_hash: raw.proposal_hash,
+        status: raw.status,
+        prevHash,
+      };
+      const entry: AuditEntry = { ...head, entryHash: hashEntry(head) };
+      entries.push(entry);
+      seen.add(entry.logId);
+      prevHash = entry.entryHash;
+      added += 1;
+    }
+
+    if (added > 0) persist(userId, entries);
+    return added;
   },
 
   /** Test/admin helper: drop the in-memory chain (localStorage mirror included). */

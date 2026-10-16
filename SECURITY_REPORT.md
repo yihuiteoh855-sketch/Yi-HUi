@@ -98,7 +98,7 @@
 
 ## 10.2 User Data Authorization Survey Integration
 
-We ran a student user privacy survey asking how willing respondents would be to grant four data accesses: **(a) Gmail read-only receipt access, (b) bank statement upload, (c) location tracking, (d) IC verification**. The findings shaped the architecture.
+We ran a student user privacy survey asking how willing respondents would be to grant four data accesses: **(a) Gmail read-only receipt access, (b) bank statement upload, (c) real-time GPS location tracking, (d) IC / passport upload & facial liveness verification**. The findings shaped the architecture.
 
 > ⚠️ **Fill-in template — do not fabricate.** Every `[__]` / `[...]` below must be replaced with real,
 > collected data (and screenshots) before submission. All other cells that cite `plan.md` design
@@ -127,8 +127,8 @@ Willingness measured on a 5-point scale, reported here as **willing** (agree + s
 |---|---|---|---|---|---|---|
 | (a) | Gmail read-only receipt access | `[verbatim question]` | `[__]%` | `[__]%` | `[__]%` | `docs/screenshots/[survey-a.png]` |
 | (b) | Bank statement upload | `[verbatim question]` | `[__]%` | `[__]%` | `[__]%` | `docs/screenshots/[survey-b.png]` |
-| (c) | Location tracking | `[verbatim question]` | `[__]%` | `[__]%` | `[__]%` | `docs/screenshots/[survey-c.png]` |
-| (d) | IC verification | `[verbatim question]` | `[__]%` | `[__]%` | `[__]%` | `docs/screenshots/[survey-d.png]` |
+| (c) | Real-time GPS location tracking | `[verbatim question]` | `[__]%` | `[__]%` | `[__]%` | `docs/screenshots/[survey-c.png]` |
+| (d) | IC / passport upload & facial liveness verification | `[verbatim question]` | `[__]%` | `[__]%` | `[__]%` | `docs/screenshots/[survey-d.png]` |
 
 Optional breakdowns to include if collected: by year of study, by faculty, and whether the
 respondent had previously been charged for a subscription they forgot.
@@ -139,8 +139,8 @@ respondent had previously been charged for a subscription they forgot.
 |---|---|---|
 | Gmail read-only receipt access | willing `[__]%` | **Opt-in only**, read-only, **structured fields only**, revocable; replaces "silent scanning". Sandbox uses mock emails. |
 | Bank statement upload | willing `[__]%` | **Not required** for core features; the sandbox ledger and a manual/receipt bookkeeping path stay fully functional. |
-| Location tracking | willing `[__]%` | **Dropped.** Replaced by a time-triggered **12:00 PM** daily summary; GPS kept on the roadmap. |
-| IC verification | willing `[__]%` | **Dropped** from the demo; **student OTP only**; licensed eKYC in production. |
+| Real-time GPS location tracking | willing `[__]%` | **Dropped.** Replaced by a time-triggered **12:00 PM** daily summary; GPS kept on the roadmap. |
+| IC / passport upload & facial liveness verification | willing `[__]%` | **Dropped** from the demo; **student OTP only**; licensed eKYC in production. |
 
 **Result:** data minimisation by default, and **all optional permissions default to OFF**.
 

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { CheckCircle2, FileClock, RefreshCw, XCircle } from 'lucide-react';
 import { auditLog, type AuditEntry, type AuditTier } from '@/lib/audit-logger';
+import { syncServerAudit } from '@/lib/audit-sync';
 import { useCtrlPayStore } from '@/lib/store';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -18,13 +19,16 @@ export function AuditDrawer() {
   const [tier, setTier] = React.useState<AuditTier | 'ALL'>('ALL');
   const [status, setStatus] = React.useState<string>('ALL');
 
-  const refresh = React.useCallback(() => {
+  // Pull server-recorded AGENT entries (chat tools, number-verifier) and merge them into
+  // the local chain, then re-read. mergeExternal recomputes hashes so verifyChain still holds.
+  const pull = React.useCallback(async () => {
+    await syncServerAudit();
     setEntries([...auditLog.list(userId)].reverse());
   }, [userId]);
 
   React.useEffect(() => {
-    refresh();
-  }, [refresh, events]);
+    void pull();
+  }, [pull, events]);
 
   const chainOk = auditLog.verifyChain(userId);
   const statuses = ['ALL', ...Array.from(new Set(entries.map((e) => e.status)))];
@@ -54,7 +58,7 @@ export function AuditDrawer() {
               </>
             )}
           </Badge>
-          <Button size="sm" variant="ghost" onClick={refresh} aria-label="Refresh audit log">
+          <Button size="sm" variant="ghost" onClick={() => void pull()} aria-label="Sync and refresh audit log">
             <RefreshCw className="h-4 w-4" />
           </Button>
         </div>

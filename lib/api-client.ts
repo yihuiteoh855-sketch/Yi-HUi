@@ -43,14 +43,15 @@ export async function requestProposal(
 }
 
 export async function submitDecision(
-  proposalId: string,
+  proposal: SignedProposal,
   decision: CardDecision,
 ): Promise<{ proposal: SignedProposal; authorizationRef: string }> {
   const snapshot = useCtrlPayStore.getState().ledgerSnapshot();
-  const res = await fetch(`/api/proposals/${encodeURIComponent(proposalId)}/decision`, {
+  const res = await fetch(`/api/proposals/${encodeURIComponent(proposal.proposalId)}/decision`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ decision, ledgerSnapshot: snapshot, autonomy: currentAutonomy() }),
+    // The full signed proposal is echoed so a serverless cold start can still verify it statelessly.
+    body: JSON.stringify({ decision, ledgerSnapshot: snapshot, autonomy: currentAutonomy(), proposal }),
   });
   const data = (await res.json()) as {
     proposal?: SignedProposal;

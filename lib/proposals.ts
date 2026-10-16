@@ -222,23 +222,56 @@ export interface DecideArgs {
   decision: CardDecision;
   mandate: LedgerSnapshot['aiMandate'];
   snapshot: LedgerSnapshot;
+  /**
+   * Serverless fallback: the client echoes the full SignedProposal it is deciding on.
+   * Used only when the in-memory registry is empty (cold start / different instance).
+   * It is ALWAYS cryptographically re-verified before any state change.
+   */
+  proposal?: SignedProposal;
 }
 
-export function decideProposal({ proposalId, userId, decision, mandate, snapshot }: DecideArgs): {
+export function decideProposal({
+  proposalId,
+  userId,
+  decision,
+  mandate,
+  snapshot,
+  proposal,
+}: DecideArgs): {
   proposal: SignedProposal;
   authorizationRef: string;
 } {
-  const stored = getStoredProposal(proposalId);
+  // Prefer the in-memory (authoritative) copy; fall back to the client-supplied signed
+  // proposal so stateless/serverless deployments do not 404 on a cold start.
+  const stored = getStoredProposal(proposalId) ?? proposal;
   if (!stored) throw new ProposalError('PROPOSAL_NOT_FOUND', `Unknown proposal ${proposalId}`, 404);
+
+  if (stored.proposalId !== proposalId) {
+    throw new ProposalError(
+      'PROPOSAL_ID_MISMATCH',
+      'The supplied proposal does not match the proposal id being decided',
+      400,
+    );
+  }
 
   // Tenant isolation: proposals are keyed by user.
   if (stored.userId !== userId) {
     throw new ProposalError('FORBIDDEN', 'This proposal belongs to another tenant', 403);
   }
 
-  // Re-verify the signature; a tampered proposal is rejected.
+  // Re-verify the signature; a tampered proposal (any terms byte changed) is rejected.
   if (!verifyProposal(stored, userId)) {
     throw new ProposalError('INTEGRITY_HASH_MISMATCH', 'Proposal signature failed verification', 409);
+  }
+
+  // Only a pending proposal may be decided (no replay of an already-settled proposal).
+  if (stored.status !== 'PROPOSED') {
+    throw new ProposalError('PROPOSAL_NOT_PENDING', `Proposal is already ${stored.status}`, 409);
+  }
+
+  // Expiry uses the REAL wall clock; the sandbox clock is simulated and never expires a proposal.
+  if (Number.isFinite(Date.parse(stored.expiresAt)) && Date.parse(stored.expiresAt) < Date.now()) {
+    throw new ProposalError('PROPOSAL_EXPIRED', 'This proposal has expired. Please re-request it.', 410);
   }
 
   if (decision.status === 'DECLINED') {
@@ -270,7 +303,8 @@ export function decideProposal({ proposalId, userId, decision, mandate, snapshot
       dynamicDailyAllowance: dda,
       durationDays,
       mandate,
-    });    if (!check.ok) {
+    });
+    if (!check.ok) {
       throw new ProposalError('ESCROW_FLOOR_VIOLATION', check.reasons.join(','));
     }
     const newTerms = EscrowTermsSchema.parse({
@@ -286,6 +320,40 @@ export function decideProposal({ proposalId, userId, decision, mandate, snapshot
     });
     storeProposal(reSigned);
     return { proposal: reSigned, authorizationRef };
+  }
+
+  // ---- APPROVED: re-enforce the AI Mandate / survival floor at decision time. ----
+  if (stored.terms.kind === 'QUARANTINE') {
+    if (stored.terms.itemPrice > mandate.maxLockAmountRM) {
+      throw new ProposalError(
+        'EXCEEDS_AI_MANDATE',
+        `itemPrice RM ${stored.terms.itemPrice} exceeds the AI Mandate Limit of RM ${mandate.maxLockAmountRM}`,
+      );
+    }
+    if (mandate.maxLockDurationDays < Math.ceil(stored.terms.quarantineHours / 24)) {
+      throw new ProposalError(
+        'EXCEEDS_AI_MANDATE',
+        `Quarantine of ${stored.terms.quarantineHours}h exceeds the AI Mandate duration of ${mandate.maxLockDurationDays} day(s)`,
+      );
+    }
+  } else if (stored.terms.kind === 'ESCROW') {
+    const bills = upcomingFixedBills(snapshot.sandboxClock, snapshot.subscriptions, snapshot.amortizeAnnualFees);
+    const dda = computeDynamicDailyAllowance({
+      currentBalance: snapshot.currentBalance,
+      unpaidFixedBills: unpaidFixedBillTotal(bills),
+      monthlySavingsGoal: snapshot.monthlySavingsGoal,
+      remainingDaysInMonth: remainingDaysInMonth(snapshot.sandboxClock),
+    });
+    const check = validateEscrowFloor({
+      lockedCategories: stored.terms.lockedCategories as never,
+      dailyBudgetReduction: stored.terms.dailyBudgetReduction,
+      dynamicDailyAllowance: dda,
+      durationDays: stored.terms.durationDays,
+      mandate,
+    });
+    if (!check.ok) {
+      throw new ProposalError('ESCROW_FLOOR_VIOLATION', check.reasons.join(','));
+    }
   }
 
   const approved: SignedProposal = { ...stored, status: 'APPROVED' };

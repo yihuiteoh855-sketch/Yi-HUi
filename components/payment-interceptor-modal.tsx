@@ -4,6 +4,7 @@ import * as React from 'react';
 import { AlertTriangle, Lock, ShieldAlert, Wallet } from 'lucide-react';
 import { useCtrlPayStore, type PaymentIntent } from '@/lib/store';
 import { requestProposal, submitDecision } from '@/lib/api-client';
+import { approveProposal } from '@/lib/tool-resolution';
 import { formatRM } from '@/lib/utils';
 import type { WhatIfResult } from '@/lib/domain';
 import { Badge } from '@/components/ui/badge';
@@ -43,11 +44,10 @@ export function PaymentInterceptorModal() {
         itemPrice: intent.amount,
         category: intent.category,
       });
-      const { authorizationRef } = await submitDecision(proposal.proposalId, {
-        status: 'APPROVED',
-        proposalId: proposal.proposalId,
-        authorizationRef: `USER_CLICK_APPROVE_PROPOSAL_${proposal.proposalId.slice(-4)}`,
-      });
+      const { authorizationRef } = await submitDecision(
+        proposal,
+        approveProposal(proposal.proposalId, proposal.terms).decision!,
+      );
       applyDecision(
         { ...proposal, status: 'APPROVED' },
         'APPROVED',
@@ -71,11 +71,7 @@ export function PaymentInterceptorModal() {
         lockedCategories: [intent.category],
         durationDays: 7,
       });
-      await submitDecision(proposal.proposalId, {
-        status: 'APPROVED',
-        proposalId: proposal.proposalId,
-        authorizationRef: `USER_CLICK_APPROVE_PROPOSAL_${proposal.proposalId.slice(-4)}`,
-      });
+      await submitDecision(proposal, approveProposal(proposal.proposalId, proposal.terms).decision!);
       applyDecision({ ...proposal, status: 'APPROVED' }, 'APPROVED');
       dismissEvent(intercept.id);
     } catch (e) {

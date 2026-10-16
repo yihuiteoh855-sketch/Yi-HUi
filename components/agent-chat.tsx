@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useChat } from '@ai-sdk/react';
 import { Bot, Loader2, Send, Sparkles, Wrench } from 'lucide-react';
 import { useCtrlPayStore } from '@/lib/store';
+import { syncServerAudit } from '@/lib/audit-sync';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -84,7 +85,9 @@ export function AgentChat() {
   const setRoastTone = useCtrlPayStore((s) => s.setRoastTone);
   const QUICK_CHIPS = React.useMemo(() => buildQuickChips(roastTone), [roastTone]);
 
-  // A stable body object whose getters read the freshest sandbox state at request time.
+  // A stable body object whose getters read the FRESHEST sandbox state at the exact moment a
+  // request (including every addToolResult continuation) is sent — so toggling the Master
+  // Autonomy Switch takes effect immediately with no stale closure values.
   const body = React.useMemo(
     () => ({
       get ledgerSnapshot() {
@@ -93,6 +96,18 @@ export function AgentChat() {
       get autonomy() {
         const s = useCtrlPayStore.getState();
         return { masterAutonomyEnabled: s.masterAutonomyEnabled, enabledTiers: s.enabledTiers };
+      },
+      get currentBalance() {
+        return useCtrlPayStore.getState().currentBalance;
+      },
+      get sandboxClock() {
+        return useCtrlPayStore.getState().sandboxClock;
+      },
+      get userLimits() {
+        return useCtrlPayStore.getState().userLimits;
+      },
+      get aiMandate() {
+        return useCtrlPayStore.getState().aiMandate;
       },
     }),
     [],
@@ -108,6 +123,20 @@ export function AgentChat() {
   React.useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
+
+  // After every assistant turn, pull the server's AGENT audit entries (tool invocations and the
+  // post-LLM NUMBER_VERIFIER_* outcome) into the local hash chain, and surface the verifier state
+  // so the guardrail is observable in the UI, not just the log.
+  const [verifier, setVerifier] = React.useState<'PASSED' | 'BLOCKED' | null>(null);
+  const wasLoading = React.useRef(false);
+  React.useEffect(() => {
+    if (wasLoading.current && !isLoading) {
+      void syncServerAudit().then((r) => {
+        if (r.verifier) setVerifier(r.verifier);
+      });
+    }
+    wasLoading.current = isLoading;
+  }, [isLoading]);
 
   const typed = messages as unknown as LooseMessage[];
 
@@ -145,6 +174,12 @@ export function AgentChat() {
       </CardHeader>
 
       <CardContent className="flex flex-1 flex-col gap-3 overflow-hidden">
+        {verifier === 'BLOCKED' && (
+          <p className="rounded-md bg-destructive/10 p-2 text-xs text-destructive">
+            Post-LLM number verifier blocked an ungrounded RM figure in the last reply. The guardrail is
+            recorded in the audit trail as <span className="font-mono">NUMBER_VERIFIER_BLOCKED</span>.
+          </p>
+        )}
         <div className="min-h-[220px] flex-1 space-y-3 overflow-y-auto scroll-thin pr-1">
           {typed.length === 0 && (
             <div className="rounded-md border p-3 text-xs text-muted-foreground">

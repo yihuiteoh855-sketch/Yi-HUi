@@ -7,6 +7,7 @@ import { SUBSCRIPTION_REGISTRY, type SubscriptionId } from '@/lib/subscription-r
 import { calculateSubscriptionMetrics } from '@/lib/quant-engine';
 import { PROFILE } from '@/lib/mock-data';
 import { buildMailto, requestProposal, submitDecision } from '@/lib/api-client';
+import { approveProposal } from '@/lib/tool-resolution';
 import { formatRM } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -70,11 +71,9 @@ export function StudentDowngradeDrawer({ subscriptionId, open, onClose }: Props)
         subscriptionId,
         action: 'STUDENT_DOWNGRADE',
       });
-      await submitDecision(proposal.proposalId, {
-        status: 'APPROVED',
-        proposalId: proposal.proposalId,
-        authorizationRef: `USER_CLICK_APPROVE_PROPOSAL_${proposal.proposalId.slice(-4)}`,
-      });
+      const built = approveProposal(proposal.proposalId, proposal.terms);
+      if (!built.decision) throw new Error('DECISION_MISSING');
+      await submitDecision(proposal, built.decision);
       applyDecision({ ...proposal, status: 'APPROVED' }, 'APPROVED');
       setStep('DONE');
     } catch (e) {
