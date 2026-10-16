@@ -135,7 +135,14 @@ describe('sandbox execution evidence generator', () => {
     );
     record(1, 'Default-OFF safety gate (T0 advisory only)', {
       masterAutonomyEnabled: false,
-      t0: { shortfallProbability: t0.shortfallProbability, cfar95: t0.cfar95, riskLevel: t0.riskLevel },
+      t0: {
+        shortfallProbability: t0.shortfallProbability,
+        cfar95: t0.cfar95,
+        es95: t0.es95,
+        intraMonthLiquidityBreachProb: t0.intraMonthLiquidityBreachProb,
+        lowestProjectedBalanceRM: t0.lowestProjectedBalanceRM,
+        riskLevel: t0.riskLevel,
+      },
       t3Attempt: { ok: t3Attempt.ok, reason: t3Attempt.reason },
     });
 
@@ -149,7 +156,12 @@ describe('sandbox execution evidence generator', () => {
       seed: 42,
       shortfallProbability: cfar.shortfallProbability,
       cfar95: cfar.cfar95,
+      es95: cfar.es95,
+      intraMonthLiquidityBreachProb: cfar.intraMonthLiquidityBreachProb,
+      lowestProjectedBalanceRM: cfar.lowestProjectedBalanceRM,
+      stratifiedShortfallProbability: cfar.stratifiedShortfallProbability,
       projectedMonthEndBalance: cfar.projectedMonthEndBalance,
+      projectedMonthEndBalanceWithIncomeRM: cfar.projectedMonthEndBalanceWithIncomeRM,
       dynamicDailyAllowance: cfar.dynamicDailyAllowance,
       riskLevel: cfar.riskLevel,
       limitBreach: cfar.limitBreach,

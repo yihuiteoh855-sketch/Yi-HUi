@@ -37,6 +37,103 @@
   }
 }
 
+/* ------------------------------------------------------------------ *
+ * CtrlPay mobile design language.
+ *
+ * Ported from the team's dual-currency e-wallet prototype
+ * (docs/legacy/duoMoney_Plus_v36.html — 36 design iterations). Only the
+ * visual language is reused: phone shell, gradients, palette and nav.
+ * ------------------------------------------------------------------ */
+.duo-body {
+  background: #e8f4ff;
+}
+
+.duo-phone {
+  background: linear-gradient(160deg, #d5edff, #f9fcff 35%);
+  color: #18395e;
+  box-shadow:
+    0 0 0 10px #0f2233,
+    0 0 0 12px #24405a,
+    0 24px 60px #0f223344;
+}
+
+.duo-card {
+  background: #fff;
+  border-radius: 22px;
+  padding: 16px;
+  box-shadow: 0 6px 20px rgba(144, 185, 215, 0.17);
+}
+
+.duo-hero {
+  border-radius: 26px;
+  padding: 18px;
+  color: #fff;
+  background: linear-gradient(140deg, #1684e9, #39a9f4 55%, #6cc6ff);
+  box-shadow: 0 14px 30px rgba(22, 132, 233, 0.28);
+}
+
+.duo-muted {
+  color: #7c91aa;
+}
+
+.duo-num {
+  font-variant-numeric: tabular-nums;
+}
+
+.duo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 13px;
+  font-weight: 650;
+  background: #1688ee;
+  color: #fff;
+  padding: 10px 14px;
+  transition: filter 0.15s ease;
+}
+.duo-btn:hover {
+  filter: brightness(1.06);
+}
+.duo-btn:disabled {
+  opacity: 0.5;
+}
+
+.duo-btn-ghost {
+  background: #e7f3ff;
+  color: #207ac4;
+}
+
+.duo-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #e7f0fa;
+  overflow: hidden;
+}
+.duo-fill-save {
+  background: #23b879;
+}
+.duo-fill-reserved {
+  background: #9ca8b6;
+}
+.duo-fill-spend {
+  background: #ef6573;
+}
+.duo-fill-due {
+  background: #f4a344;
+}
+
+.duo-safe {
+  background: #eafaf3;
+  color: #12805c;
+  border-radius: 14px;
+}
+.duo-warning {
+  background: #fff8e9;
+  color: #a1611a;
+  border-radius: 14px;
+}
+
 /* thin scrollbars for the panels */
 .scroll-thin::-webkit-scrollbar {
   width: 8px;

@@ -122,7 +122,26 @@ money leaves the account.
 | `event-feed.tsx` | Raw `[SANDBOX]` event stream |
 | `audit-drawer.tsx` | Unified hash-chained audit log with chain-verified badge |
 | `simulation-toolbar.tsx` | Clock controls + Master AI Autonomy Switch |
+| `mobile-app-shell.tsx` | **Phase 8 mobile shell** — the captain's e-wallet visual language on CtrlPay data: phone frame, 5-tab bottom nav (Home / Timeline / Radar / Bookkeep / Copilot & Security), balance hero, needs-vs-wants ring, dual limits, AI mandate sliders, 12:00 summary, commitment devices |
+| `cfar-stress-tester.tsx` | Interactive What-If CFaR tester (shortfall, CFaR95, ES95, mid-month NSF dip, stratified bootstrap, pre-auth latency) |
+| `risk-tail-strip.tsx` | Shared fintech telemetry strip reused by the interceptor and the contract cards (ES95, NSF risk, pre-auth ms, present-bias markup, risk-elastic reward) |
 | `ui/*` | Badge, Button, Card, Slider, Switch primitives |
+
+#### Layout modes (`app/page.tsx`)
+
+The single-page judge experience ships three synchronized views over the same store:
+
+| Mode | Purpose |
+|---|---|
+| **App + Judge Studio** (default) | The student mobile app on the left, the judge console (copilot chat, simulation toolbar, audit log, telemetry, vault) on the right |
+| **Full App Focus** | Phone-first demo; judge controls and the audit log slide in as drawers, and the copilot chat is mounted inside the phone's Copilot tab |
+| **Expanded Dashboard** | Full-width multi-column inspection of every panel and log |
+
+The copilot chat is mounted in exactly one place per mode, so the AI SDK stream, tool-call state
+and the audit chain stay single-sourced. The phone shell is a faithful port of the team's earlier
+dual-currency e-wallet prototype (`docs/legacy/duoMoney_Plus_v36.html`) — same gradients, 22px
+cards, budget-bar palette and bottom navigation — but every figure on screen is produced by the
+deterministic engine from the sandbox ledger, never by the LLM.
 
 ---
 
@@ -179,10 +198,62 @@ The **dynamic daily allowance** is:
 dynamicDailyAllowance = round2( max(0, (B − U − savingsGoal − proposedExpense) / max(1, D) ) )
 ```
 
+#### 2.1.1 Phase 8 tail-risk extensions
+
+**95% Expected Shortfall (Basel III / FRTB; Artzner et al., 1999).** From the ascending shortfall
+sample, with `N = 1000` paths (1-based order statistics `L_(i)`):
+
+```
+es95 = round2( (1/|T|) · Σ_{i ∈ T} L_(i) ),   T = { i : i ≥ ceil(0.95 · N) }
+```
+
+i.e. the mean of the worst 5% of month-end shortfalls — the expected loss *given* the loss has
+breached its 95% quantile. ES is a **coherent** risk measure (monotone, sub-additive, positively
+homogeneous) whereas a bare quantile is not, so `es95 ≥ cfar95` holds by construction on the same
+sample; the Phase 8 test suite asserts the coherence relation for every scenario.
+
+**Intra-month liquidity barrier (Basel III LCR analogue).** A month-end-only projection is
+mathematically blind to mid-month non-sufficient-funds (NSF) events: with no committed inflow a
+running balance is monotone non-increasing, so `P(min B(t) < 0)` would collapse into
+`P(month-end < 0)`. The barrier therefore models the **scheduled allowance inflow**
+(DEMO_CONFIG: RM 800 landing on day 25) and records, for each of the same 1,000 paths:
+
+```
+M_i     = min over t of B_i(t)
+B_i(t)  = B − P − Σ{bills due ≤ t} − Σ{daily spend ≤ t} + (allowance if t ≥ allowanceDay)
+
+intraMonthLiquidityBreachProb        = round2( 100 · #{ M_i < 0 } / N )      (%)
+lowestProjectedBalanceRM             = round2( percentile_5( sortAsc(M_i) ) )
+projectedMonthEndBalanceWithIncomeRM = round2( (1/N) · Σ B_i(D) )
+```
+
+The month-end CFaR figures (`projectedMonthEndBalance`, `shortfallProbability`, `cfar95`) deliberately
+do **not** credit future inflows — they remain the conservative solvency view — while the barrier is
+the timing-aware liquidity view. Both are reported side by side, mirroring how Basel III separates a
+full capital horizon from the 30-day LCR window. Bills whose `dueDay` already passed, or falls past
+the remaining horizon, are excluded from the barrier and stay inside `U`. Without a sandbox clock the
+engine falls back to a deterministic 30-day window aligned so `remainingDaysInMonth` still matches
+the bills' `dueDay` values.
+
+**Day-of-week stratified bootstrap (Künsch, 1989).** Weekend spending is structurally heavier, so the
+history is partitioned by index (`i % 7 ∈ {5,6}` → weekend pool) and horizon day *t* is classified by
+its real weekday (from the sandbox clock); each daily draw then comes from the matching pool. A
+**separate seeded PRNG instance** (`seed ^ 0x9e3779b9`) drives this resample, so the primary
+`shortfallProbability` / `cfar95` draw sequence — and therefore every pre-Phase-8 output — stays
+byte-identical. The result is reported as `stratifiedShortfallProbability`.
+
+**Pre-authorization latency telemetry.** `executionTimeMs` is a genuine `performance.now()` delta
+around the pure model, taken on a warmed second pass (best-of-2 estimator, excluding one-time JIT
+warm-up), and it is **memoized with the result**: identical inputs report byte-identical telemetry,
+which is what the deterministic-engine tests and the evidence generator rely on. The engine target is
+< 5 ms per check against a hard product budget of 50 ms — the payment-rail pre-authorization window
+the interceptor sits in.
+
 ### 2.2 Sinking Fund — Annual/Quarterly Fee Amortization
 
-Implemented by `calculateAmortizedSubscriptions(subs)`. Recurring fees are smoothed into a monthly
-and daily burden so they hit the allowance every day rather than all at once:
+Implemented by `calculateAmortizedSubscriptions(subs, options?: { sandboxClock?: number })`. Recurring
+fees are smoothed into a monthly and daily burden so they hit the allowance every day rather than all
+at once:
 
 ```
 monthlyBurden = amountRM / 12      (ANNUAL)
@@ -197,6 +268,20 @@ The total monthly burden feeds `computeDynamicDailyAllowance` through the
 `amortizedMonthlyBurden` argument, so enabling amortization in the UI lowers the safe daily
 allowance in real time. (Example: the RM 180/year gym membership becomes RM 15.00/month, or
 ~RM 0.49/day.)
+
+**Phase 8 maturity liquidity gate (treasury spot-cash reserve).** Amortization is an accounting
+smoothing device, not cash. When a sandbox clock is supplied the function also returns
+
+```
+daysUntilBilling      = ceil( (nextBillingDate − sandboxClock) / 86 400 000 )
+maturityGateTriggered = billingCycle ≠ MONTHLY  ∧  0 ≤ daysUntilBilling ≤ 7
+```
+
+and the Visual Subscription Timeline raises a **Spot Cash Reserve Gate** banner: for example the
+RM 180/year gym charge is RM 15.00 in the sinking-fund view, yet RM 180.00 of *spot cash* is due
+inside the settlement window — a classic maturity mismatch the gate makes explicit. Monthly charges
+never trigger the gate (no maturity transformation), and without a clock both fields are omitted so
+all pre-Phase-8 call sites and outputs are unchanged.
 
 ### 2.3 Needs vs. Wants Protection Floor
 
@@ -225,6 +310,18 @@ maxAllowedReduction= round2( max(0, min(byRatio, byFloor)) )
 
    The function also returns the rounded `maxAllowedReduction`, which the modify flow re-signs into
    the new escrow terms (this fixes a rounding path where the cap itself could be exceeded).
+
+   **Stone-Geary subsistence floor (Phase 8).** The result also exposes the subsistence layer of a
+   Stone-Geary (1954) linear expenditure system explicitly:
+
+```
+subsistenceFloorRM           = 15.00        (γ, incompressible NEEDS consumption in RM/day)
+stoneGearyMarginalUtilitySafe = (dda − dailyBudgetReduction) ≥ γ
+```
+
+   Below γ the marginal utility of the remaining allowance is dominated by survival needs, so any
+   escrow that would push the user under it is rejected; above γ the consumer allocates
+   *supernumerary* income across wants at constant marginal budget shares.
 
 ### 2.4 Two-Stage Sweep Settlement & Anti-Farming Quarantine State Machine
 
@@ -256,6 +353,27 @@ claim `rewardPool −= reward`, `defenseVault += reward`. The claim button is di
 sandbox clock has advanced a full 24 hours, so the reward cannot be farmed by locking and
 immediately releasing. `releaseQuarantine` (proceed with the purchase) awards no reward.
 
+**Behavioral layer (Laibson, 1997) — why a 24-hour wait actually works.**
+`calculateBehavioralMetrics(itemPrice, shortfallProbability, rewardPoolBalance)` returns:
+
+```
+presentBiasBeta           = β = 0.70          (quasi-hyperbolic discount factor)
+dailyDiscountDelta        = δ = 0.999
+presentBiasInflationRatio = round2(1 / β) = 1.43×
+baseRewardRM              = calculateQuarantineReward(itemPrice, rewardPool)      (unchanged)
+riskElasticRewardRM       = round2( min( itemPrice × 0.05 × (1 + 0.5 × shortfallProbability/100),
+                                         RM 15.00, rewardPool ) )
+```
+
+Under quasi-hyperbolic discounting `U_t = u(c_t) + β·Σ_{k≥1} δ^k·u(c_{t+k})` an *immediate* purchase
+is perceived `1/β = 1.43×` more valuable than the identical purchase delayed by 24 hours. The
+Quarantine is designed to cancel exactly that markup: the user either collects a reward for waiting
+(claiming the 1.43× back) or proceeds with informed consent. The commitment incentive is
+**risk-elastic** — a higher simulated default probability monotonically raises the reward — while
+staying capped at RM 15.00 and pool-bounded, so the pool is never overstated and money is never
+printed. The sub-additive, capped curve is deliberate: the marginal reward per additional risk
+percentage falls as risk grows, avoiding an incentive to gamble.
+
 ### 2.5 Zombie Radar — Recurrence & Telemetry Classification
 
 Implemented in `lib/zombie-radar.ts`.
@@ -282,6 +400,19 @@ on "no", or `SUSPECTED_ZOMBIE → ACTIVE` on "yes" (`applyUsageAnswer`). **Stude
 the user pays full price and the registry exposes a student price, the subscription is added to
 `studentDowngradeCandidates` (e.g. Spotify RM 15.90 → RM 8.50). Merchant→`subscriptionId`
 resolution is a hardcoded token table — no LLM, no network.
+
+**Clearing telemetry (Phase 8).** Every `RecurringDetection` now exposes the settlement tolerances
+that make real card-rail recurrence detectable rather than guessed:
+
+| Field | Value | Meaning |
+|---|---|---|
+| `fxDriftTolerancePct` | `5` | Cross-border FX movement + card-scheme markup drift absorbed by the ±5% amount matcher |
+| `settlementLagWindowDays` | `3` | 28–31 day calendar months plus T+1/T+2 weekend clearing, inside the ±3-day interval matcher |
+| `iso20022MandateCategory` | `pain.009_RECURRING_AUTODEBIT` | The ISO 20022 mandate message a production rail would carry for a recurring direct debit |
+
+These fields make the difference between "they charge me monthly" and a payment-clearing
+explanation a bank's operations team would recognise; the student-downgrade drawer surfaces the same
+telemetry when a downgrade is prepared.
 
 ---
 
@@ -355,9 +486,16 @@ example `premiumReward + 0.01`) is rejected with `INTEGRITY_HASH_MISMATCH`.
 
 - **Deterministic math.** All simulations use `mulberry32(seed)`; the default seed is `20260312`.
   Given the same inputs, the CFaR results, risk level and allowance are byte-for-byte reproducible.
+  Phase 8's `executionTimeMs` is memoized with its result, and the stratified bootstrap uses a
+  separate seeded PRNG, so not a single pre-existing engine output moved.
 - **Test suite.** Vitest covers the engine, PRNG, signing/verification, SHA-256 (against
   `node:crypto`), canonicalisation, audit chaining, permissions, privacy guard, zombie radar,
   proposals, stateless decision, store/clock behaviour, tool schemas, bookkeeping and compliance.
+  `tests/fintech-hardening.test.ts` (Phase 8) additionally locks: ES95 ≥ CFaR95 coherence across
+  scenarios, the pinned sandbox regression values, intra-month barrier detection of a day-2 bill
+  that clears before the day-25 allowance lands (and the inverse case), weekend stratification,
+  Laibson β/1.43× telemetry with a capped risk-elastic reward, the Stone-Geary floor fields, the
+  sinking-fund maturity gate and the pre-auth latency budget.
 - **Compliance guard.** A test asserts the AI SDK v4 identifier set (`parameters`,
   `toDataStreamResponse`, `addToolResult`, `maxSteps`) and the *absence* of v5 identifiers
   (`inputSchema`, `addToolOutput`, `toUIMessageStreamResponse`, `stopWhen`), and that free-tier

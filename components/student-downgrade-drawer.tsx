@@ -4,6 +4,7 @@ import * as React from 'react';
 import { BadgeCheck, ExternalLink, GraduationCap, Mail, ShieldCheck, X } from 'lucide-react';
 import { useCtrlPayStore } from '@/lib/store';
 import { SUBSCRIPTION_REGISTRY, type SubscriptionId } from '@/lib/subscription-registry';
+import { ZOMBIE_RULES } from '@/lib/zombie-radar';
 import { calculateSubscriptionMetrics } from '@/lib/quant-engine';
 import { PROFILE } from '@/lib/mock-data';
 import { buildMailto, requestProposal, submitDecision } from '@/lib/api-client';
@@ -107,6 +108,10 @@ export function StudentDowngradeDrawer({ subscriptionId, open, onClose }: Props)
             <Badge variant="outline">{formatRM(metrics.annualizedCost)}/yr</Badge>
             <Badge variant="outline">≈ {metrics.opportunityCostMeals} mixed-rice meals/mo</Badge>
             <Badge variant="outline">≈ {metrics.opportunityCostBubbleTea} bubble tea/mo</Badge>
+            <Badge variant="outline">
+              clearing ±{ZOMBIE_RULES.fxDriftTolerancePct}% FX/scheme drift ·{' '}
+              {ZOMBIE_RULES.iso20022MandateCategory}
+            </Badge>
           </div>
 
           {step === 'OTP' && (

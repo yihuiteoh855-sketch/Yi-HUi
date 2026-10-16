@@ -121,6 +121,8 @@ export function buildWhatIfInput(
     historicalDailySpending: snapshot.historicalDailySpending,
     proposedExpense,
     seed,
+    // The calendar-aligned liquidity barrier needs to know "today" (Phase 8).
+    sandboxClock: snapshot.sandboxClock,
   };
 }
 

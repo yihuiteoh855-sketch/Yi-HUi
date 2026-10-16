@@ -29,6 +29,9 @@ machine-readable log is in `docs/sandbox-operation-log.json`.
   "t0": {
     "shortfallProbability": 77.3,
     "cfar95": 171.13,
+    "es95": 198.8,
+    "intraMonthLiquidityBreachProb": 0,
+    "lowestProjectedBalanceRM": 502.24,
     "riskLevel": "CRITICAL"
   },
   "t3Attempt": {
@@ -48,7 +51,12 @@ machine-readable log is in `docs/sandbox-operation-log.json`.
   "seed": 42,
   "shortfallProbability": 77.3,
   "cfar95": 171.13,
+  "es95": 198.8,
+  "intraMonthLiquidityBreachProb": 0,
+  "lowestProjectedBalanceRM": 502.24,
+  "stratifiedShortfallProbability": 80.2,
   "projectedMonthEndBalance": 244.97,
+  "projectedMonthEndBalanceWithIncomeRM": 1229.87,
   "dynamicDailyAllowance": 17.82,
   "riskLevel": "CRITICAL",
   "limitBreach": {

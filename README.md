@@ -52,6 +52,7 @@ npm test                    # vitest (unit + compliance)
 npm run build               # next build (production)
 npm run lint                # next lint
 npm run verify:sdk-version  # AI SDK v4 pin guard (no v5 identifiers)
+npm run generate:evidence   # regenerate docs/SANDBOX_EXECUTION_EVIDENCE.md (deterministic)
 ```
 
 ---
@@ -69,11 +70,35 @@ SERVER  lib/quant-engine.ts ──deterministically computes ALL figures──�
 ```
 
 - **Numbers** come from `lib/quant-engine.ts` (historical-bootstrap **Cash-Flow-at-Risk**,
-  sinking fund, dynamic daily allowance), never from the model.
+  **Basel III 95% Expected Shortfall**, an **intra-month liquidity barrier** for non-sufficient-funds
+  dips, sinking fund, dynamic daily allowance), never from the model.
 - **Authority** comes from the signed session cookie (`lib/session.ts`), never the request body.
 - **Guardrails** are three-stage: pre-LLM PII masking → per-user tenant isolation →
   strict Zod schemas + a post-LLM RM **number verifier** (`lib/privacy-guard.ts`).
 - **Audit** is an append-only **hash chain** (`lib/audit-logger.ts`).
+
+### Mobile app (Phase 8)
+
+The student app ships in three synchronized layout modes over one store — **App + Judge Studio**
+(default), **Full App Focus**, and **Expanded Dashboard** — so judges can watch the phone and the
+audit chain at the same time. The phone shell (`components/mobile-app-shell.tsx`) is a faithful port
+of the team's earlier e-wallet prototype (`docs/legacy/duoMoney_Plus_v36.html`) onto CtrlPay's
+ledger: 5-tab bottom navigation, balance hero, needs-vs-wants ring, dual spend limits, **AI mandate
+sliders** (clamped RM 10–1,000 / 1–30 days, T3 stays click-only), the 12:00 daily summary, the
+Month-End Roast (Gentle / Spicy) and the audit-chain badge.
+
+Phase 8 hardening on top of the CFaR engine (all deterministic, all unit-tested):
+
+| Metric | Meaning |
+|---|---|
+| `es95` | 95% **Expected Shortfall** — mean of the worst 5% of month-end shortfalls (coherent, Artzner et al. 1999; `es95 ≥ cfar95` proven per scenario) |
+| `intraMonthLiquidityBreachProb` | P(running balance < RM 0 mid-month) — the NSF/liquidity-barrier view, timing-aware (day-25 allowance, unpaid bills, daily spend) |
+| `lowestProjectedBalanceRM` | 5th-percentile path minimum (the "how low can it dip" figure) |
+| `stratifiedShortfallProbability` | Weekday/weekend stratified bootstrap (Künsch 1989) — weekends are structurally heavier |
+| `presentBiasInflationRatio` | 1/β = **1.43×** Laibson (1997) present bias — the exact markup a 24h quarantine cancels |
+| `riskElasticRewardRM` | Commitment reward that scales with simulated risk while staying capped at RM 15 and pool-bounded |
+| maturity gate | Non-monthly charges due ≤ 7 days must be held as **spot cash** (RM 180/year gym ≠ RM 15/month) |
+| clearing telemetry | ±5% FX/scheme drift, ±3-day settlement lag, ISO 20022 `pain.009` mandate category |
 
 ### Permission tiers
 
@@ -101,7 +126,10 @@ protective core is **never paywalled or gated** (enforced by `tests/compliance.t
 | `app/api/proposals/**` | Signed proposal + decision routes |
 | `lib/tool-resolution.ts` | Contract-card resolution + dangling-tool-call guard |
 | `components/agent-chat.tsx` | `useChat` (v4) + the three interactive contract cards |
-| `components/subscription-timeline.tsx` | 30-day strip, amortization toggle, fast-forward |
+| `components/subscription-timeline.tsx` | 30-day strip, amortization toggle, maturity-gate banner, fast-forward |
+| `components/mobile-app-shell.tsx` | Phase 8 phone shell — 5 tabs, balance hero, limits, mandate sliders, roast, audit badge |
+| `components/cfar-stress-tester.tsx` | Interactive What-If CFaR/ES95/NSF tester (sliders + presets) |
+| `components/risk-tail-strip.tsx` | Shared ES95 / NSF / latency / present-bias telemetry strip |
 
 ---
 

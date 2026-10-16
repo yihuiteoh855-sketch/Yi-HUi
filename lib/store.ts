@@ -149,6 +149,7 @@ export interface CtrlPayState {
   setMasterAutonomy(on: boolean): void;
   setTier(tier: PermissionTier, on: boolean): void;
   setAmortize(on: boolean): void;
+  setAiMandate(next: Partial<AiMandate>): void;
   setPlan(plan: 'FREE' | 'PRO'): void;
   setRoastTone(tone: 'GENTLE' | 'SPICY'): void;
   setStudentVerified(on: boolean): void;
@@ -321,6 +322,31 @@ export const useCtrlPayStore = create<CtrlPayState>((set, get) => ({
       status: 'MODIFIED',
     });
     console.info('[SANDBOX] setPlan', plan);
+  },
+
+  setAiMandate(next) {
+    const s = get();
+    const merged: AiMandate = {
+      maxLockAmountRM: Math.min(
+        1000,
+        Math.max(10, round2(next.maxLockAmountRM ?? s.aiMandate.maxLockAmountRM)),
+      ),
+      maxLockDurationDays: Math.min(
+        30,
+        Math.max(1, Math.round(next.maxLockDurationDays ?? s.aiMandate.maxLockDurationDays)),
+      ),
+    };
+    set({ aiMandate: merged });
+    audit(s, {
+      actor: 'USER',
+      actionType: 'SET_AI_MANDATE',
+      permissionTier: 'T0',
+      data_accessed: ['settings.aiMandate'],
+      authorization_ref: 'USER_ADJUST_AI_MANDATE',
+      proposal_hash: null,
+      status: 'MODIFIED',
+    });
+    console.info('[SANDBOX] setAiMandate', merged.maxLockAmountRM, merged.maxLockDurationDays);
   },
 
   setRoastTone(tone) {

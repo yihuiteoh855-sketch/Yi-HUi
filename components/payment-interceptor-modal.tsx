@@ -10,6 +10,7 @@ import type { WhatIfResult } from '@/lib/domain';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { RiskTailStrip } from '@/components/risk-tail-strip';
 
 interface Units {
   mixedRiceMeals: number;
@@ -129,6 +130,37 @@ export function PaymentInterceptorModal() {
               <p className="text-sm font-semibold">{formatRM(result.projectedMonthEndBalance)}</p>
             </div>
           </div>
+
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-md border p-2">
+              <p className="text-[11px] text-muted-foreground">ES95 tail risk</p>
+              <p className="text-sm font-semibold text-blue-700">{formatRM(result.es95)}</p>
+            </div>
+            <div className="rounded-md border p-2">
+              <p className="text-[11px] text-muted-foreground">NSF dip risk (mid-month)</p>
+              <p
+                className={
+                  result.intraMonthLiquidityBreachProb > 0
+                    ? 'text-sm font-semibold text-red-600'
+                    : 'text-sm font-semibold text-emerald-600'
+                }
+              >
+                {result.intraMonthLiquidityBreachProb}%
+              </p>
+            </div>
+            <div className="rounded-md border p-2">
+              <p className="text-[11px] text-muted-foreground">Path floor (5th pct.)</p>
+              <p className="text-sm font-semibold">{formatRM(result.lowestProjectedBalanceRM)}</p>
+            </div>
+          </div>
+
+          <RiskTailStrip
+            amount={intent.amount}
+            category={intent.category}
+            isNeed={intent.isNeed}
+            result={result}
+            variant="inline"
+          />
 
           {(result.limitBreach.weekly || result.limitBreach.monthly) && (
             <p className="flex items-center gap-2 text-xs text-destructive">

@@ -5,7 +5,7 @@ import { AlertOctagon, GraduationCap, Mail, MailX, Radar } from 'lucide-react';
 import { useCtrlPayStore } from '@/lib/store';
 import { SUBSCRIPTIONS, MOCK_RECEIPTS } from '@/lib/mock-data';
 import { SUBSCRIPTION_REGISTRY } from '@/lib/subscription-registry';
-import { analyzeZombies } from '@/lib/zombie-radar';
+import { analyzeZombies, ZOMBIE_RULES } from '@/lib/zombie-radar';
 import { calculateSubscriptionMetrics } from '@/lib/quant-engine';
 import { formatRM } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -102,6 +102,11 @@ export function ZombieRadarPanel() {
                       ≈ {metrics.opportunityCostMeals} mixed-rice meals/mo
                       {metrics.studentAnnualSavings !== null &&
                         ` · student plan saves ${formatRM(metrics.studentAnnualSavings)}/yr`}
+                    </p>
+                    <p className="mt-0.5 text-[10px] text-muted-foreground">
+                      Clearing telemetry: amount tolerance ±{ZOMBIE_RULES.fxDriftTolerancePct}% (FX + card-scheme
+                      drift) · settlement window ±{ZOMBIE_RULES.settlementLagWindowDays}d · mandate{' '}
+                      <span className="font-mono">{ZOMBIE_RULES.iso20022MandateCategory}</span>
                     </p>
                   </div>
 

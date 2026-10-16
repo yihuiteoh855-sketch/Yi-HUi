@@ -20,6 +20,12 @@ export const ZOMBIE_RULES = {
   endangeredWithinDays: 3, // renewing within 3 days
   zombieMonths: 3, // recurring >= 3 months
   lowActivityDays: 30, // no use in 30 days counts as low activity
+  /** Cross-border FX + card-scheme markup drift absorbed by the amount matcher (%). */
+  fxDriftTolerancePct: 5,
+  /** Calendar month length (28-31) + T+1/T+2 weekend clearing lag, in days. */
+  settlementLagWindowDays: 3,
+  /** ISO 20022 mandate message type behind a recurring card debit. */
+  iso20022MandateCategory: 'pain.009_RECURRING_AUTODEBIT',
 } as const;
 
 export type ZombieTag = 'ACTIVE' | 'ENDANGERED' | 'ZOMBIE' | 'SUSPECTED_ZOMBIE';
@@ -31,6 +37,12 @@ export interface RecurringDetection {
   monthsRecurring: number;
   avgAmount: number;
   avgIntervalDays: number;
+  /** Payment-clearing telemetry: the detector tolerates this FX/scheme drift on the amount. */
+  fxDriftTolerancePct: number;
+  /** Payment-clearing telemetry: settlement interval is 30 days +/- this window. */
+  settlementLagWindowDays: number;
+  /** ISO 20022 mandate category a real rail would carry for this debit. */
+  iso20022MandateCategory: string;
 }
 
 /** Normalize a merchant string for comparison: uppercase, alphanumeric only. */
@@ -108,6 +120,9 @@ export function detectRecurring(transactions: Transaction[]): RecurringDetection
       monthsRecurring: distinctMonths(sorted.map((t) => t.date)),
       avgAmount: round2(avgAmount),
       avgIntervalDays: round2(avgIntervalDays),
+      fxDriftTolerancePct: ZOMBIE_RULES.fxDriftTolerancePct,
+      settlementLagWindowDays: ZOMBIE_RULES.settlementLagWindowDays,
+      iso20022MandateCategory: ZOMBIE_RULES.iso20022MandateCategory,
     });
   }
   return out;

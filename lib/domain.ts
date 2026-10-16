@@ -30,6 +30,14 @@ export interface AmortizedView {
   monthlyBurden: number; // RM
   dailyBurden: number; // RM
   setAsideThisMonth: number; // RM to reserve in the sinking fund
+  /** Days until the real billing date (only when a sandbox clock is supplied). */
+  daysUntilBilling?: number;
+  /**
+   * Treasury "Maturity Liquidity Gate" (Phase 8): true when a non-monthly charge
+   * (ANNUAL/QUARTERLY) is due inside the settlement window, so the 1/12 amortized
+   * figure alone would create a maturity mismatch (illusion of liquidity).
+   */
+  maturityGateTriggered?: boolean;
 }
 
 export interface WhatIfInput {
@@ -48,12 +56,28 @@ export interface WhatIfInput {
   historicalDailySpending: number[]; // variable daily spend, RM per day, length >= MIN_HISTORY_DAYS
   proposedExpense: { amount: number; category: SpendCategory; isNeed: boolean };
   seed?: number; // deterministic PRNG seed for reproducible demos
+  /**
+   * Sandbox clock in ms. Optional: when supplied, the intra-month liquidity barrier
+   * aligns each remaining day with its real day-of-month and weekday. When omitted the
+   * engine falls back to a deterministic 30-day window (identical arithmetic, no clock).
+   */
+  sandboxClock?: number;
+  /** Scheduled monthly allowance/PTPTN inflow used by the liquidity-barrier overlay (DEMO_CONFIG default). */
+  monthlyAllowanceRM?: number;
+  /** Day of month the scheduled inflow lands (DEMO_CONFIG default). */
+  allowanceDayOfMonth?: number;
 }
 
 export interface WhatIfResult {
   shortfallProbability: number; // 0-100 (%)
   cfar95: number; // RM, 95th percentile month-end shortfall vs. savings goal
-  projectedMonthEndBalance: number; // RM, mean of simulated paths
+  es95: number; // RM, 95% Expected Shortfall (tail mean of the worst paths, coherent risk measure)
+  intraMonthLiquidityBreachProb: number; // 0-100 (%), P(min_t running balance < 0) on any remaining day
+  lowestProjectedBalanceRM: number; // RM, 5th percentile of the path-minimum running balance
+  stratifiedShortfallProbability: number; // 0-100 (%), weekday/weekend stratified bootstrap estimate
+  executionTimeMs: number; // ms, pre-authorization risk-hook latency (memoized with the result)
+  projectedMonthEndBalance: number; // RM, mean of simulated paths (conservative: no new inflows)
+  projectedMonthEndBalanceWithIncomeRM: number; // RM, mean final balance of the liquidity-barrier paths (credits the scheduled inflow)
   dynamicDailyAllowance: number; // RM/day
   riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   limitBreach: { weekly: boolean; monthly: boolean };
@@ -70,6 +94,18 @@ export interface EscrowFloorCheck {
     | 'EXCEEDS_AI_MANDATE'
   >;
   maxAllowedReduction: number; // RM/day
+  /** Stone-Geary (1954) incompressible subsistence floor (RM/day of NEEDS consumption). */
+  subsistenceFloorRM: number;
+  /** True when the daily allowance left after the lock still covers the subsistence floor. */
+  stoneGearyMarginalUtilitySafe: boolean;
+}
+
+/** Behavioral-economics telemetry (Laibson 1997 quasi-hyperbolic discounting). */
+export interface BehavioralMetrics {
+  presentBiasBeta: number;
+  presentBiasInflationRatio: number;
+  baseRewardRM: number;
+  riskElasticRewardRM: number;
 }
 
 export interface SubscriptionMetrics {

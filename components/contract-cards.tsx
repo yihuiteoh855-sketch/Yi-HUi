@@ -22,10 +22,12 @@ import {
 } from '@/lib/tool-resolution';
 import { formatRM } from '@/lib/utils';
 import type { SignedProposal, EscrowTerms, ModifiedTerms, QuarantineTerms, SweepTerms } from '@/lib/types';
+import type { SpendCategory } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
+import { RiskTailStrip } from '@/components/risk-tail-strip';
 
 export interface CardProps {
   toolCallId: string;
@@ -218,6 +220,14 @@ export function QuarantineCard({ toolCallId, args, result, addToolResult }: Card
                 <p className="text-sm font-semibold">{formatRM(terms.cfar95)}</p>
               </div>
             </div>
+            <RiskTailStrip
+              amount={terms.itemPrice}
+              category={
+                typeof args.category === 'string' ? (args.category as SpendCategory) : 'Shopping'
+              }
+              isNeed={false}
+              variant="inline"
+            />
             <p className="flex items-center gap-2 text-[11px] text-muted-foreground">
               <Info className="h-3 w-3" /> Locks for {terms.quarantineHours}h. After that you choose: claim the
               reward or proceed with the purchase.
@@ -326,6 +336,13 @@ export function EscrowCard({ toolCallId, args, result, addToolResult }: CardProp
                 floor and the AI Mandate.
               </p>
             </div>
+
+            <RiskTailStrip
+              amount={base.itemPrice}
+              category={(base.lockedCategories[0] ?? 'Shopping') as SpendCategory}
+              isNeed={false}
+              variant="inline"
+            />
 
             {!masterAutonomyEnabled && (
               <p className="rounded-md bg-secondary p-2 text-xs text-muted-foreground">
