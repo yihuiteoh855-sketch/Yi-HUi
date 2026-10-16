@@ -98,18 +98,60 @@
 
 ## 10.2 User Data Authorization Survey Integration
 
-We ran a student user privacy survey asking how willing respondents would be to grant four data accesses: **(a) Gmail read-only receipt access, (b) bank statement upload, (c) location tracking, (d) IC verification**. The findings shaped the architecture:
+We ran a student user privacy survey asking how willing respondents would be to grant four data accesses: **(a) Gmail read-only receipt access, (b) bank statement upload, (c) location tracking, (d) IC verification**. The findings shaped the architecture.
 
-| Survey item | Design decision it informed |
+> ⚠️ **Fill-in template — do not fabricate.** Every `[__]` / `[...]` below must be replaced with real,
+> collected data (and screenshots) before submission. All other cells that cite `plan.md` design
+> decisions are already final. Delete this note once the tables are filled.
+
+### 10.2.1 Survey instrument & sample
+
+| Field | Value |
 |---|---|
-| Gmail read-only receipt access | **Opt-in only**, read-only, **structured fields only**, revocable; replaces "silent scanning". Sandbox uses mock emails. |
-| Bank statement upload | **Not required** for core features; the sandbox ledger and a manual/receipt bookkeeping path stay fully functional. |
-| Location tracking | **Dropped.** Replaced by a time-triggered **12:00 PM** daily summary; GPS kept on the roadmap. |
-| IC verification | **Dropped** from the demo; **student OTP only**; licensed eKYC in production. |
+| Survey title | Student data-privacy & money-app permissions |
+| Target population | University students (USM / `.edu` email domain) |
+| Fielding window | `[YYYY-MM-DD]` → `[YYYY-MM-DD]` |
+| Responses (n) | `[__]` |
+| Completion rate | `[__]%` |
+| Instrument (questionnaire) | `[link or repo path, e.g. docs/survey/instrument.md]` |
+| Raw responses (anonymised) | `[repo path or shared drive]` |
+| Consent / ethics note | `[how consent was obtained]` |
+| Screenshots folder | `docs/screenshots/` |
+
+### 10.2.2 Willingness to grant each access
+
+Willingness measured on a 5-point scale, reported here as **willing** (agree + strongly agree),
+**unwilling** (disagree + strongly disagree) and **neutral / don't know**.
+
+| # | Access | Question wording (verbatim) | Willing | Unwilling | Neutral / DK | Evidence (screenshot) |
+|---|---|---|---|---|---|---|
+| (a) | Gmail read-only receipt access | `[verbatim question]` | `[__]%` | `[__]%` | `[__]%` | `docs/screenshots/[survey-a.png]` |
+| (b) | Bank statement upload | `[verbatim question]` | `[__]%` | `[__]%` | `[__]%` | `docs/screenshots/[survey-b.png]` |
+| (c) | Location tracking | `[verbatim question]` | `[__]%` | `[__]%` | `[__]%` | `docs/screenshots/[survey-c.png]` |
+| (d) | IC verification | `[verbatim question]` | `[__]%` | `[__]%` | `[__]%` | `docs/screenshots/[survey-d.png]` |
+
+Optional breakdowns to include if collected: by year of study, by faculty, and whether the
+respondent had previously been charged for a subscription they forgot.
+
+### 10.2.3 How the numbers map to each design decision
+
+| Survey item | Result (fill in) | Design decision it informed |
+|---|---|---|
+| Gmail read-only receipt access | willing `[__]%` | **Opt-in only**, read-only, **structured fields only**, revocable; replaces "silent scanning". Sandbox uses mock emails. |
+| Bank statement upload | willing `[__]%` | **Not required** for core features; the sandbox ledger and a manual/receipt bookkeeping path stay fully functional. |
+| Location tracking | willing `[__]%` | **Dropped.** Replaced by a time-triggered **12:00 PM** daily summary; GPS kept on the roadmap. |
+| IC verification | willing `[__]%` | **Dropped** from the demo; **student OTP only**; licensed eKYC in production. |
 
 **Result:** data minimisation by default, and **all optional permissions default to OFF**.
 
-> **TODO before submission (do not fabricate):** insert the real survey sample size (n = `[__]`), the willingness percentage for each of the four items (`[__]%`), and how those numbers map to each decision above. Remove this note once filled in.
+**Submission checklist** (tick when done, then delete):
+
+- [ ] `n` recorded in §10.2.1
+- [ ] Willing / unwilling / neutral percentages filled for all four items
+- [ ] Verbatim question wording pasted for all four items
+- [ ] Screenshots saved under `docs/screenshots/` and referenced
+- [ ] §10.2.3 "Result" column filled
+- [ ] This fill-in note and checklist removed
 
 ---
 
