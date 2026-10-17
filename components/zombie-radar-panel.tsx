@@ -1,147 +1,152 @@
 'use client';
 
 import * as React from 'react';
-import { AlertOctagon, GraduationCap, Mail, MailX, Radar } from 'lucide-react';
+import { Layers, Radio } from 'lucide-react';
 import { useCtrlPayStore } from '@/lib/store';
-import { SUBSCRIPTIONS, MOCK_RECEIPTS } from '@/lib/mock-data';
+import { SUBSCRIPTIONS } from '@/lib/mock-data';
 import { SUBSCRIPTION_REGISTRY } from '@/lib/subscription-registry';
-import { analyzeZombies, ZOMBIE_RULES } from '@/lib/zombie-radar';
-import { calculateSubscriptionMetrics } from '@/lib/quant-engine';
+import { calculateAmortizedSubscriptions } from '@/lib/quant-engine';
 import { formatRM } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { StudentDowngradeDrawer } from '@/components/student-downgrade-drawer';
 
-const TAG_VARIANT: Record<string, 'success' | 'warning' | 'danger' | 'secondary' | 'info'> = {
-  ACTIVE: 'success',
-  ENDANGERED: 'warning',
-  ZOMBIE: 'danger',
-  SUSPECTED_ZOMBIE: 'info',
+/** 40px circular two-letter monograms (Nexora Top-Holdings style) — never bare emoji. */
+const MONOGRAM: Record<string, string> = {
+  netflix_my: 'NF',
+  disney_plus_my: 'DP',
+  spotify_my: 'SP',
+  youtube_my: 'YT',
+  icloud_my: 'IC',
+  anytime_fitness_my: 'AF',
 };
 
-export function ZombieRadarPanel() {
+const TAG_COPY: Record<string, string> = {
+  ACTIVE: 'active',
+  ENDANGERED: 'endangered',
+  ZOMBIE: 'zombie',
+  SUSPECTED_ZOMBIE: 'suspected',
+};
+
+/**
+ * Module D — dark mandate roster + the capped double-bar "sinking fund" chart.
+ *
+ * Each column is the un-amortized bill shock (full-height ghost column, sealed by a
+ * 1.5px white cap line) with the amortized daily-smoothed portion growing from the
+ * bottom in bright jade. Turning the Sinking Fund on visibly empties the ghost column
+ * for annual licences.
+ */
+export function ZombieRadarPanel({ compact = false }: { compact?: boolean }) {
   const zombieTags = useCtrlPayStore((s) => s.zombieTags);
-  const answerZombie = useCtrlPayStore((s) => s.answerZombie);
-  const gmailConsent = useCtrlPayStore((s) => s.gmailConsent);
-  const setGmailConsent = useCtrlPayStore((s) => s.setGmailConsent);
-  const sandboxClock = useCtrlPayStore((s) => s.sandboxClock);
+  const amortize = useCtrlPayStore((s) => s.amortizeAnnualFees);
+  const setAmortize = useCtrlPayStore((s) => s.setAmortize);
 
-  const [drawerFor, setDrawerFor] = React.useState<string | null>(null);
+  const rows = React.useMemo(() => {
+    const amort = new Map(calculateAmortizedSubscriptions(SUBSCRIPTIONS).map((a) => [a.subscriptionId, a]));
+    const maxFull = Math.max(...SUBSCRIPTIONS.map((s) => s.amountRM));
+    return SUBSCRIPTIONS.map((sub) => {
+      const burden = amort.get(sub.subscriptionId)?.monthlyBurden ?? sub.amountRM;
+      const effective = amortize ? burden : sub.amountRM;
+      const tag = zombieTags[sub.subscriptionId] ?? 'ACTIVE';
+      return {
+        id: sub.subscriptionId,
+        merchant: SUBSCRIPTION_REGISTRY[sub.subscriptionId].merchantName,
+        mono: MONOGRAM[sub.subscriptionId] ?? sub.subscriptionId.slice(0, 2).toUpperCase(),
+        amountRM: sub.amountRM,
+        effectiveRM: effective,
+        cycle: sub.billingCycle === 'ANNUAL' ? 'annual' : 'monthly',
+        dueDay: new Date(sub.nextBillingDate).getUTCDate(),
+        tag,
+        ghostPct: Math.round((sub.amountRM / maxFull) * 100),
+        solidPct: Math.max(6, Math.round((effective / maxFull) * 100)),
+      };
+    });
+  }, [amortize, zombieTags]);
 
-  const analysis = React.useMemo(
-    () =>
-      analyzeZombies({
-        transactions: [],
-        subscriptions: SUBSCRIPTIONS,
-        usageSignals: [],
-        sandboxClock,
-      }),
-    [sandboxClock],
-  );
-  const studentCandidates = new Set(analysis.studentDowngradeCandidates);
+  const monthlyTotal = rows.reduce((sum, r) => sum + r.effectiveRM, 0);
 
   return (
-    <Card>
-      <CardHeader className="flex-row items-start justify-between space-y-0">
+    <section className="ct-glass-dark overflow-hidden">
+      <header className="flex items-center justify-between gap-2 px-4 pt-4">
         <div>
-          <CardTitle className="flex items-center gap-2">
-            <Radar className="h-4 w-4" /> Zombie Radar
-          </CardTitle>
-          <CardDescription>
-            Recurring charges from the mock bank statement + opt-in Gmail receipts. Tagging is a T1 action.
-          </CardDescription>
+          <p className="ct-kicker text-holst-200/80">Live mandate roster</p>
+          <p className="duo-num mt-1 text-[15px] font-extrabold text-white">
+            {formatRM(monthlyTotal)}
+            <span className="ml-1 text-[11px] font-semibold text-holst-200/70">/ effective month</span>
+          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            {gmailConsent ? <Mail className="h-3 w-3" /> : <MailX className="h-3 w-3" />} Gmail receipts
-          </span>
-          <Switch checked={gmailConsent} onCheckedChange={setGmailConsent} aria-label="Gmail receipt consent" />
-        </div>
-      </CardHeader>
+        <Badge variant="outline" className="border-white/20 text-holst-100 ring-white/20">
+          {rows.length} mandates
+        </Badge>
+      </header>
 
-      <CardContent className="space-y-3">
-        {gmailConsent ? (
-          <div className="rounded-md border bg-secondary/40 p-2 text-xs text-muted-foreground">
-            Read-only consent granted. Structured fields only ({MOCK_RECEIPTS.length} mock receipts):{' '}
-            {MOCK_RECEIPTS.map((r) => `${r.merchant} ${formatRM(r.amountRM)}`).join(' · ')}
+      <ul className="mt-3 divide-y divide-white/8">
+        {rows.map((r) => (
+          <li key={r.id} className="flex items-center gap-3 px-4 py-2.5">
+            <span className="ct-mono ct-mono-light">{r.mono}</span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[12.5px] font-bold uppercase tracking-[0.03em] text-white">{r.merchant}</p>
+              <p className="text-[10.5px] text-holst-200/70">
+                bills {r.dueDay} · {r.cycle}
+                <span className="ml-1.5 text-holst-400">· {TAG_COPY[r.tag] ?? r.tag.toLowerCase()}</span>
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="duo-num text-[13px] font-extrabold text-white">{formatRM(r.amountRM)}</p>
+              {amortize && r.cycle === 'annual' ? (
+                <p className="text-[10px] font-semibold text-holst-400">→ {formatRM(r.effectiveRM)} /mo</p>
+              ) : (
+                <p className="text-[10px] font-semibold text-holst-200/60">{r.cycle}</p>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {!compact && (
+        <div className="mx-4 mt-3 rounded-2xl bg-white/6 p-3 ring-1 ring-inset ring-white/12">
+          <div className="flex items-center justify-between gap-2">
+            <span className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.12em] text-holst-200/80">
+              <Layers className="h-3.5 w-3.5" /> Bill shock vs smoothing
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="text-[10px] font-semibold text-holst-200/70">Sinking fund</span>
+              <Switch
+                checked={amortize}
+                onCheckedChange={setAmortize}
+                aria-label="Amortize annual fees into a sinking fund"
+              />
+            </span>
           </div>
-        ) : (
-          <div className="rounded-md border bg-secondary/40 p-2 text-xs text-muted-foreground">
-            Gmail receipt scanning is OFF by default (data minimization). CtrlPay still detects recurring charges
-            from bank-statement patterns alone.
-          </div>
-        )}
 
-        <div className="space-y-2">
-          {SUBSCRIPTIONS.map((sub) => {
-            const entry = SUBSCRIPTION_REGISTRY[sub.subscriptionId];
-            const tag = zombieTags[sub.subscriptionId] ?? 'ACTIVE';
-            const metrics = calculateSubscriptionMetrics({
-              fullPriceRM: entry.fullPriceRM,
-              studentPriceRM: entry.studentPriceRM,
-            });
-            const isSuspect = tag === 'SUSPECTED_ZOMBIE';
-            const canDowngrade = studentCandidates.has(sub.subscriptionId) && entry.studentPriceRM !== null;
-
-            return (
-              <div key={sub.subscriptionId} className="rounded-md border p-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium">{entry.merchantName}</p>
-                      <Badge variant={TAG_VARIANT[tag] ?? 'secondary'}>{tag}</Badge>
-                      {tag === 'ZOMBIE' && <AlertOctagon className="h-3.5 w-3.5 text-destructive" />}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {formatRM(sub.amountRM)} · {sub.billingCycle.toLowerCase()} · next {sub.nextBillingDate} ·{' '}
-                      {formatRM(metrics.annualizedCost)}/yr
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">
-                      ≈ {metrics.opportunityCostMeals} mixed-rice meals/mo
-                      {metrics.studentAnnualSavings !== null &&
-                        ` · student plan saves ${formatRM(metrics.studentAnnualSavings)}/yr`}
-                    </p>
-                    <p className="mt-0.5 text-[10px] text-muted-foreground">
-                      Clearing telemetry: amount tolerance ±{ZOMBIE_RULES.fxDriftTolerancePct}% (FX + card-scheme
-                      drift) · settlement window ±{ZOMBIE_RULES.settlementLagWindowDays}d · mandate{' '}
-                      <span className="font-mono">{ZOMBIE_RULES.iso20022MandateCategory}</span>
-                    </p>
+          <div className="mt-3 flex h-[112px] items-end gap-2">
+            {rows.map((r) => (
+              <div key={r.id} className="flex flex-1 flex-col items-center gap-1.5">
+                <div className="relative h-[88px] w-full">
+                  {/* Ghost column = the raw bill shock, sealed by a 1.5px white cap. */}
+                  <div
+                    className="ct-col-ghost absolute inset-x-0 bottom-0 rounded-xl"
+                    style={{ height: `${r.ghostPct}%` }}
+                  >
+                    <div className="ct-cap absolute inset-x-0.5 top-0 rounded-full" />
                   </div>
-
-                  <div className="flex shrink-0 flex-col items-end gap-1">
-                    {isSuspect && (
-                      <div className="flex items-center gap-1">
-                        <span className="text-[11px] text-muted-foreground">Used in 30 days?</span>
-                        <Button size="sm" variant="outline" onClick={() => answerZombie(sub.subscriptionId, true)}>
-                          Yes
-                        </Button>
-                        <Button size="sm" variant="destructive" onClick={() => answerZombie(sub.subscriptionId, false)}>
-                          No
-                        </Button>
-                      </div>
-                    )}
-                    {canDowngrade && (
-                      <Button size="sm" variant="secondary" onClick={() => setDrawerFor(sub.subscriptionId)}>
-                        <GraduationCap className="h-4 w-4" /> Student downgrade
-                      </Button>
-                    )}
-                  </div>
+                  {/* Solid jade = the amortized daily-smoothed portion. */}
+                  <div
+                    className="ct-bar-alt absolute inset-x-1.5 bottom-0 rounded-lg"
+                    style={{ height: `${r.solidPct}%` }}
+                  />
                 </div>
+                <span className="text-[9px] font-bold text-holst-200/70">{r.mono}</span>
               </div>
-            );
-          })}
-        </div>
-      </CardContent>
+            ))}
+          </div>
 
-      {drawerFor && (
-        <StudentDowngradeDrawer
-          subscriptionId={drawerFor}
-          open={drawerFor !== null}
-          onClose={() => setDrawerFor(null)}
-        />
+          <p className="mt-2 flex items-center gap-1.5 text-[10px] leading-relaxed text-holst-200/60">
+            <Radio className="h-3 w-3 shrink-0" />
+            Ghost column = cash-out on the billing day · jade = the smoothed daily share once the fee is amortized
+            Fee/12.
+          </p>
+        </div>
       )}
-    </Card>
+    </section>
   );
 }

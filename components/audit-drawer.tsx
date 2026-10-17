@@ -71,7 +71,7 @@ export function AuditDrawer() {
               {t}
             </Button>
           ))}
-          <span className="mx-1 w-px self-stretch bg-border" />
+          <span className="mx-1 w-px self-stretch bg-holst-950/10" />
           {statuses.slice(0, 6).map((s) => (
             <Button key={s} size="sm" variant={status === s ? 'default' : 'outline'} onClick={() => setStatus(s)}>
               {s}
@@ -84,7 +84,7 @@ export function AuditDrawer() {
             <p className="text-xs text-muted-foreground">No audit entries yet. Interact with the sandbox.</p>
           )}
           {visible.map((e) => (
-            <div key={e.logId} className="rounded-md border p-2 text-xs">
+            <div key={e.logId} className="rounded-2xl bg-holst-50/70 p-2.5 text-xs ring-1 ring-inset ring-holst-950/5">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="outline">{e.permissionTier}</Badge>
                 <Badge variant={e.status === 'DECLINED' ? 'danger' : 'secondary'}>{e.status}</Badge>

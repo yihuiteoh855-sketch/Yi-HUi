@@ -64,28 +64,34 @@ export function RiskTailStrip({
     [amount, engine.shortfallProbability, rewardPool],
   );
 
+  // The pre-auth latency is a real wall-clock measurement, so it must not be part of the
+  // server-rendered markup — hydration would flag the two values as a mismatch.
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+  const latency = mounted ? `${engine.executionTimeMs.toFixed(2)} ms` : '… ms';
+
   const nsfRisk = engine.intraMonthLiquidityBreachProb;
   const nsfTone =
-    nsfRisk >= 20 ? 'text-[#c0392b]' : nsfRisk > 0 ? 'text-[#b26a12]' : 'text-[#12805c]';
+    nsfRisk >= 20 ? 'text-[#B3253F]' : nsfRisk > 0 ? 'text-[#8A5408]' : 'text-holst-600';
 
   if (variant === 'inline') {
     return (
       <div className={cn('flex flex-wrap items-center gap-1.5 text-[11px]', className)}>
-        <span className="rounded-full bg-[#eef4ff] px-2 py-0.5 font-semibold text-[#207ac4]">
+        <span className="rounded-full bg-holst-50 px-2 py-0.5 font-semibold text-holst-600">
           ES95 {formatRM(engine.es95)}
         </span>
-        <span className={cn('rounded-full bg-[#f4f7fb] px-2 py-0.5 font-semibold', nsfTone)}>
+        <span className={cn('rounded-full bg-holst-50/70 px-2 py-0.5 font-semibold', nsfTone)}>
           NSF dip {nsfRisk.toFixed(2)}%
         </span>
-        <span className="rounded-full bg-[#f4f7fb] px-2 py-0.5 font-semibold text-[#5c6f87]">
-          Pre-auth {engine.executionTimeMs.toFixed(2)} ms
+        <span className="rounded-full bg-holst-50 px-2 py-0.5 font-semibold text-holst-800">
+          Pre-auth {latency}
         </span>
-        <span className="rounded-full bg-[#fff2e8] px-2 py-0.5 font-semibold text-[#b2600f]">
+        <span className="rounded-full bg-[#FFF3E6] px-2 py-0.5 font-semibold text-[#8A5408]">
           Present bias β={DEMO_CONFIG.presentBiasBeta.toFixed(2)} ·{' '}
           {behavioral.presentBiasInflationRatio.toFixed(2)}×
         </span>
         {behavioral.riskElasticRewardRM > behavioral.baseRewardRM ? (
-          <span className="rounded-full bg-[#eafaf3] px-2 py-0.5 font-semibold text-[#12805c]">
+          <span className="rounded-full bg-holst-50 px-2 py-0.5 font-semibold text-holst-600">
             Reward {formatRM(behavioral.baseRewardRM)} → {formatRM(behavioral.riskElasticRewardRM)}{' '}
             risk-elastic
           </span>
@@ -99,7 +105,7 @@ export function RiskTailStrip({
       icon: <TrendingDown className="h-3.5 w-3.5" />,
       label: 'ES95 tail risk',
       value: formatRM(engine.es95),
-      tone: 'text-[#207ac4]',
+      tone: 'text-holst-600',
     },
     {
       icon: <ShieldAlert className="h-3.5 w-3.5" />,
@@ -110,14 +116,14 @@ export function RiskTailStrip({
     {
       icon: <Clock3 className="h-3.5 w-3.5" />,
       label: 'Pre-auth engine',
-      value: `${engine.executionTimeMs.toFixed(2)} ms`,
-      tone: 'text-[#5c6f87]',
+      value: latency,
+      tone: 'text-holst-600',
     },
     {
       icon: <Hourglass className="h-3.5 w-3.5" />,
       label: 'Present-bias markup',
       value: `${behavioral.presentBiasInflationRatio.toFixed(2)}× (β=${behavioral.presentBiasBeta.toFixed(2)})`,
-      tone: 'text-[#b2600f]',
+      tone: 'text-[#8A5408]',
     },
   ];
 
@@ -125,16 +131,16 @@ export function RiskTailStrip({
     <div className={cn('space-y-2', className)}>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {tiles.map((t) => (
-          <div key={t.label} className="rounded-xl bg-[#f4f7fb] px-3 py-2">
-            <div className={cn('flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide', t.tone)}>
+          <div key={t.label} className="ct-metric">
+            <div className={cn('flex items-center gap-1 text-[10px] font-bold uppercase tracking-[0.08em]', t.tone)}>
               {t.icon}
               {t.label}
             </div>
-            <div className={cn('duo-num mt-1 text-sm font-bold', t.tone)}>{t.value}</div>
+            <div className={cn('duo-num mt-1 text-[13px] font-bold', t.tone)}>{t.value}</div>
           </div>
         ))}
       </div>
-      <p className="text-[11px] leading-relaxed text-muted-foreground">
+      <p className="text-[11px] leading-relaxed duo-muted">
         Basel III expected shortfall (Artzner et al., 1999) · intra-month path-minimum barrier ·
         Laibson (1997) present bias with a risk-elastic reward of{' '}
         {formatRM(behavioral.baseRewardRM)} → {formatRM(behavioral.riskElasticRewardRM)}.

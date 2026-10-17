@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Bell, Flame, ShieldCheck, Timer } from 'lucide-react';
+import { Bell, Flame, ShieldCheck, Timer, X } from 'lucide-react';
 import { useCtrlPayStore, type SandboxEvent } from '@/lib/store';
 import { formatRM } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -111,43 +111,71 @@ function describe(e: SandboxEvent): { title: string; body: string; variant: 'inf
   }
 }
 
-export function EventFeed() {
+export function EventFeed({ bare = false }: { bare?: boolean } = {}) {
   const events = useCtrlPayStore((s) => s.events);
   const dismissEvent = useCtrlPayStore((s) => s.dismissEvent);
 
   const inline = events.filter((e) => INLINE_TYPES.includes(e.type));
-  if (inline.length === 0) return null;
+
+  const rows = inline
+    .slice(-6)
+    .reverse()
+    .map((e) => {
+      const d = describe(e);
+      const Icon = e.type === 'MONTH_END_ROAST' ? Flame : e.type === 'QUARANTINE_READY' ? Timer : ShieldCheck;
+      return (
+        <div key={e.id} className="flex items-start justify-between gap-2 rounded-2xl bg-holst-50/70 p-3">
+          <div className="flex min-w-0 gap-2">
+            <Icon className="mt-0.5 h-4 w-4 shrink-0 text-holst-600" />
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-xs font-bold">{d.title}</p>
+                <Badge variant={d.variant}>{e.type}</Badge>
+              </div>
+              <p className="text-[11px] leading-snug duo-muted">{d.body}</p>
+            </div>
+          </div>
+          <Button size="sm" variant="ghost" onClick={() => dismissEvent(e.id)} aria-label={`Dismiss ${e.type}`}>
+            <X className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      );
+    });
+
+  if (bare) {
+    return (
+      <div className="space-y-2">
+        {rows.length > 0 ? (
+          rows
+        ) : (
+          <p className="rounded-2xl bg-[#F4F8F7] px-3 py-4 text-center text-[11px] duo-muted">
+            Nothing yet — events appear as the sandbox clock advances and settlements resolve.
+          </p>
+        )}
+      </div>
+    );
+  }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-0">
+      <CardHeader className="p-4 pb-2">
         <CardTitle className="flex items-center gap-2">
-          <Bell className="h-4 w-4" /> Proactive events
+          <span className="ct-well h-8 w-8 rounded-xl">
+            <Bell className="h-4 w-4 text-holst-800" />
+          </span>
+          Proactive events
         </CardTitle>
         <CardDescription>Time-triggered and settlement events from the sandbox clock.</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2">
-        {inline.slice(-6).reverse().map((e) => {
-          const d = describe(e);
-          const Icon = e.type === 'MONTH_END_ROAST' ? Flame : e.type === 'QUARANTINE_READY' ? Timer : ShieldCheck;
-          return (
-            <div key={e.id} className="flex items-start justify-between gap-2 rounded-md border p-2">
-              <div className="flex gap-2">
-                <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-xs font-semibold">{d.title}</p>
-                    <Badge variant={d.variant}>{e.type}</Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground">{d.body}</p>
-                </div>
-              </div>
-              <Button size="sm" variant="ghost" onClick={() => dismissEvent(e.id)}>
-                Dismiss
-              </Button>
-            </div>
-          );
-        })}
+      <CardContent className="space-y-2 p-4 pt-2">
+        {rows.length > 0 ? (
+          rows
+        ) : (
+          <p className="rounded-2xl bg-[#F4F8F7] px-3 py-4 text-center text-[11px] duo-muted">
+            Nothing yet — advance the sandbox clock or inject a payment and the agent&apos;s proactive events land
+            here.
+          </p>
+        )}
       </CardContent>
     </Card>
   );

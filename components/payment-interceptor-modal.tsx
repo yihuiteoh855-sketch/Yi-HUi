@@ -84,12 +84,25 @@ export function PaymentInterceptorModal() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <Card className="w-full max-w-lg border-destructive/40">
+    <div
+      className="absolute inset-0 z-50 flex flex-col justify-end bg-[rgba(4,34,43,0.45)] backdrop-blur-[2px]"
+      onClick={() => dismissEvent(intercept.id)}
+    >
+      <Card
+        className="flex max-h-full w-full animate-sheet-up flex-col overflow-hidden rounded-b-none rounded-t-[30px] border-0 shadow-lift"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex shrink-0 justify-center pt-3">
+          <span className="ct-grabber" />
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto no-scrollbar">
         <CardHeader className="flex-row items-start justify-between space-y-0">
           <div>
-            <CardTitle className="flex items-center gap-2 text-destructive">
-              <ShieldAlert className="h-5 w-5" /> Payment intercepted
+            <CardTitle className="flex items-center gap-2 text-[#04222B]">
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-[#FDECEC] text-[#B3253F]">
+                <ShieldAlert className="h-4 w-4" />
+              </span>
+              Payment intercepted
             </CardTitle>
             <CardDescription>
               CtrlPay ran a Cash-Flow-at-Risk simulation before the payment completed.
@@ -99,17 +112,17 @@ export function PaymentInterceptorModal() {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between rounded-md border p-3">
+          <div className="flex items-center justify-between rounded-2xl bg-holst-50/70 p-3">
             <div className="flex items-center gap-2">
-              <Wallet className="h-4 w-4 text-muted-foreground" />
+              <Wallet className="h-4 w-4 text-holst-600" />
               <div>
-                <p className="text-sm font-medium">
+                <p className="text-sm font-bold">
                   {intent.merchant} · {formatRM(intent.amount)}
                 </p>
-                <p className="text-xs text-muted-foreground">{intent.category.replaceAll('_', ' ')}</p>
+                <p className="text-[11px] duo-muted">{intent.category.replaceAll('_', ' ')}</p>
               </div>
             </div>
-            <div className="text-right text-xs text-muted-foreground">
+            <div className="text-right text-[11px] duo-muted">
               <p>
                 ≈ {units.mixedRiceMeals} mixed-rice meals
               </p>
@@ -118,40 +131,40 @@ export function PaymentInterceptorModal() {
           </div>
 
           <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="rounded-md border p-2">
-              <p className="text-[11px] text-muted-foreground">Shortfall prob.</p>
-              <p className="text-sm font-semibold">{result.shortfallProbability}%</p>
+            <div className="rounded-2xl bg-holst-50/70 p-2.5">
+              <p className="text-[10px] duo-muted">Shortfall prob.</p>
+              <p className="duo-num text-[13px] font-bold">{result.shortfallProbability}%</p>
             </div>
-            <div className="rounded-md border p-2">
-              <p className="text-[11px] text-muted-foreground">CFaR 95</p>
-              <p className="text-sm font-semibold">{formatRM(result.cfar95)}</p>
+            <div className="rounded-2xl bg-holst-50/70 p-2.5">
+              <p className="text-[10px] duo-muted">CFaR 95</p>
+              <p className="duo-num text-[13px] font-bold">{formatRM(result.cfar95)}</p>
             </div>
-            <div className="rounded-md border p-2">
-              <p className="text-[11px] text-muted-foreground">Projected month-end</p>
-              <p className="text-sm font-semibold">{formatRM(result.projectedMonthEndBalance)}</p>
+            <div className="rounded-2xl bg-holst-50/70 p-2.5">
+              <p className="text-[10px] duo-muted">Projected month-end</p>
+              <p className="duo-num text-[13px] font-bold">{formatRM(result.projectedMonthEndBalance)}</p>
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="rounded-md border p-2">
-              <p className="text-[11px] text-muted-foreground">ES95 tail risk</p>
-              <p className="text-sm font-semibold text-blue-700">{formatRM(result.es95)}</p>
+            <div className="rounded-2xl bg-holst-50/70 p-2.5">
+              <p className="text-[10px] duo-muted">ES95 tail risk</p>
+              <p className="duo-num text-[13px] font-bold text-holst-600">{formatRM(result.es95)}</p>
             </div>
-            <div className="rounded-md border p-2">
-              <p className="text-[11px] text-muted-foreground">NSF dip risk (mid-month)</p>
+            <div className="rounded-2xl bg-holst-50/70 p-2.5">
+              <p className="text-[10px] duo-muted">NSF dip risk</p>
               <p
                 className={
                   result.intraMonthLiquidityBreachProb > 0
-                    ? 'text-sm font-semibold text-red-600'
-                    : 'text-sm font-semibold text-emerald-600'
+                    ? 'duo-num text-[13px] font-bold text-[#B3253F]'
+                    : 'duo-num text-[13px] font-bold text-holst-600'
                 }
               >
                 {result.intraMonthLiquidityBreachProb}%
               </p>
             </div>
-            <div className="rounded-md border p-2">
-              <p className="text-[11px] text-muted-foreground">Path floor (5th pct.)</p>
-              <p className="text-sm font-semibold">{formatRM(result.lowestProjectedBalanceRM)}</p>
+            <div className="rounded-2xl bg-holst-50/70 p-2.5">
+              <p className="text-[10px] duo-muted">Path floor (5th pct.)</p>
+              <p className="duo-num text-[13px] font-bold">{formatRM(result.lowestProjectedBalanceRM)}</p>
             </div>
           </div>
 
@@ -164,27 +177,27 @@ export function PaymentInterceptorModal() {
           />
 
           {(result.limitBreach.weekly || result.limitBreach.monthly) && (
-            <p className="flex items-center gap-2 text-xs text-destructive">
+            <p className="flex items-center gap-2 text-xs font-semibold text-[#B3253F]">
               <AlertTriangle className="h-4 w-4" /> This breaches your{' '}
               {result.limitBreach.weekly ? 'weekly' : 'monthly'} User Spending Limit.
             </p>
           )}
 
           {result.lowHistoryWarning && (
-            <p className="text-xs text-amber-700">Based on limited history, estimate only.</p>
+            <p className="text-xs font-semibold text-[#8A5408]">Based on limited history, estimate only.</p>
           )}
 
           {!masterAutonomyEnabled && (
-            <p className="rounded-md bg-secondary p-2 text-xs text-muted-foreground">
-              Master Autonomy is OFF, so Lock/Escrow (T3) is blocked. Turn it on in the Simulation Toolbar to
+            <p className="duo-warning p-2.5 text-xs">
+              Master Autonomy is OFF, so Lock/Escrow (T3) is blocked. Turn it on in the ⚡ Sandbox drawer to
               accept a contract. You can still proceed or dismiss.
             </p>
           )}
 
-          {error && <p className="rounded-md bg-destructive/10 p-2 text-xs text-destructive">{error}</p>}
+          {error && <p className="rounded-2xl bg-[#FDE7EC] p-2.5 text-xs text-[#B3253F]">{error}</p>}
           <TierGateHint error={error} />
 
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs duo-muted">
             You are always in control. Nothing moves until you click.
           </p>
 
@@ -214,6 +227,7 @@ export function PaymentInterceptorModal() {
             </Button>
           </div>
         </CardContent>
+        </div>
       </Card>
     </div>
   );

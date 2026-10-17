@@ -22,13 +22,13 @@ function Stat({
   accent?: boolean;
 }) {
   return (
-    <div className="rounded-md border p-3">
-      <div className="flex items-center justify-between">
-        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</p>
+    <div className="ct-metric">
+      <div className="flex items-center justify-between gap-2">
+        <p className="ct-kicker duo-muted">{label}</p>
         {icon}
       </div>
-      <p className={`mt-1 text-lg font-semibold ${accent ? 'text-emerald-600' : ''}`}>{value}</p>
-      {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
+      <p className={`ct-int mt-1.5 text-[19px] ${accent ? 'text-holst-800' : 'text-holst-950'}`}>{value}</p>
+      {hint && <p className="mt-1 text-[10.5px] leading-snug duo-muted">{hint}</p>}
     </div>
   );
 }
@@ -43,29 +43,28 @@ export function VaultPanel() {
   const userLimits = useCtrlPayStore((s) => s.userLimits);
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-0">
+      <CardHeader className="p-4 pb-2">
         <CardTitle className="flex items-center gap-2">
-          <Wallet className="h-4 w-4" /> Sandbox Ledger
+          <span className="ct-well h-8 w-8 rounded-xl">
+            <Wallet className="h-4 w-4 text-holst-800" />
+          </span>
+          Sandbox ledger buckets
         </CardTitle>
-        <CardDescription>
-          No real money. Everything is a labelled sandbox ledger bucket.
-        </CardDescription>
+        <CardDescription>No real money. Everything is a labelled sandbox ledger bucket.</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+      <CardContent className="space-y-3 p-4 pt-2">
+        <div className="grid grid-cols-2 gap-2.5">
           <Stat
             label="Current balance"
             value={formatRM(currentBalance)}
-            icon={<Wallet className="h-4 w-4 text-muted-foreground" />}
-            hint={`Spent this month ${formatRM(spentThisMonth)} / limit ${formatRM(
-              userLimits.monthlyPayLimit,
-            )}`}
+            icon={<Wallet className="h-4 w-4 text-holst-800" />}
+            hint={`Spent ${formatRM(spentThisMonth)} / limit ${formatRM(userLimits.monthlyPayLimit)}`}
           />
           <Stat
-            label="Dynamic daily allowance"
+            label="Safe daily"
             value={formatRM(allowance)}
-            icon={<Sparkles className="h-4 w-4 text-muted-foreground" />}
+            icon={<Sparkles className="h-4 w-4 text-holst-800" />}
             hint={amortize ? 'Sinking-fund view (amortized)' : 'Computed by the engine'}
           />
           <motion.div
@@ -75,23 +74,23 @@ export function VaultPanel() {
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
           >
             <Stat
-              label="Defense Vault 防御金库"
+              label="Defense Vault"
               value={formatRM(defenseVault)}
-              icon={<ShieldCheck className="h-4 w-4 text-emerald-600" />}
-              hint="Non-interest sandbox bucket. Credits only from VERIFIED savings/rewards."
+              icon={<ShieldCheck className="h-4 w-4 text-holst-600" />}
+              hint="Non-interest sandbox bucket. Credits only from VERIFIED savings."
               accent
             />
           </motion.div>
           <Stat
             label="Reward Pool"
             value={formatRM(rewardPool)}
-            icon={<PiggyBank className="h-4 w-4 text-muted-foreground" />}
+            icon={<PiggyBank className="h-4 w-4 text-holst-800" />}
             hint="Funded only by verified sweep savings."
           />
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline">Needs/Wants split: engine-computed</Badge>
-          <Badge variant="outline">CFaR: 1,000 seeded paths</Badge>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Badge variant="secondary">Needs/Wants split: engine-computed</Badge>
+          <Badge variant="secondary">CFaR: 1,000 seeded paths</Badge>
         </div>
       </CardContent>
     </Card>
