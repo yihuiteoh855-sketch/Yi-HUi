@@ -67,7 +67,7 @@ function ToolSummary({ inv }: { inv: LooseToolInvocation }) {
     }
   }
   return (
-    <div className="flex items-start gap-2 rounded-md border bg-secondary/40 p-2 text-[11px] text-muted-foreground">
+    <div className="flex items-start gap-2 rounded-2xl bg-holst-50 p-2 text-[11px] duo-muted ring-1 ring-holst-600/10">
       <Wrench className="mt-0.5 h-3 w-3 shrink-0" />
       <div>
         <span className="font-medium text-foreground">{inv.toolName}</span>{' '}
@@ -80,7 +80,7 @@ function ToolSummary({ inv }: { inv: LooseToolInvocation }) {
   );
 }
 
-export function AgentChat() {
+export function AgentChat({ withBookkeeping = true }: { withBookkeeping?: boolean } = {}) {
   const roastTone = useCtrlPayStore((s) => s.roastTone);
   const setRoastTone = useCtrlPayStore((s) => s.setRoastTone);
   const QUICK_CHIPS = React.useMemo(() => buildQuickChips(roastTone), [roastTone]);
@@ -141,7 +141,7 @@ export function AgentChat() {
   const typed = messages as unknown as LooseMessage[];
 
   return (
-    <Card className="dock-card flex h-full flex-col">
+    <Card className="flex h-full flex-col border-0 bg-transparent shadow-none ring-0 backdrop-blur-none">
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <div>
           <CardTitle className="flex items-center gap-2">
@@ -182,8 +182,8 @@ export function AgentChat() {
         )}
         <div className="min-h-[220px] flex-1 space-y-3 overflow-y-auto scroll-thin pr-1">
           {typed.length === 0 && (
-            <div className="rounded-md border p-3 text-xs text-muted-foreground">
-              <p className="flex items-center gap-2 font-medium text-foreground">
+            <div className="rounded-2xl bg-holst-50 p-3 text-xs duo-muted ring-1 ring-holst-600/10">
+              <p className="flex items-center gap-2 font-bold text-holst-950">
                 <Sparkles className="h-3.5 w-3.5" /> Try a quick chip, or ask anything about your money.
               </p>
               <p className="mt-1">
@@ -202,10 +202,10 @@ export function AgentChat() {
               >
                 <div
                   className={cn(
-                    'max-w-[92%] rounded-lg px-3 py-2 text-sm',
+                    'max-w-[92%] rounded-2xl px-3 py-2 text-sm',
                     message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-secondary-foreground',
+                      ? 'bg-gradient-to-br from-[#1D8B94] to-[#10606F] text-white'
+                      : 'bg-holst-50 text-holst-950 ring-1 ring-holst-600/10',
                   )}
                 >
                   {parts.map((part, i) => {
@@ -302,7 +302,7 @@ export function AgentChat() {
             value={input}
             onChange={handleInputChange}
             placeholder="Ask CtrlPay… (numbers are computed server-side)"
-            className="flex-1 rounded-md border bg-background px-3 py-2 text-sm"
+            className="min-w-0 flex-1 rounded-full border border-holst-950/10 bg-white px-4 py-2 text-sm text-holst-950 outline-none focus:border-holst-600"
             aria-label="Chat message"
           />
           <Button type="submit" size="icon" disabled={isLoading || !input.trim()} aria-label="Send">
@@ -310,7 +310,7 @@ export function AgentChat() {
           </Button>
         </form>
 
-        <MultimodalBookkeeping />
+        {withBookkeeping && <MultimodalBookkeeping />}
       </CardContent>
     </Card>
   );

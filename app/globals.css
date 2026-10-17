@@ -1,147 +1,969 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ==================================================================== *
+ * CtrlPay — Nexora-grade FinTech visual language on the Holst ramp.
+ *
+ *   950 #04222B · 900 #0A3D4A · 800 #10606F · 600 #1D8B94
+ *   400 #4FB8B4 · 200 #98D8D0 ·  50 #E2F4F0
+ *   semantic: success #10B981 · warning #F59E0B · risk #F43F5E
+ *
+ * Rules enforced here (anti-generic-AI):
+ *   · no uniform bordered bento boxes — glass, radial heroes and folder-tab cutouts
+ *   · split amount typography (.ct-int / .ct-dec) for every headline figure
+ *   · monogram badges + squircle icon wells instead of bare emoji
+ *   · bespoke chart furniture (hatched full-height tracks, white cap lines, glow bubbles)
+ * ==================================================================== */
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 222 47% 11%;
+    --background: 168 44% 97%;
+    --foreground: 193 84% 9%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 193 84% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
-    --vault: 158 64% 40%;
-    --danger: 0 72% 51%;
-    --radius: 0.6rem;
+    --popover-foreground: 193 84% 9%;
+    --primary: 190 74% 25%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 168 44% 94%;
+    --secondary-foreground: 190 74% 20%;
+    --muted: 170 28% 95%;
+    --muted-foreground: 191 22% 39%;
+    --accent: 172 44% 90%;
+    --accent-foreground: 190 74% 20%;
+    --destructive: 355 70% 52%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 172 28% 89%;
+    --input: 172 28% 89%;
+    --ring: 184 80% 32%;
+    --vault: 168 55% 36%;
+    --danger: 355 70% 52%;
+    --radius: 1rem;
+
+    /* Raw ramp, exposed for bespoke CSS below. */
+    --holst-950: #04222b;
+    --holst-900: #0a3d4a;
+    --holst-800: #10606f;
+    --holst-700: #108b94;
+    --holst-600: #1d8b94;
+    --holst-400: #4fb8b4;
+    --holst-300: #98d8d0;
+    --holst-200: #98d8d0;
+    --holst-100: #e2f4f0;
+    --holst-50: #e2f4f0;
+
+    --tone-success: #10b981;
+    --tone-warning: #f59e0b;
+    --tone-risk: #f43f5e;
   }
 
   * {
     @apply border-border;
   }
 
+  html,
+  body {
+    height: 100%;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: 'Plus Jakarta Sans', theme('fontFamily.sans');
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Range inputs inherit the brand ramp. */
+  input[type='range'] {
+    @apply h-2 w-full cursor-pointer appearance-none rounded-full;
+    background: var(--holst-100);
+  }
+  input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: linear-gradient(140deg, var(--holst-600), var(--holst-800));
+    border: 3px solid #fff;
+    box-shadow: 0 2px 10px rgba(4, 34, 43, 0.4);
+    cursor: pointer;
+  }
+  input[type='range']::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: linear-gradient(140deg, var(--holst-600), var(--holst-800));
+    border: 3px solid #fff;
+    box-shadow: 0 2px 10px rgba(4, 34, 43, 0.4);
+    cursor: pointer;
+  }
+
+  /* On-device scrollbars: hidden inside the phone, thin everywhere else. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .scroll-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scroll-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 999px;
   }
 }
 
-/* ------------------------------------------------------------------ *
- * CtrlPay mobile design language.
- *
- * Ported from the team's dual-currency e-wallet prototype
- * (docs/legacy/duoMoney_Plus_v36.html — 36 design iterations). Only the
- * visual language is reused: phone shell, gradients, palette and nav.
- * ------------------------------------------------------------------ */
-.duo-body {
-  background: #e8f4ff;
+@layer components {
+  /* ---------------- Page stage ---------------- */
+  .app-preview {
+    background:
+      radial-gradient(120% 90% at 50% -10%, var(--holst-300) 0%, var(--holst-100) 46%, #f7fbfa 100%);
+  }
+  .ct-studio {
+    /* Rich silk-fluid gradient matching the showcase picture */
+    background:
+      radial-gradient(110% 85% at 20% 12%, rgba(255, 255, 255, 0.55) 0%, transparent 45%),
+      radial-gradient(90% 70% at 85% 15%, rgba(147, 197, 253, 0.5) 0%, transparent 50%),
+      radial-gradient(120% 90% at 10% 85%, rgba(30, 64, 175, 0.4) 0%, transparent 60%),
+      linear-gradient(135deg, #D4E8FA 0%, #A9CDF4 22%, #5C9AD9 48%, #1D5494 76%, #0B2447 100%);
+  }
+
+  /* ---------------- Phone frame ---------------- */
+  .duo-body {
+    background: transparent;
+  }
+
+  .duo-phone {
+    position: relative;
+    background:
+      radial-gradient(120% 65% at 50% 0%, #F2F8FE 0%, #E3F0FC 38%, #D2E6FA 72%, #C2DCF7 100%);
+    color: #0B1E3F;
+    box-shadow:
+      0 0 0 11px #0B1E3F,
+      0 0 0 12.5px rgba(98, 174, 237, 0.5),
+      0 44px 90px -24px rgba(11, 30, 63, 0.45);
+  }
+
+  /* On a real handset the App IS the screen: no bezel, no radius, no stage margin. */
+  @media (max-width: 500px) {
+    .duo-phone {
+      box-shadow: none;
+    }
+  }
+
+  /* Dynamic island */
+  .ct-island {
+    background: var(--holst-950);
+  }
+
+  /* ---------------- Surfaces ---------------- */
+  /* Borderless frosted card — replaces the generic bordered bento box. */
+  .duo-card {
+    position: relative;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.86) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 26px;
+    padding: 18px;
+    backdrop-filter: blur(14px) saturate(140%);
+    box-shadow:
+      0 20px 44px -30px rgba(4, 34, 43, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  /* Soft recessed panel (chart ground). */
+  .ct-panel {
+    position: relative;
+    background: linear-gradient(180deg, #f2f7f6 0%, #eef5f4 100%);
+    border: 1px solid rgba(4, 34, 43, 0.05);
+    border-radius: 26px;
+    padding: 18px;
+  }
+
+  /* Radial gradient frosted hero (Nexora overview card). */
+  .ct-hero-radial {
+    position: relative;
+    overflow: hidden;
+    border-radius: 28px;
+    color: #fff;
+    background:
+      radial-gradient(120% 120% at 88% 6%, rgba(152, 216, 208, 0.38) 0%, transparent 52%),
+      radial-gradient(140% 120% at 8% 100%, rgba(29, 139, 148, 0.55) 0%, transparent 58%),
+      linear-gradient(150deg, #04222b 0%, #0a3d4a 48%, #10606f 100%);
+    box-shadow: 0 26px 60px -34px rgba(4, 34, 43, 0.9);
+  }
+
+  .duo-hero {
+    border-radius: 26px;
+    padding: 18px;
+    color: #fff;
+    background: linear-gradient(145deg, var(--holst-950) 0%, var(--holst-900) 52%, var(--holst-800) 100%);
+    box-shadow: 0 16px 34px -18px rgba(4, 34, 43, 0.7);
+  }
+
+  /* Deep glass surface used for dark subscription lists. */
+  .ct-glass-dark {
+    position: relative;
+    border-radius: 26px;
+    color: #fff;
+    background: linear-gradient(160deg, rgba(4, 34, 43, 0.96) 0%, rgba(10, 61, 74, 0.94) 100%);
+    border: 1px solid rgba(152, 216, 208, 0.2);
+    box-shadow: 0 24px 54px -34px rgba(4, 34, 43, 0.95);
+  }
+
+  /* Folder-tab cutout card (Nexora Invested / Withdraw). */
+  .ct-folder {
+    position: relative;
+    margin-top: 14px;
+    border-radius: 24px;
+    background: linear-gradient(170deg, rgba(152, 216, 208, 0.5) 0%, rgba(226, 244, 240, 0.85) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow: 0 18px 40px -28px rgba(4, 34, 43, 0.45);
+    padding: 18px;
+  }
+  .ct-folder::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: -14px;
+    height: 16px;
+    min-width: 96px;
+    width: max-content;
+    max-width: 70%;
+    padding-right: 10px;
+    border-radius: 12px 12px 0 0;
+    background: linear-gradient(180deg, rgba(226, 244, 240, 0.98), rgba(152, 216, 208, 0.55));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    pointer-events: none;
+  }
+  .ct-folder-tab {
+    position: absolute;
+    left: 24px;
+    top: -21px;
+    z-index: 2;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--holst-800);
+  }
+  /* Dark status notch pill in the folder card's top-right. */
+  .ct-notch {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    background: var(--holst-950);
+    color: #fff;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 5px 10px;
+    box-shadow: 0 8px 18px -10px rgba(4, 34, 43, 0.9);
+  }
+
+  /* ---------------- Type helpers ---------------- */
+  .duo-muted {
+    color: #567170;
+  }
+  .duo-num {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  /* Split amount typography — integer solid, decimals at 45% opacity. */
+  .ct-int {
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 0.92;
+  }
+  .ct-dec {
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    opacity: 0.45;
+  }
+  .ct-kicker {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  /* ---------------- Buttons ---------------- */
+  .duo-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 15px;
+    font-weight: 650;
+    background: linear-gradient(140deg, var(--holst-600), var(--holst-800));
+    color: #fff;
+    padding: 10px 14px;
+    box-shadow: 0 10px 22px -14px rgba(16, 96, 111, 0.9);
+    transition: filter 0.15s ease, transform 0.15s ease;
+  }
+  .duo-btn:hover {
+    filter: brightness(1.08);
+  }
+  .duo-btn:active {
+    transform: translateY(1px);
+  }
+  .duo-btn:disabled {
+    opacity: 0.5;
+  }
+
+  .duo-btn-ghost {
+    background: var(--holst-100);
+    color: var(--holst-800);
+    box-shadow: none;
+  }
+
+  /* Reference action pills (Add / Scan / Send). */
+  .ct-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--holst-950);
+    font-size: 13px;
+    font-weight: 650;
+    padding: 10px 16px;
+    box-shadow: 0 8px 20px -14px rgba(4, 34, 43, 0.4);
+    border: 1px solid rgba(4, 34, 43, 0.05);
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .ct-action:hover {
+    background: #f6fbfa;
+  }
+  .ct-action:active {
+    transform: translateY(1px);
+  }
+  .ct-action-primary {
+    background: linear-gradient(140deg, var(--holst-950), var(--holst-800));
+    color: #fff;
+    border-color: transparent;
+  }
+  .ct-action-primary:hover {
+    filter: brightness(1.12);
+    background: linear-gradient(140deg, var(--holst-950), var(--holst-800));
+  }
+  .ct-icon-btn {
+    display: inline-grid;
+    place-items: center;
+    height: 42px;
+    width: 42px;
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--holst-950);
+    box-shadow: 0 8px 20px -14px rgba(4, 34, 43, 0.4);
+    border: 1px solid rgba(4, 34, 43, 0.05);
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .ct-icon-btn:hover {
+    background: #f6fbfa;
+  }
+  .ct-icon-btn:active {
+    transform: translateY(1px);
+  }
+
+  /* Frosted action brick (Nexora Invest | Add Fund | Withdraw). */
+  .ct-brick {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 16px;
+    padding: 12px 8px;
+    background: rgba(226, 244, 240, 0.12);
+    border: 1px solid rgba(226, 244, 240, 0.22);
+    backdrop-filter: blur(12px);
+    color: #eafaf7;
+    font-size: 11px;
+    font-weight: 650;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .ct-brick:hover {
+    background: rgba(226, 244, 240, 0.2);
+  }
+  .ct-brick:active {
+    transform: translateY(1px);
+  }
+  .ct-brick[data-on='true'] {
+    background: rgba(79, 184, 180, 0.28);
+    border-color: rgba(226, 244, 240, 0.5);
+  }
+
+  /* ---------------- Chips & pills ---------------- */
+  .ct-chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--holst-800);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 3px 9px;
+    border: 1px solid rgba(4, 34, 43, 0.07);
+  }
+  .ct-pill-glass {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 999px;
+    background: rgba(226, 244, 240, 0.16);
+    border: 1px solid rgba(226, 244, 240, 0.24);
+    color: #dff6f3;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 4px 9px;
+    backdrop-filter: blur(10px);
+  }
+  /* The one and only judge affordance visible on the App chrome. */
+  .ct-sandbox-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 999px;
+    background: rgba(4, 34, 43, 0.06);
+    border: 1px solid rgba(29, 139, 148, 0.3);
+    color: var(--holst-800);
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    transition: background 160ms ease;
+  }
+  .ct-sandbox-pill:hover {
+    background: rgba(29, 139, 148, 0.14);
+  }
+  .ct-badge-up {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    border-radius: 999px;
+    background: #dcf7ee;
+    color: #0f6b55;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+  }
+  .ct-badge-down {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    border-radius: 999px;
+    background: #fde7ec;
+    color: #b3253f;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+  }
+
+  /* ---------------- Monogram badge & icon well ---------------- */
+  .ct-mono {
+    display: inline-grid;
+    place-items: center;
+    height: 40px;
+    width: 40px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: linear-gradient(150deg, var(--holst-600), var(--holst-800));
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    box-shadow: 0 8px 18px -12px rgba(16, 96, 111, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+  .ct-mono-light {
+    background: linear-gradient(150deg, rgba(226, 244, 240, 0.9), rgba(152, 216, 208, 0.8));
+    color: var(--holst-900);
+  }
+  .ct-well {
+    display: inline-grid;
+    place-items: center;
+    height: 44px;
+    width: 44px;
+    flex-shrink: 0;
+    border-radius: 16px;
+    background: linear-gradient(160deg, #ffffff, #eef7f4);
+    border: 1px solid rgba(4, 34, 43, 0.06);
+    box-shadow: 0 10px 22px -16px rgba(4, 34, 43, 0.4);
+  }
+
+  /* ---------------- Charts ---------------- */
+  /* Hatched "reference / budget" column behind each bar. */
+  .ct-hatch {
+    background-color: #e6ecea;
+    background-image: repeating-linear-gradient(
+      90deg,
+      rgba(4, 34, 43, 0.11) 0 1px,
+      rgba(4, 34, 43, 0) 1px 5px
+    );
+  }
+  /* 45° full-height hatched track (voice-pay reference). */
+  .ct-hatch-45 {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(16, 96, 111, 0.09) 0px,
+      rgba(16, 96, 111, 0.09) 2.5px,
+      transparent 2.5px,
+      transparent 7px
+    );
+    border-radius: 12px;
+  }
+  .ct-bar {
+    background: linear-gradient(180deg, var(--holst-800) 0%, var(--holst-950) 100%);
+  }
+  .ct-bar-alt {
+    background: linear-gradient(180deg, var(--holst-400) 0%, var(--holst-600) 100%);
+  }
+  /* 1.5px white cap line — the un-amortized bill shock. */
+  .ct-cap {
+    height: 1.5px;
+    background: var(--holst-100);
+    box-shadow: 0 0 6px rgba(226, 244, 240, 0.8);
+  }
+  /* Dark semi-transparent "pre-amortization" column. */
+  .ct-col-ghost {
+    background: linear-gradient(180deg, rgba(4, 34, 43, 0.16), rgba(4, 34, 43, 0.08));
+    border-radius: 12px;
+  }
+  .ct-track {
+    height: 8px;
+    border-radius: 999px;
+    background: #e3edea;
+    overflow: hidden;
+  }
+  .duo-track {
+    height: 8px;
+    border-radius: 999px;
+    background: #e3edea;
+    overflow: hidden;
+  }
+  .duo-fill-save {
+    background: var(--holst-700);
+  }
+  .duo-fill-reserved {
+    background: #9ca8b6;
+  }
+  .duo-fill-spend {
+    background: #ef6573;
+  }
+  .duo-fill-due {
+    background: #f4a344;
+  }
+
+  /* Floating glow bubble on the CFaR curve. */
+  .ct-bubble {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 999px;
+    background: linear-gradient(140deg, var(--holst-600), var(--holst-800));
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 5px 10px;
+    box-shadow: 0 12px 26px -10px rgba(29, 139, 148, 0.8);
+    animation: float-glow 2.6s ease-in-out infinite;
+  }
+  .ct-bubble::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -4px;
+    height: 8px;
+    width: 8px;
+    transform: translateX(-50%) rotate(45deg);
+    background: var(--holst-800);
+    border-radius: 2px;
+  }
+
+  /* Corridor band card (Expense Overview) — ice-mint, rounded-[28px]. */
+  .ct-corridor {
+    position: relative;
+    border-radius: 28px;
+    background: linear-gradient(158deg, #98d8d0 0%, #e2f4f0 46%, #ffffff 100%);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 28px 56px -36px rgba(4, 34, 43, 0.5);
+  }
+  /* 42px hairline circle that opens the card header. */
+  .ct-corridor-icon {
+    display: grid;
+    place-items: center;
+    height: 42px;
+    width: 42px;
+    border-radius: 999px;
+    border: 1px solid rgba(4, 34, 43, 0.18);
+    background: rgba(255, 255, 255, 0.55);
+    color: var(--holst-900);
+  }
+  /* 42px round glass action button. */
+  .ct-round-btn {
+    display: grid;
+    place-items: center;
+    height: 42px;
+    width: 42px;
+    border-radius: 999px;
+    border: 1px solid rgba(4, 34, 43, 0.14);
+    background: rgba(255, 255, 255, 0.7);
+    color: var(--holst-900);
+    transition: background 0.18s ease, transform 0.18s ease;
+  }
+  .ct-round-btn:hover {
+    background: #ffffff;
+  }
+  .ct-round-btn:active {
+    transform: scale(0.94);
+  }
+  /* 46 × 30 capsule that rides the ring's outer orbit. */
+  .ct-orbit-cap {
+    display: grid;
+    place-items: center;
+    height: 30px;
+    width: 46px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    color: var(--holst-800);
+    box-shadow: 0 10px 20px -12px rgba(4, 34, 43, 0.55);
+    transition: background 0.18s ease, color 0.18s ease, opacity 0.18s ease;
+  }
+  .ct-orbit-cap[data-on='true'] {
+    background: var(--holst-950);
+    color: #ffffff;
+  }
+  .ct-orbit-cap:active {
+    opacity: 0.88;
+  }
+
+  /* Soft mint bloom behind the hero balance. */
+  .ct-hero-bloom {
+    position: absolute;
+    left: -28px;
+    top: -46px;
+    height: 196px;
+    width: 250px;
+    border-radius: 999px;
+    background: radial-gradient(closest-side, rgba(79, 184, 180, 0.24), rgba(79, 184, 180, 0));
+    pointer-events: none;
+  }
+
+  /* White pill that rides the hatched area curve (reference tooltip). */
+  .ct-chart-bubble {
+    position: absolute;
+    transform: translate(-50%, -132%);
+    white-space: nowrap;
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--holst-950);
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    padding: 5px 10px;
+    box-shadow:
+      0 12px 24px -14px rgba(4, 34, 43, 0.55),
+      0 0 0 1px rgba(4, 34, 43, 0.05);
+    pointer-events: none;
+  }
+  .ct-chart-bubble::after {
+    content: '';
+    position: absolute;
+    left: var(--caret-x, 50%);
+    bottom: -3px;
+    height: 7px;
+    width: 7px;
+    transform: translateX(-50%) rotate(45deg);
+    background: #ffffff;
+    border-radius: 1.5px;
+  }
+
+  /* ---------------- Soft gradient surface ---------------- */
+  /* Premium mint wash — the "blended" card treatment. */
+  .ct-card-soft {
+    position: relative;
+    border-radius: 30px;
+    background:
+      radial-gradient(130% 90% at 100% 0%, rgba(79, 184, 180, 0.2) 0%, rgba(79, 184, 180, 0) 62%),
+      linear-gradient(158deg, #edf9f6 0%, #ffffff 54%, #f8fdfc 100%);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow:
+      0 28px 54px -38px rgba(4, 34, 43, 0.5),
+      0 0 0 1px rgba(4, 34, 43, 0.03);
+  }
+  .ct-card-soft::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(80% 55% at 50% -20%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0));
+    pointer-events: none;
+  }
+
+  /* ---------------- Goals ascent ---------------- */
+  .ct-goal-node {
+    display: grid;
+    place-items: center;
+    height: 42px;
+    width: 42px;
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--holst-800);
+    border: 1px solid rgba(29, 139, 148, 0.18);
+    box-shadow:
+      0 12px 24px -16px rgba(4, 34, 43, 0.6),
+      0 0 0 3px rgba(255, 255, 255, 0.9);
+    transition: transform 0.18s ease;
+  }
+  .ct-goal-node[data-state='achieved'] {
+    background: linear-gradient(160deg, var(--holst-600), var(--holst-950));
+    color: #ffffff;
+    border-color: transparent;
+  }
+  .ct-goal-node[data-state='current'] {
+    background: linear-gradient(160deg, var(--holst-400), var(--holst-800));
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow:
+      0 0 0 6px rgba(79, 184, 180, 0.22),
+      0 16px 30px -14px rgba(4, 34, 43, 0.65);
+    animation: orb-breathe 3.4s ease-in-out infinite;
+  }
+  .ct-goal-node[data-state='locked'] {
+    background: #f1f7f5;
+    color: #9bb3b1;
+    border-color: rgba(4, 34, 43, 0.06);
+    box-shadow: none;
+  }
+  .ct-goal-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    padding: 3px 9px;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: var(--holst-800);
+    box-shadow: 0 8px 18px -14px rgba(4, 34, 43, 0.6);
+  }
+  .ct-goal-badge[data-state='current'] {
+    background: var(--holst-950);
+    color: #ffffff;
+  }
+  .ct-path-shadow {
+    filter: drop-shadow(0 10px 18px rgba(4, 34, 43, 0.14));
+  }
+
+  /* Tinted category tile for transaction rows. */
+  .ct-cat-tile {
+    display: grid;
+    place-items: center;
+    height: 40px;
+    width: 40px;
+    flex-shrink: 0;
+    border-radius: 14px;
+  }
+
+  /* ---------------- Segmented capsule ---------------- */
+  .ct-seg {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    border-radius: 999px;
+    background: rgba(4, 34, 43, 0.06);
+    padding: 3px;
+  }
+  .ct-seg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 999px;
+    padding: 6px 11px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #567170;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .ct-seg-btn[data-on='true'] {
+    background: #ffffff;
+    color: var(--holst-800);
+    box-shadow: 0 6px 16px -12px rgba(4, 34, 43, 0.5);
+  }
+
+  /* ---------------- Metric tiles ---------------- */
+  .ct-metric {
+    position: relative;
+    border-radius: 18px;
+    padding: 12px;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(240, 248, 247, 0.9));
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 14px 30px -26px rgba(4, 34, 43, 0.5);
+  }
+  .ct-metric-dark {
+    border-radius: 18px;
+    padding: 12px;
+    background: rgba(226, 244, 240, 0.1);
+    border: 1px solid rgba(226, 244, 240, 0.2);
+    color: #eafaf7;
+  }
+
+  /* ---------------- Semantic callouts ---------------- */
+  .duo-safe {
+    background: #e4f8f1;
+    color: #0f6b55;
+    border-radius: 16px;
+  }
+  .duo-warning {
+    background: #fff5e4;
+    color: #8a5408;
+    border-radius: 16px;
+  }
+  .duo-danger {
+    background: #fde7ec;
+    color: #b3253f;
+    border-radius: 16px;
+  }
+
+  /* ---------------- Bottom dock — floating glass capsule ---------------- */
+  .ct-dock {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    height: 66px;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    border-radius: 36px;
+    /* Ultra-luxurious floating frosted glassmorphism */
+    background: rgba(255, 255, 255, 0.68);
+    backdrop-filter: blur(28px) saturate(200%);
+    -webkit-backdrop-filter: blur(28px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow:
+      0 20px 48px -10px rgba(11, 30, 63, 0.20),
+      0 8px 24px -4px rgba(11, 30, 63, 0.10),
+      inset 0 1px 2px 0 rgba(255, 255, 255, 0.95);
+  }
+  .ct-dock-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    flex: 1;
+    padding: 6px 0;
+    color: #64748B;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    transition: color 0.18s ease;
+  }
+  .ct-dock-btn[aria-current='page'] {
+    color: #0B1E3F;
+  }
+  .ct-dock-btn[aria-current='page'] .ct-dock-dot {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .ct-dock-dot {
+    height: 3px;
+    width: 3px;
+    border-radius: 999px;
+    background: #1C7EC8;
+    box-shadow: 0 0 8px rgba(28, 126, 200, 0.9);
+    opacity: 0;
+    transform: scale(0.4);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+
+  /* Centre elevated circular button — deep navy with cyan micro-glow */
+  .ct-orb {
+    position: relative;
+    height: 52px;
+    width: 52px;
+    align-self: flex-start;
+    margin-top: -6px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: linear-gradient(135deg, #1C7EC8 0%, #0E3566 45%, #0B1E3F 100%);
+    border: 3px solid #ffffff;
+    box-shadow: 0 8px 24px -4px rgba(11, 30, 63, 0.45);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .ct-orb:active {
+    transform: scale(0.94);
+  }
+  .ct-orb[data-listening='true'] {
+    box-shadow: 0 0 0 6px rgba(28, 126, 200, 0.35), 0 14px 34px -8px rgba(11, 30, 63, 0.8);
+  }
+  .ct-wave {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 2px solid rgba(28, 126, 200, 0.8);
+    animation: wave-pulse 1.1s ease-out infinite;
+  }
+  .ct-wave-2 {
+    animation-delay: 0.36s;
+  }
+  .ct-wave-3 {
+    animation-delay: 0.72s;
+  }
+
+  /* ---------------- In-phone sheets & modals ---------------- */
+  .ct-scrim {
+    background: rgba(4, 34, 43, 0.42);
+    backdrop-filter: blur(2px);
+  }
+  .ct-sheet {
+    background: linear-gradient(180deg, #ffffff 0%, #f6fbfa 100%);
+    border-radius: 28px 28px 0 0;
+    box-shadow: 0 -12px 40px -12px rgba(4, 34, 43, 0.45);
+  }
+  .ct-grabber {
+    height: 4px;
+    width: 44px;
+    border-radius: 999px;
+    background: rgba(4, 34, 43, 0.16);
+  }
+  .ct-avatar {
+    background: linear-gradient(150deg, var(--holst-600), var(--holst-950));
+    color: #fff;
+  }
 }
 
-.duo-phone {
-  background: linear-gradient(160deg, #d5edff, #f9fcff 35%);
-  color: #18395e;
-  box-shadow:
-    0 0 0 10px #0f2233,
-    0 0 0 12px #24405a,
-    0 24px 60px #0f223344;
-}
-
-.duo-card {
-  background: #fff;
-  border-radius: 22px;
-  padding: 16px;
-  box-shadow: 0 6px 20px rgba(144, 185, 215, 0.17);
-}
-
-.duo-hero {
-  border-radius: 26px;
-  padding: 18px;
-  color: #fff;
-  background: linear-gradient(140deg, #1684e9, #39a9f4 55%, #6cc6ff);
-  box-shadow: 0 14px 30px rgba(22, 132, 233, 0.28);
-}
-
-.duo-muted {
-  color: #7c91aa;
-}
-
-.duo-num {
-  font-variant-numeric: tabular-nums;
-}
-
-.duo-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border-radius: 13px;
-  font-weight: 650;
-  background: #1688ee;
-  color: #fff;
-  padding: 10px 14px;
-  transition: filter 0.15s ease;
-}
-.duo-btn:hover {
-  filter: brightness(1.06);
-}
-.duo-btn:disabled {
-  opacity: 0.5;
-}
-
-.duo-btn-ghost {
-  background: #e7f3ff;
-  color: #207ac4;
-}
-
-.duo-track {
-  height: 8px;
-  border-radius: 999px;
-  background: #e7f0fa;
-  overflow: hidden;
-}
-.duo-fill-save {
-  background: #23b879;
-}
-.duo-fill-reserved {
-  background: #9ca8b6;
-}
-.duo-fill-spend {
-  background: #ef6573;
-}
-.duo-fill-due {
-  background: #f4a344;
-}
-
-.duo-safe {
-  background: #eafaf3;
-  color: #12805c;
-  border-radius: 14px;
-}
-.duo-warning {
-  background: #fff8e9;
-  color: #a1611a;
-  border-radius: 14px;
-}
-
-/* thin scrollbars for the panels */
-.scroll-thin::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-.scroll-thin::-webkit-scrollbar-thumb {
-  background: hsl(var(--border));
-  border-radius: 999px;
+/* Utility: keep the phone crisp on high-DPI screens. */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .ct-glass-blur {
+    backdrop-filter: blur(20px) saturate(180%);
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -389,4 +1211,61 @@
 .cp-chip-zinc {
   background: rgba(24, 24, 27, 0.06);
   color: #52525b;
+}
+
+/* ---------------- Liquid flowing circle animations ---------------- */
+@keyframes liquid-flow-1 {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes liquid-flow-2 {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes liquid-bubble {
+  0% {
+    transform: translateY(16px) scale(0.6);
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.9;
+  }
+  80% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-38px) scale(1.1);
+    opacity: 0;
+  }
+}
+
+@keyframes liquid-pulse-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.45));
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgba(28, 126, 200, 0.85));
+  }
+}
+
+.animate-liquid-wave-1 {
+  animation: liquid-flow-1 4.5s linear infinite;
+}
+
+.animate-liquid-wave-2 {
+  animation: liquid-flow-2 3.2s linear infinite;
+}
+
+.animate-liquid-glow {
+  animation: liquid-pulse-glow 3s ease-in-out infinite;
 }

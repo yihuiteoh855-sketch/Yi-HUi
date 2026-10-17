@@ -25,6 +25,7 @@ import {
   SUBSCRIPTIONS,
   USAGE_SIGNALS,
   CURRENT_USER_ID,
+  PROFILE,
 } from './mock-data';
 import { auditLog } from './audit-logger';
 import { applyUsageAnswer, analyzeZombies, type ZombieTag } from './zombie-radar';
@@ -135,8 +136,15 @@ export interface CtrlPayState {
   pendingSweeps: PendingSweep[];
   zombieTags: Record<string, ZombieTag>;
   events: SandboxEvent[];
+  profile: {
+    fullName: string;
+    memberId: string;
+    studentEmail: string;
+    avatar: string;
+  };
 
   // actions
+  setProfile(next: Partial<{ fullName: string; memberId: string; studentEmail: string; avatar: string }>): void;
   advanceClock(hours: number): void;
   jumpToMonthEnd(): void;
   applyDecision(
@@ -219,6 +227,28 @@ export const useCtrlPayStore = create<CtrlPayState>((set, get) => ({
   pendingSweeps: [],
   zombieTags: initialZombieTags,
   events: [],
+  profile: {
+    fullName: PROFILE.fullName,
+    memberId: PROFILE.memberId,
+    studentEmail: PROFILE.studentEmail,
+    avatar: PROFILE.avatar,
+  },
+
+  setProfile(next) {
+    const s = get();
+    const updated = { ...s.profile, ...next };
+    set({ profile: updated });
+    audit(s, {
+      actor: 'USER',
+      actionType: 'UPDATE_PROFILE',
+      permissionTier: 'T0',
+      data_accessed: ['profile'],
+      authorization_ref: 'USER_EDIT_PROFILE',
+      proposal_hash: null,
+      status: 'MODIFIED',
+    });
+    console.info('[SANDBOX] setProfile', updated.fullName);
+  },
 
   ledgerSnapshot() {
     const s = get();
