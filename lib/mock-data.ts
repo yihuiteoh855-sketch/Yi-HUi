@@ -26,16 +26,17 @@ export const SANDBOX_START_MS = Date.UTC(2026, 2, 12, 9, 0, 0); // 2026-03-12T09
 export const CURRENT_USER_ID = 'student_usm_001';
 
 export const PROFILE = {
-  fullName: 'Demo Student',
+  fullName: 'Jerome Bell',
   memberId: 'AF-88213',
-  studentEmail: 'demo.student@student.usm.my',
+  studentEmail: 'jerome.bell@fintech.io',
+  avatar: '/avatar.jpg',
 } as const;
 
 /* ------------------------------------------------------------------ *
  * Balances & budgets (DEMO_CONFIG)
  * ------------------------------------------------------------------ */
 
-export const INITIAL_BALANCE = 1240.0;
+export const INITIAL_BALANCE = 56750.0;
 export const MONTHLY_SAVINGS_GOAL = 300.0;
 export const INITIAL_DEFENSE_VAULT = 0.0;
 

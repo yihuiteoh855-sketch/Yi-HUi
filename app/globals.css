@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -68,8 +70,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: theme('fontFamily.sans');
-    font-feature-settings: 'cv11', 'ss01';
+    font-family: 'Plus Jakarta Sans', theme('fontFamily.sans');
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -129,27 +130,28 @@
       radial-gradient(120% 90% at 50% -10%, var(--holst-300) 0%, var(--holst-100) 46%, #f7fbfa 100%);
   }
   .ct-studio {
-    /* Deep-sea minimal stage. The app is the ONLY thing on screen. */
+    /* Rich silk-fluid gradient matching the showcase picture */
     background:
-      radial-gradient(70% 42% at 50% 0%, rgba(16, 96, 111, 0.55) 0%, transparent 72%),
-      #04222b;
+      radial-gradient(110% 85% at 20% 12%, rgba(255, 255, 255, 0.55) 0%, transparent 45%),
+      radial-gradient(90% 70% at 85% 15%, rgba(147, 197, 253, 0.5) 0%, transparent 50%),
+      radial-gradient(120% 90% at 10% 85%, rgba(30, 64, 175, 0.4) 0%, transparent 60%),
+      linear-gradient(135deg, #D4E8FA 0%, #A9CDF4 22%, #5C9AD9 48%, #1D5494 76%, #0B2447 100%);
   }
 
   /* ---------------- Phone frame ---------------- */
   .duo-body {
-    background: var(--holst-100);
+    background: transparent;
   }
 
   .duo-phone {
     position: relative;
     background:
-      radial-gradient(120% 60% at 50% -8%, #ffffff 0%, transparent 55%),
-      linear-gradient(180deg, #ffffff 0%, #f7fcfb 45%, #e2f4f0 100%);
-    color: var(--holst-950);
+      radial-gradient(120% 65% at 50% 0%, #F2F8FE 0%, #E3F0FC 38%, #D2E6FA 72%, #C2DCF7 100%);
+    color: #0B1E3F;
     box-shadow:
-      0 0 0 11px var(--holst-950),
-      0 0 0 12.5px rgba(152, 216, 208, 0.55),
-      0 44px 90px -24px rgba(4, 34, 43, 0.55);
+      0 0 0 11px #0B1E3F,
+      0 0 0 12.5px rgba(98, 174, 237, 0.5),
+      0 44px 90px -24px rgba(11, 30, 63, 0.45);
   }
 
   /* On a real handset the App IS the screen: no bezel, no radius, no stage margin. */
@@ -852,16 +854,16 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 10px;
+    padding: 0 12px;
     border-radius: 32px;
-    /* Frosted, not opaque: content behind stays faintly readable. */
-    background: rgba(4, 34, 43, 0.6);
-    backdrop-filter: blur(26px) saturate(190%);
-    -webkit-backdrop-filter: blur(26px) saturate(190%);
-    border: 1px solid rgba(152, 216, 208, 0.28);
+    /* Soft frosted white glass matching Image 1 */
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(24px) saturate(190%);
+    -webkit-backdrop-filter: blur(24px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.95);
     box-shadow:
-      0 16px 36px -6px rgba(4, 34, 43, 0.45),
-      inset 0 1px 0 rgba(226, 244, 240, 0.14);
+      0 16px 36px -6px rgba(11, 30, 63, 0.16),
+      0 4px 12px rgba(11, 30, 63, 0.05);
   }
   .ct-dock-btn {
     display: flex;
@@ -871,15 +873,14 @@
     gap: 3px;
     flex: 1;
     padding: 6px 0;
-    color: rgba(226, 244, 240, 0.76);
-    font-size: 9px;
+    color: #64748B;
+    font-size: 9.5px;
     font-weight: 700;
-    letter-spacing: 0.02em;
-    text-shadow: 0 1px 6px rgba(4, 34, 43, 0.55);
+    letter-spacing: 0.01em;
     transition: color 0.18s ease;
   }
   .ct-dock-btn[aria-current='page'] {
-    color: #ffffff;
+    color: #0B1E3F;
   }
   .ct-dock-btn[aria-current='page'] .ct-dock-dot {
     opacity: 1;
@@ -889,38 +890,40 @@
     height: 3px;
     width: 3px;
     border-radius: 999px;
-    background: var(--holst-400);
-    box-shadow: 0 0 8px rgba(79, 184, 180, 0.9);
+    background: #1C7EC8;
+    box-shadow: 0 0 8px rgba(28, 126, 200, 0.9);
     opacity: 0;
     transform: scale(0.4);
     transition: opacity 0.18s ease, transform 0.18s ease;
   }
 
-  /* Centre multimodal AI orb — protrudes 8px above the dock. */
+  /* Centre elevated circular button — deep navy with cyan micro-glow */
   .ct-orb {
     position: relative;
-    height: 56px;
-    width: 56px;
+    height: 52px;
+    width: 52px;
     align-self: flex-start;
-    margin-top: -8px;
+    margin-top: -6px;
     border-radius: 999px;
     display: grid;
     place-items: center;
     color: #fff;
-    background: linear-gradient(135deg, #4fb8b4 0%, #1d8b94 45%, #04222b 100%);
-    border: 2px solid var(--holst-50);
-    box-shadow: 0 12px 30px -8px rgba(29, 139, 148, 0.75);
-    animation: orb-breathe 3.4s ease-in-out infinite;
+    background: linear-gradient(135deg, #1C7EC8 0%, #0E3566 45%, #0B1E3F 100%);
+    border: 3px solid #ffffff;
+    box-shadow: 0 8px 24px -4px rgba(11, 30, 63, 0.45);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .ct-orb:active {
+    transform: scale(0.94);
   }
   .ct-orb[data-listening='true'] {
-    animation: none;
-    box-shadow: 0 0 0 6px rgba(79, 184, 180, 0.25), 0 14px 34px -8px rgba(29, 139, 148, 0.9);
+    box-shadow: 0 0 0 6px rgba(28, 126, 200, 0.35), 0 14px 34px -8px rgba(11, 30, 63, 0.8);
   }
   .ct-wave {
     position: absolute;
     inset: 0;
     border-radius: 999px;
-    border: 2px solid rgba(79, 184, 180, 0.8);
+    border: 2px solid rgba(28, 126, 200, 0.8);
     animation: wave-pulse 1.1s ease-out infinite;
   }
   .ct-wave-2 {

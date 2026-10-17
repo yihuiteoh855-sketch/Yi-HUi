@@ -3,34 +3,34 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
-export type FolderTone = 'jade' | 'mint';
+export type FolderTone = 'sky' | 'jade' | 'mint';
 
 /** Solid tone used by the tab ear, so the band and the body share one continuous edge. */
 const TONE_SOLID: Record<FolderTone, string> = {
+  sky: '#74B2EB',
   jade: '#4FB8B4',
   mint: '#98D8D0',
 };
 
 const TONE_BODY: Record<FolderTone, string> = {
+  sky: 'linear-gradient(180deg, #74B2EB 0%, #82BAEC 52%, #96C7F2 100%)',
   jade: 'linear-gradient(180deg, #4FB8B4 0%, #63C4BF 52%, #98D8D0 100%)',
   mint: 'linear-gradient(180deg, #98D8D0 0%, #C2E9E4 52%, #E2F4F0 100%)',
 };
 
 /**
- * Stacked folder-tab card — two interlocking layers, never a plain rounded rectangle.
+ * Stacked folder-tab card — two interlocking layers matching Image 2 right screen.
  *
- * 1. Dark base (`#04222B`, rounded-3xl) whose top-right slot stays exposed with the
- *    idle-clock and billing-date read-out (11px, `#E2F4F0`).
- * 2. Light cut-out face (`#4FB8B4` / `#98D8D0`): the left 38% rises into a folder tab ear
- *    carrying the category label, then dives 34px through a smooth cubic Bézier to uncover
- *    that slot. Inside: a bold title, exactly two pills, a 1px divider and a two-column
- *    footer.
+ * 1. Dark base (`#0B1E3F`, rounded-3xl) whose top-right slot stays exposed with the
+ *    clock and billing-date read-out.
+ * 2. Light cut-out face (`#74B2EB` sky): the left 38% rises into a folder tab ear
+ *    carrying the category label, then dives 34px through a smooth cubic Bézier.
  */
 export function FolderTabCard({
   tab,
   metaTime,
   metaDate,
-  tone = 'jade',
+  tone = 'sky',
   title,
   pills,
   footerLeft,
@@ -51,13 +51,24 @@ export function FolderTabCard({
   className?: string;
 }) {
   return (
-    <section className={cn('relative mt-5', className)}>
-      {/* Layer 1 — dark base. */}
-      <div className="absolute inset-0 rounded-3xl bg-holst-950" />
-      <div className="absolute right-4 top-2.5 z-20 flex items-center gap-2 text-[11px] text-holst-50/85">
-        <span>{metaTime}</span>
-        <span className="h-3 w-px bg-holst-50/25" />
-        <span>{metaDate}</span>
+    <section className={cn('relative mt-3', className)}>
+      {/* Layer 1 — dark navy base matching Image 2. */}
+      <div className="absolute inset-0 rounded-[26px] bg-[#0B1E3F] shadow-sm" />
+      <div className="absolute right-4 top-2.5 z-20 flex items-center gap-2.5 text-[11px] font-medium text-white/90">
+        <span className="flex items-center gap-1">
+          <svg viewBox="0 0 16 16" fill="none" className="h-3 w-3 opacity-80" stroke="currentColor" strokeWidth="1.5">
+            <circle cx="8" cy="8" r="6" />
+            <path d="M8 5v3.5l2 1" strokeLinecap="round" />
+          </svg>
+          {metaTime}
+        </span>
+        <span className="flex items-center gap-1">
+          <svg viewBox="0 0 16 16" fill="none" className="h-3 w-3 opacity-80" stroke="currentColor" strokeWidth="1.5">
+            <rect x="2.5" y="3.5" width="11" height="10" rx="2" />
+            <path d="M2.5 6.5h11M5.5 2v2M10.5 2v2" strokeLinecap="round" />
+          </svg>
+          {metaDate}
+        </span>
       </div>
 
       {/* Layer 2 — light cut-out face that interlocks with the base. */}
@@ -68,27 +79,27 @@ export function FolderTabCard({
         </svg>
 
         {/* Category label riding the raised ear. */}
-        <span className="pointer-events-none absolute left-4 top-[7px] z-10 max-w-[36%] truncate text-[10px] font-extrabold uppercase tracking-[0.12em] text-holst-950/75">
+        <span className="pointer-events-none absolute left-4 top-[7px] z-10 max-w-[36%] truncate text-[11.5px] font-bold tracking-[0.02em] text-[#0B1E3F]">
           {tab}
         </span>
 
-        <div className="rounded-b-3xl px-4 pb-4 pt-3.5" style={{ background: TONE_BODY[tone] }}>
+        <div className="rounded-b-[26px] px-4 pb-4 pt-3 shadow-[0_12px_28px_rgba(11,30,63,0.12)]" style={{ background: TONE_BODY[tone] }}>
           <button
             type="button"
             onClick={onSelect}
             disabled={!onSelect}
             className="block w-full text-left disabled:cursor-default"
           >
-            <h3 className="text-[17px] font-extrabold leading-snug tracking-[-0.03em] text-holst-950">{title}</h3>
+            <h3 className="text-[17px] font-extrabold leading-snug tracking-[-0.025em] text-[#0B1E3F]">{title}</h3>
           </button>
 
-          <div className="mt-2.5 flex gap-2">{pills}</div>
+          <div className="mt-2.5 flex items-center gap-2">{pills}</div>
 
-          <div className="my-3 h-px w-full bg-holst-950/15" />
+          <div className="my-3 h-px w-full bg-white/40" />
 
-          <div className="flex items-end justify-between gap-3">
-            <span className="text-[10.5px] leading-tight text-holst-950/70">{footerLeft}</span>
-            <span className="duo-num shrink-0 text-[12.5px] font-extrabold text-holst-950">{footerRight}</span>
+          <div className="flex items-center justify-between gap-3 text-[11.5px]">
+            <span className="font-semibold text-[#0B1E3F]/80">{footerLeft}</span>
+            <span className="shrink-0 font-extrabold text-[#0B1E3F]">{footerRight}</span>
           </div>
         </div>
       </div>

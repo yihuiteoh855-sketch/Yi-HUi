@@ -1,0 +1,152 @@
+'use client';
+
+import * as React from 'react';
+import Image from 'next/image';
+import { Camera, Check, ShieldCheck, Sparkles, User, CreditCard } from 'lucide-react';
+import { useCtrlPayStore } from '@/lib/store';
+import { Slider } from '@/components/ui/slider';
+
+export function ProfileSheet({ onClose }: { onClose: () => void }) {
+  const profile = useCtrlPayStore((s) => s.profile);
+  const setProfile = useCtrlPayStore((s) => s.setProfile);
+  const userLimits = useCtrlPayStore((s) => s.userLimits);
+  const aiMandate = useCtrlPayStore((s) => s.aiMandate);
+  const setAiMandate = useCtrlPayStore((s) => s.setAiMandate);
+
+  const [name, setName] = React.useState(profile.fullName);
+  const [email, setEmail] = React.useState(profile.studentEmail);
+  const [saved, setSaved] = React.useState(false);
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfile({ fullName: name.trim() || 'Jerome Bell', studentEmail: email.trim() || 'jerome.bell@fintech.io' });
+    setSaved(true);
+    setTimeout(() => {
+      setSaved(false);
+      onClose();
+    }, 900);
+  };
+
+  return (
+    <form onSubmit={handleSave} className="space-y-4 pt-1">
+      {/* Avatar Header */}
+      <div className="flex flex-col items-center justify-center text-center">
+        <div className="relative group">
+          <div className="relative h-20 w-20 overflow-hidden rounded-full ring-4 ring-white shadow-lg bg-[#0B1E3F]">
+            <Image
+              src={profile.avatar || '/avatar.jpg'}
+              alt={name}
+              width={80}
+              height={80}
+              className="h-full w-full object-cover"
+              unoptimized
+            />
+          </div>
+          <button
+            type="button"
+            className="absolute bottom-0 right-0 grid h-7 w-7 place-items-center rounded-full bg-[#1C7EC8] text-white shadow-md transition-transform hover:scale-110 active:scale-95"
+            aria-label="Change avatar"
+            onClick={() => {
+              // Toggle avatar or simulate upload
+              const nextAvatar = profile.avatar.includes('avatar.jpg') ? '/avatar.jpg' : '/avatar.jpg';
+              setProfile({ avatar: nextAvatar });
+            }}
+          >
+            <Camera className="h-3.5 w-3.5" />
+          </button>
+        </div>
+
+        <h3 className="mt-2.5 text-[17px] font-extrabold text-[#0B1E3F] tracking-tight">{name}</h3>
+        <p className="text-[11.5px] font-medium text-[#64748B]">{email}</p>
+
+        <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-[#EBF4FF] px-3 py-1 text-[10.5px] font-bold text-[#1C7EC8]">
+          <ShieldCheck className="h-3.5 w-3.5" />
+          <span>Neo-Banking Verified · Member #{profile.memberId}</span>
+        </div>
+      </div>
+
+      {/* Profile Details Card */}
+      <div className="rounded-2xl bg-white/90 p-4 shadow-sm border border-white/80 space-y-3">
+        <div>
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748B] mb-1">
+            Display Name
+          </label>
+          <div className="relative">
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your Name"
+              className="w-full rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] px-3.5 py-2.5 text-[13.5px] font-semibold text-[#0B1E3F] focus:border-[#1C7EC8] focus:outline-none focus:ring-1 focus:ring-[#1C7EC8]"
+            />
+            <User className="absolute right-3.5 top-3 h-4 w-4 text-[#94A3B8]" />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-[11px] font-bold uppercase tracking-wider text-[#64748B] mb-1">
+            Email Address
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="email@example.com"
+            className="w-full rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] px-3.5 py-2.5 text-[13.5px] font-semibold text-[#0B1E3F] focus:border-[#1C7EC8] focus:outline-none focus:ring-1 focus:ring-[#1C7EC8]"
+          />
+        </div>
+      </div>
+
+      {/* Spending Limits & Budget Controls */}
+      <div className="rounded-2xl bg-white/90 p-4 shadow-sm border border-white/80 space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-[12px] font-bold text-[#0B1E3F]">Monthly Budget Cap</p>
+          <span className="text-[12.5px] font-extrabold text-[#1C7EC8]">
+            ${userLimits.monthlyPayLimit.toLocaleString()}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <p className="text-[12px] font-bold text-[#0B1E3F]">AI Mandate Max Lock</p>
+          <span className="text-[12.5px] font-extrabold text-[#1C7EC8]">
+            ${aiMandate.maxLockAmountRM}
+          </span>
+        </div>
+        <Slider
+          className="mt-1"
+          min={10}
+          max={500}
+          step={10}
+          value={aiMandate.maxLockAmountRM}
+          onValueChange={(v) => setAiMandate({ maxLockAmountRM: v })}
+          aria-label="Max lock amount"
+        />
+
+        <div className="flex items-center justify-between pt-1 border-t border-[#F1F5F9]">
+          <span className="flex items-center gap-1.5 text-[11px] font-semibold text-[#64748B]">
+            <CreditCard className="h-3.5 w-3.5 text-[#1C7EC8]" /> Active Card
+          </span>
+          <span className="font-mono text-[11px] font-bold text-[#0B1E3F]">Visa Signature · 4850 **** 7459</span>
+        </div>
+      </div>
+
+      {/* Action Button */}
+      <button
+        type="submit"
+        className="w-full flex items-center justify-center gap-2 rounded-2xl bg-[#0B1E3F] py-3.5 text-[13.5px] font-extrabold text-white shadow-lg transition-transform active:scale-98 hover:bg-[#122A54]"
+      >
+        {saved ? (
+          <>
+            <Check className="h-4 w-4 text-[#10B981]" />
+            <span>Profile Saved!</span>
+          </>
+        ) : (
+          <>
+            <Sparkles className="h-4 w-4 text-[#62AEED]" />
+            <span>Save Profile</span>
+          </>
+        )}
+      </button>
+    </form>
+  );
+}

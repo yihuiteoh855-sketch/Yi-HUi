@@ -82,11 +82,13 @@ export function buildCorridor({
 export function CorridorChart({
   points,
   riskIndex,
+  onSelectDay,
   idPrefix = 'ct-corridor',
   className,
 }: {
   points: CorridorPoint[];
   riskIndex: number;
+  onSelectDay?: (index: number) => void;
   idPrefix?: string;
   className?: string;
 }) {
@@ -200,31 +202,24 @@ export function CorridorChart({
           ['--caret-x' as string]: `${caret}%`,
         }}
       >
-        {riskPoint ? formatRM(riskPoint.upper) : ''}
-        <span className="ml-1 font-bold text-holst-950/50">
-          ↓ {riskPoint ? formatRM(riskPoint.lower) : ''}
-        </span>
+        {riskPoint ? (riskPoint.upper >= 100 ? `$${Math.round(riskPoint.upper)}` : formatRM(riskPoint.upper)) : '$240.00'}
       </span>
       </div>
 
-      {/* Axis. */}
-      <div className="relative mt-1 h-8">
+      {/* Axis with clickable day columns. */}
+      <div className="relative mt-2 h-7 flex items-center justify-between px-3">
         {points.map((p, i) => (
-          <span
+          <button
             key={`${p.label}-${i}`}
+            type="button"
+            onClick={() => onSelectDay?.(i)}
             className={cn(
-              'absolute top-0 -translate-x-1/2 text-center text-[9px] font-bold uppercase tracking-[0.06em]',
-              i === risk ? 'text-[#B3253F]' : 'duo-muted',
+              'text-center text-[10.5px] font-bold tracking-tight transition-colors',
+              i === risk ? 'text-[#04222B] font-extrabold' : 'text-[#04222B]/60 hover:text-[#04222B]',
             )}
-            style={{ left: `${(x(i) / W) * 100}%` }}
           >
             {p.label}
-            {p.note && (
-              <span className="mt-0.5 block whitespace-nowrap text-[8.5px] font-extrabold tracking-normal text-[#04222B]">
-                {p.note}
-              </span>
-            )}
-          </span>
+          </button>
         ))}
       </div>
     </div>
@@ -309,19 +304,133 @@ export function CorridorCard({
   );
 }
 
-function CalendarGlyph() {
+/**
+ * Image 2: Exact "Expense Overview" Card.
+ * Electric lime-green background (#D4F435), 42px hand-coins icon,
+ * dual 42px round buttons (Calendar + Arrow ↗), $120.00 34px geometric sans amount,
+ * and 45° hatched corridor graph with Sun-Sat columns and Wed dumbbell + white capsule.
+ */
+export function ExpenseOverviewCard({
+  amount = '$120.00',
+  points,
+  riskIndex: defaultRiskIndex = 3, // Default to Wednesday
+  onCalendarClick,
+  onDrillClick,
+  className,
+}: {
+  amount?: string;
+  points?: CorridorPoint[];
+  riskIndex?: number;
+  onCalendarClick?: () => void;
+  onDrillClick?: () => void;
+  className?: string;
+}) {
+  const [selectedDay, setSelectedDay] = React.useState(defaultRiskIndex);
+
+  // Default 7-day points if not provided, exactly mirroring Image 2 trajectory
+  const defaultPoints: CorridorPoint[] = React.useMemo(() => [
+    { label: 'Sun', upper: 72, lower: 38 },
+    { label: 'Mon', upper: 96, lower: 64 },
+    { label: 'Tue', upper: 145, lower: 98 },
+    { label: 'Wed', upper: 142, lower: 92 },
+    { label: 'Thu', upper: 144, lower: 110 },
+    { label: 'Fri', upper: 145, lower: 124 },
+    { label: 'Sat', upper: 138, lower: 104 },
+  ], []);
+
+  const chartPoints = points && points.length >= 7 ? points.slice(0, 7) : defaultPoints;
+
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <rect x="1.8" y="3" width="12.4" height="11.2" rx="3" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M1.8 6.6h12.4M5.4 1.8v2.6M10.6 1.8v2.6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    <section
+      className={cn(
+        'relative rounded-[32px] p-5 shadow-[0_20px_48px_-24px_rgba(4,34,43,0.35)] transition-all',
+        className,
+      )}
+      style={{
+        background: 'linear-gradient(155deg, #E2F93C 0%, #D4F435 52%, #C2E824 100%)',
+        color: '#04222B',
+      }}
+    >
+      {/* Top Bar (3-round button layout) */}
+      <header className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="grid h-[42px] w-[42px] place-items-center rounded-full border border-[#04222B]/25 bg-white/20">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              className="h-5 w-5 text-[#04222B]"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
+              <circle cx="12" cy="7" r="3.5" />
+              <path d="M12 5.5v3M10.8 6.5h2.4" />
+              <path d="M3 16c2.5-1.5 5-2 8-2 2.5 0 4.5.8 7 2.2l2.5 1.5a2 2 0 0 1 .5 2.8l-.5.8a2 2 0 0 1-2.5.7L14 20" />
+              <path d="M3 16v4a2 2 0 0 0 2 2h6" />
+            </svg>
+          </div>
+          <h2 className="text-[16px] font-bold tracking-tight text-[#04222B]">Expense Overview</h2>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* Calendar round button */}
+          <button
+            type="button"
+            onClick={onCalendarClick}
+            aria-label="Toggle calendar view"
+            className="grid h-[42px] w-[42px] place-items-center rounded-full border border-[#04222B]/20 bg-[#04222B]/5 text-[#04222B] transition-transform hover:scale-105 active:scale-95"
+          >
+            <CalendarGlyph />
+          </button>
+          {/* Arrow ↗ pure white round button */}
+          <button
+            type="button"
+            onClick={onDrillClick}
+            aria-label="Expand stress test details"
+            className="grid h-[42px] w-[42px] place-items-center rounded-full bg-white text-[#04222B] shadow-[0_4px_14px_rgba(4,34,43,0.15)] transition-transform hover:scale-105 active:scale-95"
+          >
+            <DrillGlyph />
+          </button>
+        </div>
+      </header>
+
+      {/* Main value display: left-aligned 34px geometric sans */}
+      <div className="mt-4">
+        <h1 className="text-[34px] font-extrabold leading-none tracking-[-0.035em] text-[#04222B] tabular-nums">
+          {amount}
+        </h1>
+      </div>
+
+      {/* 45° Hatched Corridor Band Graph */}
+      <div className="mt-2">
+        <CorridorChart
+          points={chartPoints}
+          riskIndex={selectedDay}
+          onSelectDay={setSelectedDay}
+          idPrefix="expense-ov"
+        />
+      </div>
+    </section>
+  );
+}
+
+export function CalendarGlyph() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <rect x="2.5" y="3.5" width="13" height="12" rx="3" />
+      <path d="M2.5 7.5h13M6 2v3M12 2v3" />
+      <circle cx="6.5" cy="11.5" r=".75" fill="currentColor" />
+      <circle cx="11.5" cy="11.5" r=".75" fill="currentColor" />
     </svg>
   );
 }
 
-function DrillGlyph() {
+export function DrillGlyph() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path d="M4.4 11.6 11.6 4.4M5.6 4.4h6v6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M5 13 13 5M6.5 5H13v6.5" />
     </svg>
   );
 }

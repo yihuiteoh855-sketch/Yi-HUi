@@ -183,7 +183,7 @@ export function ArcRing({
           const ink = (a: number, b: number, r: number) =>
             topHalf ? arcPathDir(a, b, r, true) : arcPathDir(b, a, r, false);
 
-          return (
+            return (
             <g key={seg.id}>
               {seg.outline && (
                 <path
@@ -201,58 +201,47 @@ export function ArcRing({
                 strokeWidth={TH}
                 strokeLinecap="round"
               />
-              {band && full && (
+              {band && (
                 <>
-                  <path id={`${uid}-t${i}a`} d={ink(band.a, band.b, R + 6.5)} fill="none" />
-                  <path id={`${uid}-t${i}b`} d={ink(band.a, band.b, R - 6.5)} fill="none" />
-                  <text
-                    fontSize="8"
-                    fontWeight="800"
-                    letterSpacing="0.16em"
-                    fill={seg.textColor}
-                    fillOpacity="0.85"
-                  >
-                    <textPath href={`#${uid}-t${i}a`} startOffset="50%" textAnchor="middle">
-                      {label}
-                    </textPath>
-                  </text>
-                  <text fontSize="8.5" fontWeight="800" fill={seg.textColor}>
-                    <textPath href={`#${uid}-t${i}b`} startOffset="50%" textAnchor="middle">
-                      {amount}
-                    </textPath>
-                  </text>
-                </>
-              )}
-              {band && !full && shortFit && (
-                <>
-                  <path id={`${uid}-t${i}c`} d={ink(band.a, band.b, R + 6.5)} fill="none" />
-                  <path id={`${uid}-t${i}d`} d={ink(band.a, band.b, R - 6.5)} fill="none" />
-                  <text
-                    fontSize="7.5"
-                    fontWeight="800"
-                    letterSpacing="0.1em"
-                    fill={seg.textColor}
-                    fillOpacity="0.85"
-                  >
-                    <textPath href={`#${uid}-t${i}c`} startOffset="50%" textAnchor="middle">
-                      {shortLabel}
-                    </textPath>
-                  </text>
-                  <text fontSize="8" fontWeight="800" fill={seg.textColor}>
-                    <textPath href={`#${uid}-t${i}d`} startOffset="50%" textAnchor="middle">
-                      {amount}
-                    </textPath>
-                  </text>
-                </>
-              )}
-              {band && !full && !shortFit && tiny && (
-                <>
-                  <path id={`${uid}-t${i}e`} d={ink(band.a, band.b, R)} fill="none" />
-                  <text fontSize="8" fontWeight="800" fill={seg.textColor}>
-                    <textPath href={`#${uid}-t${i}e`} startOffset="50%" textAnchor="middle">
-                      {amount}
-                    </textPath>
-                  </text>
+                  <path id={`${uid}-t${i}-path`} d={ink(band.a, band.b, R)} fill="none" />
+                  {full && label && amount ? (
+                    <>
+                      <text
+                        fontSize="11"
+                        fontWeight="750"
+                        letterSpacing="0.04em"
+                        fill={seg.textColor}
+                        dominantBaseline="central"
+                      >
+                        <textPath href={`#${uid}-t${i}-path`} startOffset="24%" textAnchor="middle">
+                          {label}
+                        </textPath>
+                      </text>
+                      <text
+                        fontSize="11"
+                        fontWeight="750"
+                        letterSpacing="0.02em"
+                        fill={seg.textColor}
+                        dominantBaseline="central"
+                      >
+                        <textPath href={`#${uid}-t${i}-path`} startOffset="76%" textAnchor="middle">
+                          {amount}
+                        </textPath>
+                      </text>
+                    </>
+                  ) : (
+                    <text
+                      fontSize="10.5"
+                      fontWeight="750"
+                      letterSpacing="0.03em"
+                      fill={seg.textColor}
+                      dominantBaseline="central"
+                    >
+                      <textPath href={`#${uid}-t${i}-path`} startOffset="50%" textAnchor="middle">
+                        {label || amount || shortLabel}
+                      </textPath>
+                    </text>
+                  )}
                 </>
               )}
             </g>

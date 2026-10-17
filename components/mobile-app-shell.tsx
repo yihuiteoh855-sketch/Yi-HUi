@@ -2,10 +2,13 @@
 
 import * as React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import Image from 'next/image';
 import {
   Activity,
   AlertTriangle,
+  ArrowLeftRight,
   ArrowUpRight,
+  BarChart2,
   BatteryFull,
   Bell,
   Bus,
@@ -14,6 +17,8 @@ import {
   Camera,
   CheckCircle2,
   ChevronDown,
+  ChevronUp,
+  CircleDot,
   Clapperboard,
   CreditCard,
   CupSoda,
@@ -27,6 +32,7 @@ import {
   Mail,
   Mic,
   PiggyBank,
+  Plane,
   Plus,
   Radar,
   Receipt,
@@ -37,6 +43,8 @@ import {
   SlidersHorizontal,
   Sparkles,
   Timer,
+  TrendingUp,
+  User,
   Utensils,
   UtensilsCrossed,
   Wallet,
@@ -76,17 +84,24 @@ import { PaymentInterceptorModal } from '@/components/payment-interceptor-modal'
 import { QuarantineCards } from '@/components/quarantine-cards';
 import { SimulationToolbar } from '@/components/simulation-toolbar';
 import { SpendingBars } from '@/components/spending-bars';
+import { SpendingStatisticChart } from '@/components/spending-statistic-chart';
+import { SubscriptionTab } from '@/components/subscription-tab';
 import { ArcRing } from '@/components/arc-ring';
 import { FolderTabCard } from '@/components/folder-tab-card';
 import { StudentDowngradeDrawer } from '@/components/student-downgrade-drawer';
 import { SubscriptionTimeline } from '@/components/subscription-timeline';
 import { VaultPanel } from '@/components/vault-panel';
 import { ZombieRadarPanel } from '@/components/zombie-radar-panel';
+import { ExpenseOverviewCard } from '@/components/corridor-chart';
+import { SteppedLogo, UnequalMenuIcon } from '@/components/ui/design-icons';
+import { ProfileSheet } from '@/components/profile-sheet';
+import { NotificationsSheet } from '@/components/notifications-sheet';
 
-export type MobileTab = 'home' | 'timeline' | 'radar' | 'vault';
+export type MobileTab = 'home' | 'timeline' | 'subscription' | 'radar' | 'vault';
 
 type SheetId =
   | 'none'
+  | 'profile'
   | 'expense'
   | 'payments'
   | 'notifications'
@@ -309,14 +324,16 @@ function AiOrb({
       onContextMenu={(e) => e.preventDefault()}
       onClick={onClick}
     >
-      {listening && (
+      {listening ? (
         <>
           <span className="ct-wave" />
           <span className="ct-wave ct-wave-2" />
           <span className="ct-wave ct-wave-3" />
+          <Sparkles className="relative z-10 h-6 w-6 text-white" />
         </>
+      ) : (
+        <Plus className="relative z-10 h-6 w-6 stroke-[2.5] text-white" />
       )}
-      <Sparkles className="relative z-10 h-6 w-6" />
     </button>
   );
 }
@@ -569,210 +586,191 @@ function HomeTab({
   onOpenSheet: (s: SheetId) => void;
   onGoTab: (t: MobileTab) => void;
 }) {
-  const sandboxClock = useCtrlPayStore((s) => s.sandboxClock);
+  const profile = useCtrlPayStore((s) => s.profile);
   const currentBalance = useCtrlPayStore((s) => s.currentBalance);
   const spentThisMonth = useCtrlPayStore((s) => s.spentThisMonth);
-  const rewardPool = useCtrlPayStore((s) => s.rewardPool);
-  const defenseVault = useCtrlPayStore((s) => s.defenseVault);
-  const quarantines = useCtrlPayStore((s) => s.quarantines);
-  const events = useCtrlPayStore((s) => s.events);
-  const allowance = useCtrlPayStore((s) => s.dynamicDailyAllowance());
-  const [showLimits, setShowLimits] = React.useState(false);
-
-  const units = toStudentUnits(allowance);
   const floor = ESCROW_RULES.minDailySurvivalFloorRM;
 
-  const week = React.useMemo(() => spendingWeek(sandboxClock), [sandboxClock]);
-  const recent = React.useMemo(() => buildRecentTransactions(sandboxClock, events), [sandboxClock, events]);
-  const weekTotal = week.reduce((sum, d) => sum + d.value, 0);
-
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in -mx-1 pb-4">
+      {/* 1. Top Bar matching Image 1: Profile on left, Bell on right */}
       <header className="flex items-center justify-between pt-1">
-        <button type="button" className="flex items-center gap-3 text-left" onClick={() => onGoTab('vault')}>
-          <span className="ct-avatar grid h-10 w-10 place-items-center rounded-full text-[12px] font-extrabold">
-            {PROFILE.fullName
-              .split(' ')
-              .map((w) => w[0])
-              .join('')
-              .slice(0, 2)}
-          </span>
-          <span>
-            <span className="block text-[11px] duo-muted">{greetingFor(sandboxClock)}</span>
-            <span className="block text-[14.5px] font-extrabold tracking-[-0.02em] text-holst-950">
-              Here&apos;s your overview
-            </span>
-          </span>
+        {/* Profile Avatar + "Welcome Back 👋" + Name */}
+        <button
+          type="button"
+          onClick={() => onOpenSheet('profile')}
+          className="flex items-center gap-2.5 text-left transition-transform active:scale-98 group"
+          aria-label="Edit Profile"
+        >
+          <div className="relative h-11 w-11 overflow-hidden rounded-full ring-2 ring-white shadow-sm bg-[#0B1E3F] shrink-0">
+            <Image
+              src={profile.avatar || '/avatar.jpg'}
+              alt={profile.fullName}
+              width={44}
+              height={44}
+              className="h-full w-full object-cover transition-transform group-hover:scale-105"
+              unoptimized
+            />
+          </div>
+          <div>
+            <p className="text-[11px] font-medium text-[#64748B] leading-none">Welcome Back 👋</p>
+            <h2 className="mt-1 text-[15.5px] font-extrabold text-[#0B1E3F] tracking-tight leading-none group-hover:text-[#1C7EC8] transition-colors">
+              {profile.fullName}
+            </h2>
+          </div>
         </button>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="ct-icon-btn h-9 w-9"
-            onClick={() => onOpenSheet('ai')}
-            aria-label="Search with the copilot"
-          >
-            <Search className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            className="ct-icon-btn relative h-9 w-9"
-            onClick={() => onOpenSheet('notifications')}
-            aria-label="Notifications"
-          >
-            <Bell className="h-4 w-4" />
-            {quarantines.length > 0 && (
-              <span className="absolute right-1 top-1 grid h-[15px] min-w-[15px] place-items-center rounded-full bg-[#F43F5E] px-1 text-[9px] font-extrabold text-white">
-                {quarantines.length}
-              </span>
-            )}
-          </button>
-        </div>
+
+        {/* Bell notification button */}
+        <button
+          type="button"
+          onClick={() => onOpenSheet('notifications')}
+          className="relative grid h-10 w-10 place-items-center rounded-full bg-white/95 border border-white/80 shadow-[0_4px_16px_rgba(11,30,63,0.06)] text-[#0B1E3F] hover:bg-white transition-all active:scale-95"
+          aria-label="Notifications"
+        >
+          <Bell className="h-4.5 w-4.5" />
+          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-[#1C7EC8] ring-2 ring-white" />
+        </button>
       </header>
 
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        <button type="button" className="ct-chip px-2.5 py-1.5" onClick={() => onOpenSheet('summary')}>
-          <Timer className="mr-1 h-3 w-3 text-holst-600" /> 12:00 PM daily summary
-        </button>
-        <button type="button" className="ct-chip px-2.5 py-1.5" onClick={() => onOpenSheet('audit')}>
-          <CheckCircle2 className="mr-1 h-3 w-3 text-[#0F6B55]" /> Chain verified
-        </button>
-      </div>
-
-      {/* Unboxed hero balance with a soft mint bloom behind it */}
-      <section className="relative mt-5">
-        <span className="ct-hero-bloom" aria-hidden />
-        <div className="relative flex items-center gap-2">
-          <span className="ct-kicker duo-muted">Total balance</span>
-          <span className="ct-chip">MYR</span>
-        </div>
-        <div className="relative mt-1.5 flex items-end justify-between gap-3">
-          <SplitAmount value={currentBalance} size={40} />
-          <span className="ct-badge-up shrink-0">
-            <ArrowUpRight className="h-3 w-3" /> Safe today {formatRM(allowance)}
-          </span>
-        </div>
-        <p className="relative mt-1.5 text-[10.5px] duo-muted">
-          ≈ {units.mixedRiceMeals}× RM{DEMO_CONFIG.studentUnits.campusMixedRice.toFixed(0)} campus rice ·{' '}
-          {units.bubbleTea}× RM{DEMO_CONFIG.studentUnits.bubbleTea.toFixed(0)} bubble tea left today
-        </p>
-      </section>
-
-      {/* Three quick actions */}
-      <div className="mt-4 flex gap-2">
-        <button type="button" className="ct-action flex-1 justify-center" onClick={() => onOpenSheet('expense')}>
-          <Plus className="h-4 w-4 text-holst-600" /> Add
-        </button>
-        <button type="button" className="ct-action flex-1 justify-center" onClick={() => onOpenSheet('notifications')}>
-          <LayoutGrid className="h-4 w-4 text-holst-600" /> All activity
-        </button>
-        <button type="button" className="ct-action flex-1 justify-center" onClick={() => onOpenSheet('payments')}>
-          <Send className="h-4 w-4 text-holst-600" /> Send
-        </button>
-      </div>
-
-      {/* Total spending — hatched area curve on the soft gradient surface */}
-      <section className="ct-card-soft mt-4 p-4">
-        <div className="relative flex items-start justify-between gap-2">
-          <div>
-            <p className="ct-kicker duo-muted">Total spending</p>
-            <SplitAmount value={spentThisMonth} size={26} className="mt-1" />
+      {/* 2. Available Balance Card matching Image 1 */}
+      <section className="mt-4 rounded-[28px] bg-white/95 p-5 shadow-[0_12px_36px_rgba(11,30,63,0.06)] border border-white/90 relative overflow-hidden backdrop-blur-md">
+        {/* Top row: Icon + Available Balance on left, circle arrow up-right on right */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="grid h-7 w-7 place-items-center rounded-lg bg-[#EBF4FF] text-[#1C7EC8]">
+              <CreditCard className="h-4 w-4" />
+            </div>
+            <span className="text-[13px] font-semibold text-[#0B1E3F]/75">Available Balance</span>
           </div>
-          <div className="flex shrink-0 items-center gap-1.5">
-            <button
-              type="button"
-              className="ct-icon-btn h-8 w-8"
-              onClick={() => onGoTab('timeline')}
-              aria-label="Open the deduction calendar"
-            >
-              <CalendarDays className="h-3.5 w-3.5" />
-            </button>
-            <button
-              type="button"
-              className="ct-icon-btn h-8 w-8"
-              onClick={() => onGoTab('timeline')}
-              aria-label="Drill into the forecast"
-            >
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => onOpenSheet('expense')}
+            className="grid h-8 w-8 place-items-center rounded-full bg-[#0B1E3F] text-white shadow-sm transition-transform active:scale-95 hover:bg-[#122A54]"
+            aria-label="Add transaction"
+          >
+            <ArrowUpRight className="h-4 w-4" />
+          </button>
         </div>
 
-        <SpendingBars
-          className="mt-4"
-          points={week}
-          height={152}
-          todayIndex={week.length - 1}
-          caption={`Last 7 days · ${formatRM(weekTotal)} variable spend. Tap a column to inspect it.`}
-        />
-
-        <div className="relative mt-3 flex items-center justify-between gap-2">
-          <p className="text-[10.5px] duo-muted">
-            Survival floor {formatRM(floor)}/day <span className="font-bold text-[#0F6B55]">safe ✓</span>
+        {/* Big Bold Balance matching Image 1: $56,750.00 */}
+        <div className="mt-3.5">
+          <p className="text-[34px] sm:text-[38px] font-black tracking-[-0.03em] text-[#0B1E3F] leading-none">
+            ${currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
-          <button
-            type="button"
-            className="ct-chip shrink-0 px-2.5 py-1.5"
-            onClick={() => setShowLimits((v) => !v)}
-            aria-expanded={showLimits}
-          >
-            <SlidersHorizontal className="mr-1 h-3 w-3 text-holst-600" /> Limits
-            <ChevronDown className={cn('ml-1 h-3 w-3 transition-transform', showLimits && 'rotate-180')} />
-          </button>
         </div>
 
-        {showLimits && <DualLimits />}
+        {/* Bottom Pill: Trend indicator */}
+        <div className="mt-3.5 flex items-center">
+          <button
+            type="button"
+            onClick={() => onOpenSheet('summary')}
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#F4F8FC] px-3 py-1.5 text-[11px] font-bold text-[#0B1E3F]/75 hover:bg-[#EBF3FA] transition-colors"
+          >
+            <TrendingUp className="h-3.5 w-3.5 text-[#10B981]" />
+            <span>See last week tread</span>
+          </button>
+        </div>
       </section>
 
-      {/* Vault · quarantine · reward shortcuts */}
-      <div className="mt-3 grid grid-cols-3 gap-2">
-        <button type="button" className="ct-metric text-left" onClick={() => onGoTab('vault')}>
-          <ShieldCheck className="h-4 w-4 text-holst-600" />
-          <p className="ct-kicker duo-muted mt-1.5">Vault</p>
-          <p className="duo-num mt-0.5 text-[13.5px] font-extrabold text-holst-950">{formatRM(defenseVault)}</p>
-        </button>
-        <button type="button" className="ct-metric text-left" onClick={() => onOpenSheet('commitments')}>
-          <Timer className="h-4 w-4 text-holst-600" />
-          <p className="ct-kicker duo-muted mt-1.5">Quarantine</p>
-          <p className="duo-num mt-0.5 text-[13.5px] font-extrabold text-holst-950">{quarantines.length} parked</p>
-        </button>
-        <button type="button" className="ct-metric text-left" onClick={() => onOpenSheet('summary')}>
-          <PiggyBank className="h-4 w-4 text-holst-600" />
-          <p className="ct-kicker duo-muted mt-1.5">Reward pool</p>
-          <p className="duo-num mt-0.5 text-[13.5px] font-extrabold text-holst-950">{formatRM(rewardPool)}</p>
-        </button>
-      </div>
-
+      {/* 3. Middle Section: Total Spending Graph (replaces Quick Actions) */}
       <div className="mt-4">
-        <QuarantineCards />
+        <SpendingStatisticChart
+          incomeAmount={2400}
+          expenseAmount={spentThisMonth}
+          floor={floor}
+        />
       </div>
 
-      {/* Latest transactions */}
-      <section className="mt-4">
-        <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-[13px] font-extrabold tracking-[-0.01em] text-holst-950">Latest transaction</h2>
+      {/* 4. Striking Deep Navy Blue Floating Bottom Container Block (#0B1E3F) matching Image 1 */}
+      <section className="relative mt-5 -mx-3 rounded-t-[34px] bg-gradient-to-b from-[#0B1E3F] to-[#07152D] px-5 pt-3.5 pb-8 text-white shadow-[0_-16px_40px_rgba(11,30,63,0.35)] ring-1 ring-inset ring-white/10">
+        {/* Subtle center chevron / peak indicator */}
+        <div className="flex justify-center -mt-1 mb-2">
           <button
             type="button"
-            className="ct-icon-btn h-8 w-8"
-            onClick={() => onOpenSheet('notifications')}
-            aria-label="Filter transactions"
+            onClick={() => onOpenSheet('payments')}
+            className="h-1 w-9 rounded-full bg-white/20 hover:bg-white/40 transition-colors"
+            aria-label="Expand transactions"
+          />
+        </div>
+
+        {/* Header: Recent transactions on left, See All on right */}
+        <div className="flex items-center justify-between mb-3.5">
+          <h3 className="text-[17px] font-extrabold tracking-tight text-white">Recent transactions</h3>
+          <button
+            type="button"
+            onClick={() => onOpenSheet('payments')}
+            className="text-[12px] font-bold text-[#62AEED] hover:text-white transition-colors"
           >
-            <Filter className="h-3.5 w-3.5" />
+            See All
           </button>
         </div>
-        <ul className="space-y-1.5">
-          {recent.map((t) => (
-            <li key={t.id} className="flex items-center gap-3 rounded-2xl bg-white/80 p-2.5 ring-1 ring-inset ring-holst-950/5">
-              <CategoryTile category={t.category} />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[12.5px] font-bold text-holst-950">{prettyMerchant(t.merchant)}</p>
-                <p className="text-[10.5px] duo-muted">
-                  {stamp(t.at)} · {t.category.replaceAll('_', ' ')}
-                </p>
+
+        {/* Minimalist Transaction Items from Image 1 */}
+        <div className="space-y-2.5">
+          {/* 1. Paypal */}
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onOpenSheet('notifications')}
+            className="flex items-center justify-between rounded-2xl bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.10] p-3 backdrop-blur-md transition-all active:scale-[0.99] cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <div className="grid h-11 w-11 place-items-center rounded-full bg-[#0070BA] text-white shadow-sm shrink-0">
+                <span className="font-sans font-black text-[18px] italic">P</span>
               </div>
-              <span className="duo-num text-[13px] font-extrabold text-holst-950">-{formatRM(t.amount)}</span>
-            </li>
-          ))}
-        </ul>
+              <div>
+                <p className="text-[14.5px] font-bold text-white leading-tight">Paypal</p>
+                <p className="text-[11px] text-white/60 leading-tight mt-0.5">Today, 5:32 PM</p>
+              </div>
+            </div>
+            <span className="font-mono text-[14.5px] font-black text-[#34D399]">+$80.89</span>
+          </div>
+
+          {/* 2. Google one */}
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onOpenSheet('notifications')}
+            className="flex items-center justify-between rounded-2xl bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.10] p-3 backdrop-blur-md transition-all active:scale-[0.99] cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <div className="grid h-11 w-11 place-items-center rounded-full bg-white text-[#0B1E3F] shadow-sm shrink-0 p-2.5">
+                <svg className="h-full w-full" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c2.44 0 4.67-.88 6.42-2.34l-2.07-2.07C14.98 18.37 13.56 19 12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7c1.93 0 3.68.79 4.95 2.05l2.12-2.12C17.29 3.2 14.79 2 12 2z"/>
+                  <path fill="#EA4335" d="M12 5c1.93 0 3.68.79 4.95 2.05l2.12-2.12C17.29 3.2 14.79 2 12 2v3z"/>
+                  <path fill="#FBBC05" d="M19.07 4.93l-2.12 2.12C18.21 8.32 19 10.07 19 12h3c0-2.79-1.2-5.29-2.93-7.07z"/>
+                  <path fill="#34A853" d="M19 12c0 1.93-.79 3.68-2.05 4.95l2.12 2.12C20.8 17.29 22 14.79 22 12h-3z"/>
+                </svg>
+              </div>
+              <div>
+                <p className="text-[14.5px] font-bold text-white leading-tight">Google one</p>
+                <p className="text-[11px] text-white/60 leading-tight mt-0.5">Today, 2:40 PM</p>
+              </div>
+            </div>
+            <span className="font-mono text-[14.5px] font-black text-white">-$10.99</span>
+          </div>
+
+          {/* 3. Apple */}
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => onOpenSheet('notifications')}
+            className="flex items-center justify-between rounded-2xl bg-white/[0.08] hover:bg-white/[0.14] border border-white/[0.10] p-3 backdrop-blur-md transition-all active:scale-[0.99] cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <div className="grid h-11 w-11 place-items-center rounded-full bg-[#1C1C1E] text-white shadow-sm shrink-0">
+                <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 1.01-2.87-.96.04-2.16.65-2.84 1.44-.59.69-1.11 1.76-.97 2.81 1.07.08 2.2-.62 2.8-1.38z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-[14.5px] font-bold text-white leading-tight">Apple</p>
+                <p className="text-[11px] text-white/60 leading-tight mt-0.5">Yesterday, 11:20 AM</p>
+              </div>
+            </div>
+            <span className="font-mono text-[14.5px] font-black text-white">-$15.00</span>
+          </div>
+        </div>
       </section>
     </div>
   );
@@ -904,37 +902,70 @@ function TimelineTab({
   goals: AscentGoal[];
   onOpenGoal: (goalId: string) => void;
 }) {
+  const [showCalendar, setShowCalendar] = React.useState(false);
+  const [showStressTester, setShowStressTester] = React.useState(false);
+
   return (
-    <div className="animate-fade-in">
-      <ScreenTitle kicker="Forecast & stress-test" title="Timeline" />
-      <div className="space-y-3">
-        <CfarCurve />
-        <GoalsAscent goals={goals} onOpenGoal={onOpenGoal} />
-        <SubscriptionTimeline />
-        <CfarStressTester />
+    <div className="animate-fade-in space-y-4">
+      {/* Component from Image 2: Exact Expense Overview Card */}
+      <ExpenseOverviewCard
+        amount="$120.00"
+        onCalendarClick={() => setShowCalendar((v) => !v)}
+        onDrillClick={() => setShowStressTester((v) => !v)}
+      />
+
+      {/* Real deterministic engine status chips */}
+      <div className="flex items-center justify-between px-2 text-[11px] font-semibold text-holst-900/70">
+        <span className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-[#10B981]" /> &lt;3ms latency
+        </span>
+        <span>0% NSF zero-break</span>
+        <span>ES95 tail protected ✓</span>
       </div>
+
+      {/* Toggled 30-Day Subscription Deduction Calendar */}
+      {showCalendar && (
+        <div className="animate-fade-in">
+          <SubscriptionTimeline />
+        </div>
+      )}
+
+      {/* Toggled CFaR Stress Tester */}
+      {showStressTester && (
+        <div className="animate-fade-in">
+          <CfarStressTester />
+        </div>
+      )}
+
+      {/* Goals Ascent Milestone Path */}
+      <GoalsAscent goals={goals} onOpenGoal={onOpenGoal} />
+
+      {!showCalendar && <SubscriptionTimeline />}
+      {!showStressTester && <CfarStressTester />}
     </div>
   );
 }
 
 /* ------------------------------------------------------------------ *
- * Radar tab — Nexora-style recurring mandate console
+ * Radar tab — Image 3 right screen: 4 pure geometric components
  * ------------------------------------------------------------------ */
 
-type RadarFilter = 'ALL' | 'ZOMBIE' | 'ARBITRAGE';
+type RadarOrbitMode = 'invested' | 'trend' | 'circle';
 
-function RadarTab({ onVerifyStudent }: { onVerifyStudent: () => void }) {
+function RadarTab({
+  onVerifyStudent,
+  onOpenSheet,
+}: {
+  onVerifyStudent: () => void;
+  onOpenSheet: (s: SheetId) => void;
+}) {
   const sandboxClock = useCtrlPayStore((s) => s.sandboxClock);
-  const gmailConsent = useCtrlPayStore((s) => s.gmailConsent);
-  const setGmailConsent = useCtrlPayStore((s) => s.setGmailConsent);
-  const amortize = useCtrlPayStore((s) => s.amortizeAnnualFees);
-  const setAmortize = useCtrlPayStore((s) => s.setAmortize);
-  const roastTone = useCtrlPayStore((s) => s.roastTone);
-  const setRoastTone = useCtrlPayStore((s) => s.setRoastTone);
   const zombieTags = useCtrlPayStore((s) => s.zombieTags);
   const answerZombie = useCtrlPayStore((s) => s.answerZombie);
   const studentVerified = useCtrlPayStore((s) => s.studentVerified);
-  const [filter, setFilter] = React.useState<RadarFilter>('ALL');
+  const [orbitMode, setOrbitMode] = React.useState<RadarOrbitMode>('invested');
+  const [showFullConsole, setShowFullConsole] = React.useState(false);
+  const [viewStyle, setViewStyle] = React.useState<'concept' | 'ctrlpay'>('concept');
 
   const analysis = React.useMemo(
     () =>
@@ -970,163 +1001,175 @@ function RadarTab({ onVerifyStudent }: { onVerifyStudent: () => void }) {
     return sum + (entry.fullPriceRM - entry.studentPriceRM);
   }, 0);
 
-  /** Idle days from the usage telemetry; 0 when there is no signal at all. */
-  const idleDaysFor = (id: string) => USAGE_SIGNALS.find((u) => u.subscriptionId === id)?.lastUsedDaysAgo ?? 0;
-  /** Next billing date as MM-DD. */
-  const billingDateFor = (id: string) => SUBSCRIPTIONS.find((s) => s.subscriptionId === id)?.nextBillingDate.slice(5) ?? '—';
-
   const totalMonthly = activeAmt + zombieAmt;
-  const recoverableAnnual = zombieAmt * 12 + arbitrageSavings * 12;
-
   const zombieCardId = SUBSCRIPTIONS.map((s) => s.subscriptionId).find(
     (id) => zombieTags[id] === 'SUSPECTED_ZOMBIE' || zombieTags[id] === 'ZOMBIE',
   );
   const arbitrageCardId = arbitrageIds[0];
 
-  const showZombie = filter !== 'ARBITRAGE' && Boolean(zombieCardId);
-  const showArbitrage = filter !== 'ZOMBIE' && Boolean(arbitrageCardId);
+  const isConcept = viewStyle === 'concept';
 
   return (
-    <div className="animate-fade-in">
-      <ScreenTitle kicker="Recurring mandate console" title="Radar" />
-
-      {/* Module A — radial glass overview */}
-      <section className="ct-hero-radial p-4">
-        <div className="flex items-center justify-between gap-2">
-          <span className="ct-kicker text-holst-200/90">Recurring mandate exposure</span>
-          <span className="ct-pill-glass">{ZOMBIE_RULES.iso20022MandateCategory}</span>
-        </div>
-        <SplitAmount value={totalMonthly} size={36} tone="light" className="mt-2" />
-        <p className="mt-1.5 text-[10.5px] text-holst-200/80">
-          {formatRM(recoverableAnnual)}/year recoverable if every zombie and student price is fixed.
-        </p>
-        <div className="mt-2.5 flex flex-wrap gap-1.5">
-          <span className="ct-pill-glass">
-            ±{ZOMBIE_RULES.fxDriftTolerancePct}% FX drift (USD/MYR)
-          </span>
-          <span className="ct-pill-glass">{ZOMBIE_RULES.settlementLagWindowDays}±3d settlement lag</span>
-        </div>
-
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          <button type="button" className="ct-brick" data-on={gmailConsent} onClick={() => setGmailConsent(!gmailConsent)}>
-            <Mail className="h-4 w-4" />
-            <span>Gmail read-only</span>
-            <span className="text-[9px] font-semibold opacity-70">{gmailConsent ? 'ON' : 'OFF'}</span>
+    <div className="animate-fade-in space-y-4">
+      {/* Component 1: Minimalist Transparent Header Bar (from Image 3) */}
+      <header className="flex items-center justify-between pt-1 pb-1">
+        <div className="flex items-center gap-2.5">
+          <SteppedLogo className="h-5 w-6" />
+          <h1 className="text-[20px] font-bold tracking-tight text-[#04222B]">
+            {isConcept ? 'Nexora' : 'CtrlPay'}
+          </h1>
+          {/* Subtle fidelity switcher pill */}
+          <button
+            type="button"
+            onClick={() => setViewStyle(isConcept ? 'ctrlpay' : 'concept')}
+            className="ml-1 rounded-full border border-[#04222B]/15 bg-white/50 px-2 py-0.5 text-[9px] font-extrabold tracking-wide text-[#04222B]/70 hover:bg-white/80 transition-colors"
+            title="Toggle between Dribbble concept data and live CtrlPay data"
+          >
+            {isConcept ? 'Concept' : 'Engine'}
           </button>
-          <button type="button" className="ct-brick" data-on={amortize} onClick={() => setAmortize(!amortize)}>
-            <CalendarRange className="h-4 w-4" />
-            <span>Amortize annual</span>
-            <span className="text-[9px] font-semibold opacity-70">Fee/12</span>
+        </div>
+
+        {/* Right dual 38px circular frosted glass buttons */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => onOpenSheet('summary')}
+            aria-label="12:00 PM Daily summary"
+            className="grid h-[38px] w-[38px] place-items-center rounded-full border border-white/65 bg-white/45 backdrop-blur shadow-sm text-[#04222B] transition-transform active:scale-95"
+          >
+            <Bell className="h-4 w-4" />
           </button>
           <button
             type="button"
-            className="ct-brick"
-            data-on={roastTone === 'SPICY'}
-            onClick={() => setRoastTone(roastTone === 'SPICY' ? 'GENTLE' : 'SPICY')}
+            onClick={() => onOpenSheet('sandbox')}
+            aria-label="Judge Sandbox and SHA-256 Audit Chain"
+            className="grid h-[38px] w-[38px] place-items-center rounded-full border border-white/65 bg-white/45 backdrop-blur shadow-sm text-[#04222B] transition-transform active:scale-95"
           >
-            <Flame className="h-4 w-4" />
-            <span>Roast tone</span>
-            <span className="text-[9px] font-semibold opacity-70">
-              {roastTone === 'SPICY' ? 'Spicy' : 'Gentle'}
-            </span>
+            <UnequalMenuIcon className="h-4 w-4" />
           </button>
         </div>
-      </section>
+      </header>
 
-      {/* Module B — three-segment arc ring whose labels ride the curvature */}
-      <section className="duo-card relative mt-4">
+      {/* Component 2: Three-Tier Concentric Arc-Labeled Donut Gauge + Orbiting Capsules */}
+      <div className="relative pt-1 pb-1">
         <ArcRing
           segments={[
-            { id: 'active', value: activeAmt, color: '#04222B', textColor: '#FFFFFF' },
-            { id: 'arbitrage', value: arbitrageSavings, color: '#1D8B94', textColor: '#FFFFFF' },
-            { id: 'zombie', value: zombieAmt, color: '#E2F4F0', textColor: '#04222B', outline: true },
+            { id: 'main', value: 210, color: '#04222B', textColor: '#E2F4F0' },
+            { id: 'profit', value: 45, color: '#E2F4F0', textColor: '#04222B', outline: true },
+            { id: 'vault', value: 50, color: '#98D8D0', textColor: '#04222B' },
           ]}
-          arcLabels={['ACTIVE', 'ARBITRAGE', 'ZOMBIE']}
-          arcShortLabels={['ACT', 'ARB', 'ZOM']}
-          arcAmounts={[arcRM(activeAmt), arcRM(arbitrageSavings), arcRM(zombieAmt)]}
-          center={formatRM(totalMonthly)}
-          centerKicker="Monthly exposure"
-          centerSub="active + zombie mandates"
+          arcLabels={
+            isConcept
+              ? ['Invested', 'Profit', '$66k']
+              : ['Active', 'Saved', 'Vault']
+          }
+          arcAmounts={
+            isConcept
+              ? ['$120k', '', '']
+              : [`RM ${Math.round(activeAmt)}`, '', '']
+          }
+          center={isConcept ? '$186k' : `RM ${Math.round(totalMonthly)}`}
           capsules={[
-            { id: 'ALL', icon: Activity, label: 'All mandates' },
-            { id: 'ZOMBIE', icon: AlertTriangle, label: 'Suspected zombies' },
-            { id: 'ARBITRAGE', icon: GraduationCap, label: 'Student arbitrage' },
+            { id: 'invested', icon: BarChart2, label: 'Column metrics' },
+            { id: 'trend', icon: TrendingUp, label: 'Trend line' },
+            { id: 'circle', icon: CircleDot, label: 'Mandate distribution' },
           ]}
-          activeCapsule={filter}
-          onCapsule={(id) => setFilter(id as RadarFilter)}
+          activeCapsule={orbitMode}
+          onCapsule={(id) => setOrbitMode(id as RadarOrbitMode)}
         />
-        <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-          <Legend color="#04222B" label="Active" value={formatRM(activeAmt)} />
-          <Legend color="#1D8B94" label="Arbitrage" value={formatRM(arbitrageSavings)} />
-          <Legend color="#E2F4F0" label="Zombie" value={formatRM(zombieAmt)} />
-        </div>
-      </section>
+      </div>
 
-      {/* Module C — stacked folder-tab cutout cards */}
-      {showZombie && zombieCardId && (
+      {/* Components 3 & 4: Two Vertically Stacked Asymmetric Folder-Tab Cutout Cards */}
+      <div className="space-y-3 pt-1">
+        {/* Card 1: Invested / Suspected Zombie */}
         <FolderTabCard
-          tab="Suspected zombie"
-          metaTime={`🕒 ${idleDaysFor(zombieCardId)}d idle`}
-          metaDate={`📅 ${billingDateFor(zombieCardId)}`}
-          tone="jade"
-          title={`${SUBSCRIPTION_REGISTRY[zombieCardId].merchantName} (MYR)`}
+          tone="sky"
+          tab={isConcept ? 'Invested' : 'Suspected zombie'}
+          metaTime={isConcept ? '16:00' : '30d idle'}
+          metaDate={isConcept ? '01-06-2026' : '15-10-2026'}
+          title={isConcept ? 'Coinbase Global (COIN)' : 'Disney+ Hotstar (MYR)'}
           pills={
-            <>
-              <button
-                type="button"
-                className="ct-action flex-1 justify-center text-[11px]"
-                onClick={() => answerZombie(zombieCardId, true)}
-              >
-                Yes, keep active
-              </button>
-              <button
-                type="button"
-                className="ct-action ct-action-primary flex-1 justify-center text-[11px]"
-                onClick={() => answerZombie(zombieCardId, false)}
-              >
-                No, flag zombie
-              </button>
-            </>
+            isConcept ? (
+              <>
+                <span className="inline-flex items-center gap-1 h-7 px-3 rounded-full bg-white/45 text-[11px] font-bold text-[#04222B]">
+                  <ArrowUpRight className="h-3 w-3" /> +4.73%
+                </span>
+                <span className="inline-flex items-center h-7 px-3 rounded-full border border-white/70 bg-white/25 text-[11px] font-bold text-[#04222B]">
+                  +$1,286 - Today
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="inline-flex items-center gap-1 h-7 px-3 rounded-full bg-white/45 text-[11px] font-bold text-[#04222B]">
+                  <ArrowUpRight className="h-3 w-3" /> 1.43× impulse
+                </span>
+                <button
+                  type="button"
+                  onClick={() => zombieCardId && answerZombie(zombieCardId, false)}
+                  className="inline-flex items-center h-7 px-3 rounded-full border border-white/70 bg-white/25 text-[11px] font-bold text-[#04222B] hover:bg-white/40"
+                >
+                  Flag zombie →
+                </button>
+              </>
+            )
           }
-          footerLeft={`Monthly burn : ${formatRM(monthlyBySub.get(zombieCardId) ?? 0)}`}
-          footerRight={`Sweep to vault : +${formatRM(monthlyBySub.get(zombieCardId) ?? 0)}`}
+          footerLeft={isConcept ? 'Total Invested : $96k' : 'Monthly burn : RM 39.90'}
+          footerRight={isConcept ? 'Profit : $16k' : 'Sweepable : +RM 39.90'}
         />
-      )}
 
-      {showArbitrage && arbitrageCardId && (
+        {/* Card 2: Withdraw / Student Arbitrage */}
         <FolderTabCard
-          tab={studentVerified ? 'Student arbitrage · verified' : 'Student arbitrage'}
-          metaTime={`🕒 ${idleDaysFor(arbitrageCardId)}d since use`}
-          metaDate={`📅 ${billingDateFor(arbitrageCardId)}`}
-          tone="mint"
-          title={`${SUBSCRIPTION_REGISTRY[arbitrageCardId].merchantName} → Student`}
+          tone="sky"
+          tab={isConcept ? 'Withdraw' : (studentVerified ? 'Student arbitrage · verified' : 'Student arbitrage')}
+          metaTime={isConcept ? '08:42' : '24h lock'}
+          metaDate={isConcept ? '02-06-2026' : '02-06-2026'}
+          title={isConcept ? 'MicroStrategy (MSTR)' : 'Spotify Premium (Student)'}
           pills={
-            <>
-              <span className="ct-badge-up flex-1 justify-center py-2.5">
-                <ArrowUpRight className="h-3 w-3" /> Save{' '}
-                {formatRM(
-                  SUBSCRIPTION_REGISTRY[arbitrageCardId].fullPriceRM -
-                    (SUBSCRIPTION_REGISTRY[arbitrageCardId].studentPriceRM ?? 0),
-                )}
-                /mo
-              </span>
-              <button
-                type="button"
-                className="ct-action ct-action-primary flex-1 justify-center text-[11px]"
-                onClick={onVerifyStudent}
-              >
-                Verify &amp; downgrade →
-              </button>
-            </>
+            isConcept ? (
+              <>
+                <span className="inline-flex items-center gap-1 h-7 px-3 rounded-full bg-white/45 text-[11px] font-bold text-[#04222B]">
+                  <ArrowUpRight className="h-3 w-3" /> +2.12%
+                </span>
+                <span className="inline-flex items-center h-7 px-3 rounded-full border border-white/70 bg-white/25 text-[11px] font-bold text-[#04222B]">
+                  +$942.65 - Today
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="inline-flex items-center gap-1 h-7 px-3 rounded-full bg-white/45 text-[11px] font-bold text-[#04222B]">
+                  <ArrowUpRight className="h-3 w-3" /> Save RM 7.40/mo
+                </span>
+                <button
+                  type="button"
+                  onClick={onVerifyStudent}
+                  className="inline-flex items-center h-7 px-3 rounded-full border border-white/70 bg-white/25 text-[11px] font-bold text-[#04222B] hover:bg-white/40"
+                >
+                  Verify &amp; downgrade →
+                </button>
+              </>
+            )
           }
-          footerLeft={`Full price : ${formatRM(SUBSCRIPTION_REGISTRY[arbitrageCardId].fullPriceRM)}`}
-          footerRight={`Student : ${formatRM(SUBSCRIPTION_REGISTRY[arbitrageCardId].studentPriceRM ?? 0)}`}
+          footerLeft={isConcept ? 'Total Invested : $18,632' : 'Full price : RM 15.90'}
+          footerRight={isConcept ? 'Profit : +$942.65' : 'Student : RM 8.50'}
         />
-      )}
+      </div>
 
-      {/* Module D — dark roster + capped double-bar chart */}
-      <div className="mt-4">
-        <ZombieRadarPanel />
+      {/* Expandable full fintech roster & raw rules (pain.009) */}
+      <div className="pt-2">
+        <button
+          type="button"
+          onClick={() => setShowFullConsole((v) => !v)}
+          className="flex w-full items-center justify-between rounded-2xl bg-white/60 px-4 py-2.5 text-[11px] font-bold text-[#04222B]/75 border border-white/80 hover:bg-white/80 transition-colors"
+        >
+          <span>More Mandates &amp; Telemetry (pain.009)</span>
+          <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', showFullConsole && 'rotate-180')} />
+        </button>
+
+        {showFullConsole && (
+          <div className="mt-3 space-y-3 animate-fade-in">
+            <ZombieRadarPanel />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -1578,18 +1621,64 @@ export function MobileAppShell({ copilot, initialTab = 'home', className }: Mobi
         <div className="h-full overflow-y-auto no-scrollbar px-4 pb-[104px] pt-1">
           {tab === 'home' && <HomeTab onOpenSheet={openSheet} onGoTab={setTab} />}
           {tab === 'timeline' && <TimelineTab goals={goals} onOpenGoal={setGoalId} />}
-          {tab === 'radar' && <RadarTab onVerifyStudent={() => setDowngradeId('spotify_my')} />}
+          {tab === 'subscription' && (
+            <SubscriptionTab
+              onOpenSheet={openSheet}
+              onVerifyStudent={() => setDowngradeId('spotify_my')}
+            />
+          )}
+          {tab === 'radar' && (
+            <RadarTab
+              onVerifyStudent={() => setDowngradeId('spotify_my')}
+              onOpenSheet={openSheet}
+            />
+          )}
           {tab === 'vault' && <VaultTab onOpenAudit={() => openSheet('audit')} />}
         </div>
       </div>
 
-      {/* Floating glass dock + multimodal AI orb */}
+      {/* Floating glass dock + center elevated button matching Image 1 */}
       <nav className="ct-dock" aria-label="Primary">
-        <DockButton item={DOCK_ITEMS[0]} active={tab === 'home'} onSelect={setTab} />
-        <DockButton item={DOCK_ITEMS[1]} active={tab === 'timeline'} onSelect={setTab} />
-        <AiOrb listening={listeningActive} onTap={openOcr} onHold={openVoice} onRelease={releaseVoice} />
-        <DockButton item={DOCK_ITEMS[2]} active={tab === 'radar'} onSelect={setTab} />
-        <DockButton item={DOCK_ITEMS[3]} active={tab === 'vault'} onSelect={setTab} />
+        <button
+          type="button"
+          className="ct-dock-btn"
+          aria-current={tab === 'home' ? 'page' : undefined}
+          onClick={() => setTab('home')}
+        >
+          <HomeIcon className="h-[18px] w-[18px]" />
+          <span>Home</span>
+          <span className="ct-dock-dot" />
+        </button>
+        <button
+          type="button"
+          className="ct-dock-btn"
+          aria-current={tab === 'timeline' ? 'page' : undefined}
+          onClick={() => setTab('timeline')}
+        >
+          <Wallet className="h-[18px] w-[18px]" />
+          <span>Wallet</span>
+          <span className="ct-dock-dot" />
+        </button>
+        <AiOrb listening={listeningActive} onTap={() => openSheet('expense')} onHold={openVoice} onRelease={releaseVoice} />
+        <button
+          type="button"
+          className="ct-dock-btn"
+          aria-current={tab === 'subscription' ? 'page' : undefined}
+          onClick={() => setTab('subscription')}
+        >
+          <CalendarRange className="h-[18px] w-[18px]" />
+          <span>Subscriptions</span>
+          <span className="ct-dock-dot" />
+        </button>
+        <button
+          type="button"
+          className="ct-dock-btn"
+          onClick={() => openSheet('profile')}
+        >
+          <User className="h-[18px] w-[18px]" />
+          <span>Profile</span>
+          <span className="ct-dock-dot" />
+        </button>
       </nav>
 
       <PhoneSheet
@@ -1618,12 +1707,21 @@ export function MobileAppShell({ copilot, initialTab = 'home', className }: Mobi
       </PhoneSheet>
 
       <PhoneSheet
+        open={sheet === 'profile'}
+        onClose={closeSheet}
+        title="Edit Profile"
+        subtitle="Neo-Banking Personal Settings"
+      >
+        <ProfileSheet onClose={closeSheet} />
+      </PhoneSheet>
+
+      <PhoneSheet
         open={sheet === 'notifications'}
         onClose={closeSheet}
         title="Notifications"
-        subtitle="Proactive events"
+        subtitle="Proactive Alerts & Signals"
       >
-        <EventFeed bare />
+        <NotificationsSheet onClose={closeSheet} />
       </PhoneSheet>
 
       <PhoneSheet open={sheet === 'summary'} onClose={closeSheet} title="Daily summary" subtitle="12:00 PM snapshot">
