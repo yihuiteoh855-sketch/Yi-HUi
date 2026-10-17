@@ -1,11 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { Activity, Gauge, Sparkles } from 'lucide-react';
+import { Gauge, Sparkles } from 'lucide-react';
 import { useCtrlPayStore } from '@/lib/store';
 import { DEMO_CONFIG } from '@/lib/quant-engine';
 import { cn, formatRM } from '@/lib/utils';
 import { Slider } from '@/components/ui/slider';
+import { RiskTailStrip } from '@/components/risk-tail-strip';
 import type { SpendCategory } from '@/lib/types';
 import type { WhatIfResult } from '@/lib/domain';
 
@@ -23,22 +24,25 @@ const CATEGORY_CHOICES: Array<{ label: string; category: SpendCategory; isNeed: 
 ];
 
 const RISK_TONE: Record<WhatIfResult['riskLevel'], string> = {
-  LOW: 'bg-[#eafaf3] text-[#12805c]',
-  MEDIUM: 'bg-[#fff8e9] text-[#a1611a]',
-  HIGH: 'bg-[#fff1e6] text-[#b2600f]',
-  CRITICAL: 'bg-[#fdecec] text-[#c0392b]',
+  LOW: 'bg-[#ECFDF5] text-[#065F46]',
+  MEDIUM: 'bg-[#FEF3C7] text-[#92400E]',
+  HIGH: 'bg-[#FFEDD5] text-[#9A3412]',
+  CRITICAL: 'bg-[#FFE4E6] text-[#9F1239]',
 };
 
 /**
- * Interactive What-If CFaR stress tester (Phase 8).
+ * Interactive What-If CFaR stress tester (Phase 8/9).
  *
  * Every figure comes from the deterministic engine (`runWhatIfSimulation`): 1,000
  * seeded Monte Carlo paths, the Basel III ES95 tail mean, the intra-month liquidity
  * barrier and the weekday/weekend stratified bootstrap. The LLM never computes these.
+ *
+ * Phase 9: the human-readable tiles stay on top; the actuarial tail (ES95, NSF dip,
+ * present-bias markup, Stone-Geary floor, ISO 20022 mandate) is delivered through the
+ * collapsible receipt at the bottom — progressive disclosure, not a numbers dump.
  */
 export function CfarStressTester({ className }: { className?: string }) {
   const runWhatIf = useCtrlPayStore((s) => s.runWhatIf);
-  const rewardPool = useCtrlPayStore((s) => s.rewardPool);
   const sandboxClock = useCtrlPayStore((s) => s.sandboxClock);
   const currentBalance = useCtrlPayStore((s) => s.currentBalance);
   const spentThisWeek = useCtrlPayStore((s) => s.spentThisWeek);
@@ -77,18 +81,6 @@ export function CfarStressTester({ className }: { className?: string }) {
       hint: '95th-percentile month-end shortfall',
     },
     {
-      label: 'ES95 tail',
-      value: formatRM(result.es95),
-      tone: 'text-[#207ac4]',
-      hint: 'Mean of the worst 5% (coherent, Artzner 1999)',
-    },
-    {
-      label: 'NSF dip risk',
-      value: `${result.intraMonthLiquidityBreachProb.toFixed(2)}%`,
-      tone: result.intraMonthLiquidityBreachProb > 0 ? 'text-[#c0392b]' : 'text-[#12805c]',
-      hint: 'P(intra-month running balance < 0)',
-    },
-    {
       label: 'Lowest balance',
       value: formatRM(result.lowestProjectedBalanceRM),
       hint: '5th percentile of the path minima',
@@ -96,28 +88,24 @@ export function CfarStressTester({ className }: { className?: string }) {
     {
       label: 'Stratified',
       value: `${result.stratifiedShortfallProbability.toFixed(2)}%`,
+      tone: 'text-[#4F46E5]',
       hint: 'Weekday/weekend bootstrap (Künsch 1989)',
     },
   ];
 
   return (
-    <section className={cn('duo-card', className)}>
+    <section className={cn('soft-card p-4', className)}>
       <header className="flex items-start justify-between gap-3">
         <div>
           <h3 className="flex items-center gap-2 text-sm font-bold">
-            <Gauge className="h-4 w-4 text-[#1684e9]" /> What-If CFaR stress tester
+            <Gauge className="h-4 w-4 text-[#059669]" /> What-If CFaR stress tester
           </h3>
-          <p className="duo-muted mt-0.5 text-xs">
+          <p className="mt-0.5 text-[11px] text-zinc-500">
             {result.pathsRun.toLocaleString('en-MY')} seeded paths · deterministic engine, never the
             LLM
           </p>
         </div>
-        <span
-          className={cn(
-            'rounded-full px-2.5 py-1 text-[11px] font-bold',
-            RISK_TONE[result.riskLevel],
-          )}
-        >
+        <span className={cn('rounded-full px-2.5 py-1 text-[11px] font-bold', RISK_TONE[result.riskLevel])}>
           {result.riskLevel}
         </span>
       </header>
@@ -135,8 +123,8 @@ export function CfarStressTester({ className }: { className?: string }) {
             className={cn(
               'rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors',
               amount === p.amount && category === p.category
-                ? 'bg-[#1688ee] text-white'
-                : 'bg-[#e7f3ff] text-[#207ac4]',
+                ? 'bg-[#18181B] text-white'
+                : 'border border-[#18181B]/10 bg-white text-zinc-500 hover:text-[#18181B]',
             )}
           >
             {p.label}
@@ -147,7 +135,7 @@ export function CfarStressTester({ className }: { className?: string }) {
       <div className="mt-4">
         <div className="flex items-center justify-between text-xs">
           <span className="font-semibold">Proposed spend</span>
-          <span className="duo-num font-bold text-[#1684e9]">{formatRM(amount)}</span>
+          <span className="font-bold tabular-nums text-[#059669]">{formatRM(amount)}</span>
         </div>
         <Slider
           value={amount}
@@ -169,8 +157,8 @@ export function CfarStressTester({ className }: { className?: string }) {
               className={cn(
                 'rounded-full px-2.5 py-1 text-[11px] font-semibold transition-colors',
                 category === c.category
-                  ? 'bg-[#0caa91] text-white'
-                  : 'bg-[#eef4ff] text-[#207ac4]',
+                  ? 'bg-[#10B981] text-white'
+                  : 'border border-[#18181B]/10 bg-white text-zinc-500 hover:text-[#18181B]',
               )}
             >
               {c.label}
@@ -181,17 +169,17 @@ export function CfarStressTester({ className }: { className?: string }) {
 
       <div className="mt-4 grid grid-cols-2 gap-2">
         {metrics.map((m) => (
-          <div key={m.label} className="rounded-2xl bg-[#f6f9fd] px-3 py-2">
-            <p className="duo-muted text-[10px] font-semibold uppercase tracking-wide">
-              {m.label}
+          <div key={m.label} className="rounded-2xl bg-[#F7F6F2] px-3 py-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">{m.label}</p>
+            <p className={cn('mt-0.5 text-base font-extrabold tabular-nums', m.tone ?? 'text-[#18181B]')}>
+              {m.value}
             </p>
-            <p className={cn('duo-num mt-0.5 text-base font-extrabold', m.tone)}>{m.value}</p>
-            <p className="duo-muted mt-0.5 text-[10px] leading-snug">{m.hint}</p>
+            <p className="mt-0.5 text-[10px] leading-snug text-zinc-500">{m.hint}</p>
           </div>
         ))}
       </div>
 
-      <div className="duo-safe mt-3 flex items-start gap-2 px-3 py-2 text-[11px]">
+      <div className="mt-3 flex items-start gap-2 rounded-2xl bg-[#ECFDF5] px-3 py-2 text-[11px] text-[#065F46]">
         <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0" />
         <span>
           Month-end plan: <strong>{formatRM(result.projectedMonthEndBalance)}</strong> on committed
@@ -201,11 +189,7 @@ export function CfarStressTester({ className }: { className?: string }) {
         </span>
       </div>
 
-      <p className="duo-muted mt-2 flex items-center gap-1.5 text-[10px]">
-        <Activity className="h-3 w-3" /> Pre-authorization latency{' '}
-        {result.executionTimeMs.toFixed(2)} ms (budget &lt; 50 ms) · reward pool{' '}
-        {formatRM(rewardPool)}
-      </p>
+      <RiskTailStrip amount={amount} category={category} isNeed={isNeed} result={result} />
     </section>
   );
 }

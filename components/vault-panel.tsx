@@ -43,7 +43,7 @@ export function VaultPanel() {
   const userLimits = useCtrlPayStore((s) => s.userLimits);
 
   return (
-    <Card>
+    <Card className="dock-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Wallet className="h-4 w-4" /> Sandbox Ledger
@@ -75,7 +75,7 @@ export function VaultPanel() {
             transition={{ type: 'spring', stiffness: 260, damping: 20 }}
           >
             <Stat
-              label="Defense Vault 防御金库"
+              label="Defense Vault"
               value={formatRM(defenseVault)}
               icon={<ShieldCheck className="h-4 w-4 text-emerald-600" />}
               hint="Non-interest sandbox bucket. Credits only from VERIFIED savings/rewards."

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { BadgeCheck, ExternalLink, GraduationCap, Mail, ShieldCheck, X } from 'lucide-react';
+import { BadgeCheck, Check, ExternalLink, GraduationCap, Mail, ShieldCheck, X } from 'lucide-react';
 import { useCtrlPayStore } from '@/lib/store';
 import { SUBSCRIPTION_REGISTRY, type SubscriptionId } from '@/lib/subscription-registry';
 import { ZOMBIE_RULES } from '@/lib/zombie-radar';
@@ -54,6 +54,7 @@ export function StudentDowngradeDrawer({ subscriptionId, open, onClose }: Props)
     studentPriceRM: entry.studentPriceRM,
   });
   const mailto = entry.mailtoTemplate ? buildMailto(entry.mailtoTemplate, PROFILE) : null;
+  const stepIndex = step === 'OTP' ? 1 : step === 'CHOOSE' ? 2 : 3;
 
   async function verifyOtp() {
     // Mock OTP: any 6 digits is accepted in the sandbox.
@@ -86,8 +87,10 @@ export function StudentDowngradeDrawer({ subscriptionId, open, onClose }: Props)
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <Card className="w-full max-w-lg">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 px-3 pb-3 pt-10">
+      <div className="cp-sheet-enter w-full max-w-lg">
+      <Card className="soft-card scroll-thin max-h-[88vh] w-full overflow-y-auto rounded-[26px]">
+        <div className="mx-auto mt-3 h-1.5 w-10 rounded-full bg-zinc-300" aria-hidden />
         <CardHeader className="flex-row items-start justify-between space-y-0">
           <div>
             <CardTitle className="flex items-center gap-2">
@@ -105,6 +108,7 @@ export function StudentDowngradeDrawer({ subscriptionId, open, onClose }: Props)
         </CardHeader>
 
         <CardContent className="space-y-4">
+          <StepBreadcrumb current={stepIndex} />
           <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
             <Badge variant="outline">{formatRM(metrics.annualizedCost)}/yr</Badge>
             <Badge variant="outline">≈ {metrics.opportunityCostMeals} mixed-rice meals/mo</Badge>
@@ -116,7 +120,7 @@ export function StudentDowngradeDrawer({ subscriptionId, open, onClose }: Props)
           </div>
 
           {step === 'OTP' && (
-            <div className="space-y-2 rounded-md border p-3">
+            <div className="space-y-2 rounded-2xl bg-[#F7F6F2] p-3">
               <p className="text-sm font-medium">Step 1 · Verify student status</p>
               <p className="text-xs text-muted-foreground">
                 We verify the student plan with {PROFILE.studentEmail}. We only ever ask for the one-time code —
@@ -129,7 +133,7 @@ export function StudentDowngradeDrawer({ subscriptionId, open, onClose }: Props)
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                   placeholder="6-digit code"
-                  className="w-40 rounded-md border bg-background px-3 py-2 text-sm"
+                  className="w-40 rounded-xl border border-[#18181B]/15 bg-white px-3 py-2 text-sm"
                   aria-label="Student OTP"
                 />
                 <Button size="sm" onClick={verifyOtp}>
@@ -177,16 +181,52 @@ export function StudentDowngradeDrawer({ subscriptionId, open, onClose }: Props)
           )}
 
           {step === 'DONE' && (
-            <div className="rounded-md border bg-emerald-50 p-3 text-sm text-emerald-800">
+            <div className="rounded-2xl bg-[#ECFDF5] p-3 text-sm text-[#065F46]">
               Recorded as a PENDING sweep. Fast-forward the sandbox clock past the next billing date to verify the
               savings and credit the Defense Vault.
             </div>
           )}
 
-          {error && <p className="rounded-md bg-destructive/10 p-2 text-xs text-destructive">{error}</p>}
+          {error && <p className="rounded-2xl bg-destructive/10 p-2 text-xs text-destructive">{error}</p>}
           <TierGateHint error={error} />
         </CardContent>
       </Card>
+      </div>
     </div>
+  );
+}
+
+/**
+ * Phase 9 breadcrumb: 1 Verify .edu OTP → 2 Open official merchant page → 3
+ * Auto-verify on the next billing date. Presentation only — the flow itself is unchanged.
+ */
+function StepBreadcrumb({ current }: { current: 1 | 2 | 3 }) {
+  const steps = ['Verify .edu OTP', 'Open official page', 'Auto-verify next billing'];
+  return (
+    <ol className="flex flex-wrap items-center gap-1.5 text-[10px] font-semibold">
+      {steps.map((label, i) => {
+        const n = (i + 1) as 1 | 2 | 3;
+        const done = n < current;
+        const active = n === current;
+        return (
+          <li key={label} className="flex items-center gap-1.5">
+            <span
+              className={cn(
+                'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[9px] font-black',
+                done
+                  ? 'border-[#059669] bg-[#059669] text-white'
+                  : active
+                    ? 'border-[#18181B] bg-[#18181B] text-white'
+                    : 'border-zinc-300 bg-white text-zinc-400',
+              )}
+            >
+              {done ? <Check className="h-3 w-3" /> : n}
+            </span>
+            <span className={cn(active ? 'text-[#18181B]' : 'text-zinc-400')}>{label}</span>
+            {i < steps.length - 1 && <span className="h-px w-4 bg-zinc-300" aria-hidden />}
+          </li>
+        );
+      })}
+    </ol>
   );
 }

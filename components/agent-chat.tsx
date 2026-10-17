@@ -141,7 +141,7 @@ export function AgentChat() {
   const typed = messages as unknown as LooseMessage[];
 
   return (
-    <Card className="flex h-full flex-col">
+    <Card className="dock-card flex h-full flex-col">
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <div>
           <CardTitle className="flex items-center gap-2">

@@ -119,7 +119,7 @@ export function EventFeed() {
   if (inline.length === 0) return null;
 
   return (
-    <Card>
+    <Card className="dock-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Bell className="h-4 w-4" /> Proactive events

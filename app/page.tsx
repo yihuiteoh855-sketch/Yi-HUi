@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Columns2, LayoutDashboard, ShieldCheck, Smartphone, X } from 'lucide-react';
 import { useCtrlPayStore } from '@/lib/store';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,7 @@ import { EventFeed } from '@/components/event-feed';
 import { MobileAppShell } from '@/components/mobile-app-shell';
 import { PaymentInterceptorModal } from '@/components/payment-interceptor-modal';
 import { QuarantineCards } from '@/components/quarantine-cards';
+import { RafSwap, useRafAlive } from '@/components/raf-swap';
 import { SimulationToolbar } from '@/components/simulation-toolbar';
 import { SubscriptionTimeline } from '@/components/subscription-timeline';
 import { VaultPanel } from '@/components/vault-panel';
@@ -53,15 +54,44 @@ export default function Page() {
 
   const [mode, setMode] = React.useState<LayoutMode>('STUDIO');
   const [drawer, setDrawer] = React.useState<'none' | 'judge' | 'audit'>('none');
+  const rafAlive = useRafAlive();
 
   const active = LAYOUTS.find((l) => l.id === mode) ?? LAYOUTS[0];
 
+  const drawerBody = (
+    <>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-sm font-bold">
+          {drawer === 'judge' ? 'Judge Simulation & Telemetry' : 'Immutable Audit Log'}
+        </h2>
+        <button
+          type="button"
+          onClick={() => setDrawer('none')}
+          aria-label="Close drawer"
+          className="rounded-full p-1 hover:bg-accent"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+      <div className="space-y-4">
+        {drawer === 'judge' ? (
+          <>
+            <SimulationToolbar />
+            <EventFeed />
+          </>
+        ) : (
+          <AuditDrawer />
+        )}
+      </div>
+    </>
+  );
+
   return (
-    <main className="duo-body min-h-screen p-4 lg:p-6">
+    <main className="studio-backdrop min-h-screen p-4 lg:p-6">
       <header className="mx-auto mb-6 flex max-w-[1500px] flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            Ctrl<span className="text-primary">Pay</span>
+            Ctrl<span className="text-[#059669]">Pay</span>
           </h1>
           <p className="text-sm text-muted-foreground">
             Stop Paying Blindly. Let AI Control the Flow. — a defensive agent for university
@@ -110,16 +140,19 @@ export default function Page() {
                 }}
                 className={cn(
                   'relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
-                  selected ? 'text-white' : 'text-[#5c6f87] hover:text-[#18395e]',
+                  selected ? 'text-white' : 'text-zinc-500 hover:text-[#18181B]',
                 )}
               >
-                {selected && (
-                  <motion.span
-                    layoutId="layout-pill"
-                    className="absolute inset-0 rounded-full bg-[#1688ee]"
-                    transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-                  />
-                )}
+                {selected &&
+                  (rafAlive ? (
+                    <motion.span
+                      layoutId="layout-pill"
+                      className="absolute inset-0 rounded-full bg-[#18181B]"
+                      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                    />
+                  ) : (
+                    <span className="absolute inset-0 rounded-full bg-[#18181B]" />
+                  ))}
                 <span className="relative flex items-center gap-1.5">
                   <Icon className="h-3.5 w-3.5" />
                   {l.label}
@@ -131,87 +164,65 @@ export default function Page() {
         <p className="text-xs text-muted-foreground">{active.hint}</p>
       </div>
 
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={mode}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
-        >
-          {mode === 'STUDIO' && <StudioLayout />}
+      <RafSwap viewKey={mode} animate={rafAlive}>
+        {mode === 'STUDIO' && <StudioLayout />}
 
-          {mode === 'APP' && (
-            <>
-              <div className="flex justify-center">
-                <MobileAppShell
-                  copilot={
-                    <div className="h-[440px]">
-                      <AgentChat />
-                    </div>
-                  }
-                />
-              </div>
+        {mode === 'APP' && (
+          <>
+            <div className="flex justify-center">
+              <MobileAppShell
+                copilot={
+                  <div className="h-[440px]">
+                    <AgentChat />
+                  </div>
+                }
+              />
+            </div>
 
-              <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-2">
-                <button
-                  type="button"
-                  onClick={() => setDrawer(drawer === 'judge' ? 'none' : 'judge')}
-                  className="duo-btn shadow-lg"
+            <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => setDrawer(drawer === 'judge' ? 'none' : 'judge')}
+                className="tactile-btn-dark px-4 py-2 text-xs shadow-lg"
+              >
+                Judge controls
+              </button>
+              <button
+                type="button"
+                onClick={() => setDrawer(drawer === 'audit' ? 'none' : 'audit')}
+                className="rounded-[14px] border-[1.5px] border-[#18181B] bg-white px-4 py-2 text-xs font-bold text-[#18181B] shadow-lg transition-transform active:translate-y-0.5"
+              >
+                Audit log
+              </button>
+            </div>
+
+            {rafAlive ? (
+              drawer !== 'none' && (
+                <motion.aside
+                  key={drawer}
+                  initial={{ x: 480, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ type: 'spring', stiffness: 320, damping: 34 }}
+                  className="fixed right-0 top-0 z-50 h-full w-full max-w-md overflow-y-auto scroll-thin border-l bg-background/95 p-4 shadow-2xl backdrop-blur"
                 >
-                  Judge controls
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDrawer(drawer === 'audit' ? 'none' : 'audit')}
-                  className="duo-btn duo-btn-ghost shadow-lg"
+                  {drawerBody}
+                </motion.aside>
+              )
+            ) : (
+              drawer !== 'none' && (
+                <aside
+                  key={drawer}
+                  className="cp-panel-enter fixed right-0 top-0 z-50 h-full w-full max-w-md overflow-y-auto scroll-thin border-l bg-background/95 p-4 shadow-2xl backdrop-blur"
                 >
-                  Audit log
-                </button>
-              </div>
+                  {drawerBody}
+                </aside>
+              )
+            )}
+          </>
+        )}
 
-              <AnimatePresence>
-                {drawer !== 'none' && (
-                  <motion.aside
-                    key={drawer}
-                    initial={{ x: 480, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    exit={{ x: 480, opacity: 0 }}
-                    transition={{ type: 'spring', stiffness: 320, damping: 34 }}
-                    className="fixed right-0 top-0 z-50 h-full w-full max-w-md overflow-y-auto scroll-thin border-l bg-background/95 p-4 shadow-2xl backdrop-blur"
-                  >
-                    <div className="mb-3 flex items-center justify-between">
-                      <h2 className="text-sm font-bold">
-                        {drawer === 'judge' ? 'Judge Simulation & Telemetry' : 'Immutable Audit Log'}
-                      </h2>
-                      <button
-                        type="button"
-                        onClick={() => setDrawer('none')}
-                        aria-label="Close drawer"
-                        className="rounded-full p-1 hover:bg-accent"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                    <div className="space-y-4">
-                      {drawer === 'judge' ? (
-                        <>
-                          <SimulationToolbar />
-                          <EventFeed />
-                        </>
-                      ) : (
-                        <AuditDrawer />
-                      )}
-                    </div>
-                  </motion.aside>
-                )}
-              </AnimatePresence>
-            </>
-          )}
-
-          {mode === 'DASHBOARD' && <DashboardLayout />}
-        </motion.div>
-      </AnimatePresence>
+        {mode === 'DASHBOARD' && <DashboardLayout />}
+      </RafSwap>
 
       <footer className="mx-auto mt-8 max-w-[1500px] text-center text-[11px] text-muted-foreground">
         Every balance, probability and reward is computed by the deterministic engine
@@ -224,6 +235,18 @@ export default function Page() {
   );
 }
 
+/** Phase 9 numbered dock heading (e.g. 4. Live Copilot & Hash-Chained Audit). */
+function SectionHeading({ n, title }: { n: number; title: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#18181B] text-[11px] font-black text-white">
+        {n}
+      </span>
+      <h2 className="text-sm font-bold">{title}</h2>
+    </div>
+  );
+}
+
 function StudioLayout() {
   return (
     <div className="mx-auto grid max-w-[1500px] grid-cols-1 gap-4 lg:grid-cols-[minmax(0,440px)_minmax(0,1fr)] xl:gap-6">
@@ -232,15 +255,18 @@ function StudioLayout() {
       </div>
 
       <section className="space-y-4" aria-label="Judge studio">
-        <div className="h-[min(600px,72vh)]">
-          <AgentChat />
-        </div>
         <SimulationToolbar />
-        <AuditDrawer />
         <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">
           <EventFeed />
           <VaultPanel />
         </div>
+        <section className="space-y-3" aria-label="Live copilot and hash-chained audit">
+          <SectionHeading n={4} title="Live Copilot & Hash-Chained Audit" />
+          <div className="h-[min(560px,68vh)]">
+            <AgentChat />
+          </div>
+          <AuditDrawer />
+        </section>
       </section>
     </div>
   );
