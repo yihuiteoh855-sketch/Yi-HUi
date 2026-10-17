@@ -43,13 +43,8 @@ export function VaultPanel() {
   const userLimits = useCtrlPayStore((s) => s.userLimits);
 
   return (
-<<<<<<< HEAD
     <Card className="border-0">
       <CardHeader className="p-4 pb-2">
-=======
-    <Card className="dock-card">
-      <CardHeader>
->>>>>>> 79d2074b2e19080fe6517e63c849beeac9f42067
         <CardTitle className="flex items-center gap-2">
           <span className="ct-well h-8 w-8 rounded-xl">
             <Wallet className="h-4 w-4 text-holst-800" />

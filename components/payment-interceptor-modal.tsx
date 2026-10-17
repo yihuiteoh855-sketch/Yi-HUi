@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { AlertTriangle, Lock, ShieldAlert, ShieldCheck, Wallet } from 'lucide-react';
+import { AlertTriangle, Lock, ShieldAlert, Wallet } from 'lucide-react';
 import { useCtrlPayStore, type PaymentIntent } from '@/lib/store';
 import { requestProposal, submitDecision } from '@/lib/api-client';
 import { approveProposal } from '@/lib/tool-resolution';
@@ -84,7 +84,6 @@ export function PaymentInterceptorModal() {
   }
 
   return (
-<<<<<<< HEAD
     <div
       className="absolute inset-0 z-50 flex flex-col justify-end bg-[rgba(4,34,43,0.45)] backdrop-blur-[2px]"
       onClick={() => dismissEvent(intercept.id)}
@@ -97,12 +96,6 @@ export function PaymentInterceptorModal() {
           <span className="ct-grabber" />
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto no-scrollbar">
-=======
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 px-3 pb-3 pt-10">
-      <div className="cp-sheet-enter w-full max-w-lg">
-        <Card className="soft-card scroll-thin max-h-[88vh] w-full overflow-y-auto rounded-[26px] border-[#E11D48]/30">
-        <div className="mx-auto mt-3 h-1.5 w-10 rounded-full bg-zinc-300" aria-hidden />
->>>>>>> 79d2074b2e19080fe6517e63c849beeac9f42067
         <CardHeader className="flex-row items-start justify-between space-y-0">
           <div>
             <CardTitle className="flex items-center gap-2 text-[#04222B]">
@@ -119,11 +112,7 @@ export function PaymentInterceptorModal() {
         </CardHeader>
 
         <CardContent className="space-y-4">
-<<<<<<< HEAD
           <div className="flex items-center justify-between rounded-2xl bg-holst-50/70 p-3">
-=======
-          <div className="flex items-center justify-between rounded-2xl bg-[#F7F6F2] p-3">
->>>>>>> 79d2074b2e19080fe6517e63c849beeac9f42067
             <div className="flex items-center gap-2">
               <Wallet className="h-4 w-4 text-holst-600" />
               <div>
@@ -133,22 +122,15 @@ export function PaymentInterceptorModal() {
                 <p className="text-[11px] duo-muted">{intent.category.replaceAll('_', ' ')}</p>
               </div>
             </div>
-<<<<<<< HEAD
             <div className="text-right text-[11px] duo-muted">
               <p>
                 ≈ {units.mixedRiceMeals} mixed-rice meals
               </p>
               <p>≈ {units.bubbleTea} bubble tea</p>
-=======
-            <div className="flex shrink-0 flex-col items-end gap-1">
-              <span className="cp-chip cp-chip-amber">≈ {units.mixedRiceMeals} USM mixed rice</span>
-              <span className="cp-chip cp-chip-amber">≈ {units.bubbleTea} bubble teas</span>
->>>>>>> 79d2074b2e19080fe6517e63c849beeac9f42067
             </div>
           </div>
 
           <div className="grid grid-cols-3 gap-2 text-center">
-<<<<<<< HEAD
             <div className="rounded-2xl bg-holst-50/70 p-2.5">
               <p className="text-[10px] duo-muted">Shortfall prob.</p>
               <p className="duo-num text-[13px] font-bold">{result.shortfallProbability}%</p>
@@ -186,28 +168,12 @@ export function PaymentInterceptorModal() {
             </div>
           </div>
 
-=======
-            <div className="rounded-2xl bg-[#F7F6F2] p-2">
-              <p className="text-[11px] text-muted-foreground">Shortfall prob.</p>
-              <p className="text-sm font-semibold">{result.shortfallProbability}%</p>
-            </div>
-            <div className="rounded-2xl bg-[#F7F6F2] p-2">
-              <p className="text-[11px] text-muted-foreground">CFaR 95</p>
-              <p className="text-sm font-semibold">{formatRM(result.cfar95)}</p>
-            </div>
-            <div className="rounded-2xl bg-[#F7F6F2] p-2">
-              <p className="text-[11px] text-muted-foreground">Projected month-end</p>
-              <p className="text-sm font-semibold">{formatRM(result.projectedMonthEndBalance)}</p>
-            </div>
-          </div>
-
->>>>>>> 79d2074b2e19080fe6517e63c849beeac9f42067
           <RiskTailStrip
             amount={intent.amount}
             category={intent.category}
             isNeed={intent.isNeed}
             result={result}
-            variant="grid"
+            variant="inline"
           />
 
           {(result.limitBreach.weekly || result.limitBreach.monthly) && (
@@ -222,35 +188,18 @@ export function PaymentInterceptorModal() {
           )}
 
           {!masterAutonomyEnabled && (
-<<<<<<< HEAD
             <p className="duo-warning p-2.5 text-xs">
               Master Autonomy is OFF, so Lock/Escrow (T3) is blocked. Turn it on in the ⚡ Sandbox drawer to
-=======
-            <p className="rounded-2xl bg-[#FEF3C7] p-2 text-xs text-[#92400E]">
-              Master Autonomy is OFF, so Lock/Escrow (T3) is blocked. Turn it on in the Simulation Toolbar to
->>>>>>> 79d2074b2e19080fe6517e63c849beeac9f42067
               accept a contract. You can still proceed or dismiss.
             </p>
           )}
 
-<<<<<<< HEAD
           {error && <p className="rounded-2xl bg-[#FDE7EC] p-2.5 text-xs text-[#B3253F]">{error}</p>}
-=======
-          {error && <p className="rounded-2xl bg-destructive/10 p-2 text-xs text-destructive">{error}</p>}
->>>>>>> 79d2074b2e19080fe6517e63c849beeac9f42067
           <TierGateHint error={error} />
 
           <p className="text-xs duo-muted">
             You are always in control. Nothing moves until you click.
           </p>
-
-          {isWant && (
-            <p className="flex">
-              <span className="cp-chip cp-chip-indigo">
-                <ShieldCheck className="h-3 w-3" /> Principal 100% yours · Zero penalty escape hatch
-              </span>
-            </p>
-          )}
 
           <div className="flex flex-wrap gap-2">
             {isWant && (
@@ -280,7 +229,6 @@ export function PaymentInterceptorModal() {
         </CardContent>
         </div>
       </Card>
-      </div>
     </div>
   );
 }
