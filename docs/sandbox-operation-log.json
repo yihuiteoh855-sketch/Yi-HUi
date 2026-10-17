@@ -11,7 +11,7 @@
     "chainVerified": true,
     "finalSandboxClock": "2026-03-31T23:59:59.999Z",
     "finalLedger": {
-      "currentBalance": 1240,
+      "currentBalance": 56750,
       "defenseVault": 16.4,
       "rewardPool": 22.4
     }
@@ -22,19 +22,19 @@
       "title": "Default-OFF safety gate (T0 advisory only)",
       "sandboxClock": "2026-03-12T09:00:00.000Z",
       "ledger": {
-        "currentBalance": 1240,
+        "currentBalance": 56750,
         "defenseVault": 0,
         "rewardPool": 24
       },
       "observations": {
         "masterAutonomyEnabled": false,
         "t0": {
-          "shortfallProbability": 77.3,
-          "cfar95": 171.13,
-          "es95": 198.8,
+          "shortfallProbability": 0,
+          "cfar95": 0,
+          "es95": 0,
           "intraMonthLiquidityBreachProb": 0,
-          "lowestProjectedBalanceRM": 502.24,
-          "riskLevel": "CRITICAL"
+          "lowestProjectedBalanceRM": 56012.24,
+          "riskLevel": "HIGH"
         },
         "t3Attempt": {
           "ok": false,
@@ -47,22 +47,22 @@
       "title": "Payment interceptor — Shopee RM 180 impulse buy",
       "sandboxClock": "2026-03-12T09:00:00.000Z",
       "ledger": {
-        "currentBalance": 1240,
+        "currentBalance": 56750,
         "defenseVault": 0,
         "rewardPool": 24
       },
       "observations": {
         "seed": 42,
-        "shortfallProbability": 77.3,
-        "cfar95": 171.13,
-        "es95": 198.8,
+        "shortfallProbability": 0,
+        "cfar95": 0,
+        "es95": 0,
         "intraMonthLiquidityBreachProb": 0,
-        "lowestProjectedBalanceRM": 502.24,
-        "stratifiedShortfallProbability": 80.2,
-        "projectedMonthEndBalance": 244.97,
-        "projectedMonthEndBalanceWithIncomeRM": 1229.87,
-        "dynamicDailyAllowance": 17.82,
-        "riskLevel": "CRITICAL",
+        "lowestProjectedBalanceRM": 56012.24,
+        "stratifiedShortfallProbability": 0,
+        "projectedMonthEndBalance": 55754.97,
+        "projectedMonthEndBalanceWithIncomeRM": 56739.87,
+        "dynamicDailyAllowance": 2793.32,
+        "riskLevel": "HIGH",
         "limitBreach": {
           "weekly": true,
           "monthly": true
@@ -78,7 +78,7 @@
       "title": "24h Commitment Quarantine lock (early claim refused)",
       "sandboxClock": "2026-03-12T09:00:00.000Z",
       "ledger": {
-        "currentBalance": 1240,
+        "currentBalance": 56750,
         "defenseVault": 0,
         "rewardPool": 24
       },
@@ -91,9 +91,9 @@
           "itemPrice": 180,
           "premiumReward": 9,
           "quarantineHours": 24,
-          "shortfallProbability": 81.7,
-          "cfar95": 166.84,
-          "riskLevel": "CRITICAL"
+          "shortfallProbability": 0,
+          "cfar95": 0,
+          "riskLevel": "HIGH"
         },
         "status": "LOCKED_24H",
         "earlyClaimRefused": true,
@@ -105,7 +105,7 @@
       "title": "Fast-forward +24h and claim the quarantine reward",
       "sandboxClock": "2026-03-13T09:00:00.000Z",
       "ledger": {
-        "currentBalance": 1240,
+        "currentBalance": 56750,
         "defenseVault": 9,
         "rewardPool": 15
       },
@@ -124,7 +124,7 @@
       "title": "Zombie Radar and Spotify student downgrade sweep",
       "sandboxClock": "2026-03-13T09:00:00.000Z",
       "ledger": {
-        "currentBalance": 1240,
+        "currentBalance": 56750,
         "defenseVault": 9,
         "rewardPool": 15
       },
@@ -153,7 +153,7 @@
       "title": "Jump to Month-End — two-stage sweep settlement",
       "sandboxClock": "2026-03-31T23:59:59.999Z",
       "ledger": {
-        "currentBalance": 1240,
+        "currentBalance": 56750,
         "defenseVault": 16.4,
         "rewardPool": 22.4
       },
@@ -184,7 +184,7 @@
       "title": "Cryptographic audit-chain verification",
       "sandboxClock": "2026-03-31T23:59:59.999Z",
       "ledger": {
-        "currentBalance": 1240,
+        "currentBalance": 56750,
         "defenseVault": 16.4,
         "rewardPool": 22.4
       },
@@ -192,14 +192,14 @@
         "verified": true,
         "entryCount": 10,
         "genesisPrevHash": "GENESIS",
-        "finalEntryHash": "4910e429120b0221030d80ce207e02c76577cf6648a5942c1805b04133c12068"
+        "finalEntryHash": "5a5ecd232c004339f932d4a07d64f2ec8f377502efafd131b510d109810039e7"
       }
     }
   ],
   "sandboxOperationLog": [
     {
       "sandboxClock": "2026-03-12T09:00:00.000Z",
-      "line": "[SANDBOX] simulatePaymentIntent Shopee 180 CRITICAL"
+      "line": "[SANDBOX] simulatePaymentIntent Shopee 180 HIGH"
     },
     {
       "sandboxClock": "2026-03-12T09:00:00.000Z",
@@ -315,10 +315,10 @@
         "balance"
       ],
       "authorization_ref": "USER_CLICK_APPROVE_PROPOSAL_0001",
-      "proposal_hash": "414cc3fc30bd94e1a210789ea436832f24a892cb9d87e6a52a14617ff9007a04",
+      "proposal_hash": "994a41ac47c6262425f0d8ce983f2d4ba2bcf59d4362c10a5818d15c055153c0",
       "status": "APPROVED",
       "prevHash": "4f9589dedac8cb345a1e7c68547dee2e4e89e7fee7440c7e0f807de557c6c23f",
-      "entryHash": "00f2fe66ae89a5278bb289ca9cdde2aec397fc611a35e47f251fb34df16d5b3b"
+      "entryHash": "241daa8231799f178b05d1766d60a587eaf9432dd04013ae031f617a88b50259"
     },
     {
       "logId": "log_mmn8luo0_6_f9tfnfse",
@@ -333,8 +333,8 @@
       "authorization_ref": "USER_SIMULATION_TOOLBAR",
       "proposal_hash": null,
       "status": "EXECUTED",
-      "prevHash": "00f2fe66ae89a5278bb289ca9cdde2aec397fc611a35e47f251fb34df16d5b3b",
-      "entryHash": "bdfa623c1404bc60d064db30dcbb61287c495ac14042629c47d27f334b655677"
+      "prevHash": "241daa8231799f178b05d1766d60a587eaf9432dd04013ae031f617a88b50259",
+      "entryHash": "7b02d940229ec7494c734508958224c4be731f968ebe7e162563965aeab4ffbd"
     },
     {
       "logId": "log_mmn8luo0_7_f9tfnfse",
@@ -351,8 +351,8 @@
       "authorization_ref": "USER_CLICK_CLAIM_REWARD_0001",
       "proposal_hash": null,
       "status": "EXECUTED",
-      "prevHash": "bdfa623c1404bc60d064db30dcbb61287c495ac14042629c47d27f334b655677",
-      "entryHash": "25656b486ba26e82cef11fa45164c36597489ce20565d4c34b9e99bd65f7f939"
+      "prevHash": "7b02d940229ec7494c734508958224c4be731f968ebe7e162563965aeab4ffbd",
+      "entryHash": "5b8f96f7660ab0c306b8ff6933e1fa44f74b868ccd4d084fd194cb94a9cf63ae"
     },
     {
       "logId": "log_mmn8luo0_8_f9tfnfse",
@@ -368,8 +368,8 @@
       "authorization_ref": "USER_SUBMIT_STUDENT_OTP",
       "proposal_hash": null,
       "status": "MODIFIED",
-      "prevHash": "25656b486ba26e82cef11fa45164c36597489ce20565d4c34b9e99bd65f7f939",
-      "entryHash": "4f5b84d4c2ee50be4c6e8727eeae86e070339a99da83aee39b99553b700e8150"
+      "prevHash": "5b8f96f7660ab0c306b8ff6933e1fa44f74b868ccd4d084fd194cb94a9cf63ae",
+      "entryHash": "38f63026c1152d5ca9e96eec9a0e87c6be1081010d03f996486530eb196de1e1"
     },
     {
       "logId": "log_mmn8luo0_9_f9tfnfse",
@@ -385,8 +385,8 @@
       "authorization_ref": "USER_CLICK_APPROVE_PROPOSAL_0001",
       "proposal_hash": "4f042f0ebb574f5ec653ca3a32c6d87c334735d85ea2b111061358fb1e96e863",
       "status": "APPROVED",
-      "prevHash": "4f5b84d4c2ee50be4c6e8727eeae86e070339a99da83aee39b99553b700e8150",
-      "entryHash": "c50932d017bf3cded3b06bbbb1dc1e2fa95a0e8a286910a60616cc447df7eb8d"
+      "prevHash": "38f63026c1152d5ca9e96eec9a0e87c6be1081010d03f996486530eb196de1e1",
+      "entryHash": "e12fd5d490f89dbff0a0ac89958b30236013bd4c7cebb4dfe88f59a419fad364"
     },
     {
       "logId": "log_mmn8luo0_a_f9tfnfse",
@@ -401,8 +401,8 @@
       "authorization_ref": "USER_SIMULATION_TOOLBAR",
       "proposal_hash": null,
       "status": "EXECUTED",
-      "prevHash": "c50932d017bf3cded3b06bbbb1dc1e2fa95a0e8a286910a60616cc447df7eb8d",
-      "entryHash": "4910e429120b0221030d80ce207e02c76577cf6648a5942c1805b04133c12068"
+      "prevHash": "e12fd5d490f89dbff0a0ac89958b30236013bd4c7cebb4dfe88f59a419fad364",
+      "entryHash": "5a5ecd232c004339f932d4a07d64f2ec8f377502efafd131b510d109810039e7"
     }
   ]
 }

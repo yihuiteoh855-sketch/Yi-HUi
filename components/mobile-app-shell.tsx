@@ -86,6 +86,7 @@ import { SimulationToolbar } from '@/components/simulation-toolbar';
 import { SpendingBars } from '@/components/spending-bars';
 import { SpendingStatisticChart } from '@/components/spending-statistic-chart';
 import { SubscriptionTab } from '@/components/subscription-tab';
+import { RemindersTimeline } from '@/components/reminders-timeline';
 import { ArcRing } from '@/components/arc-ring';
 import { FolderTabCard } from '@/components/folder-tab-card';
 import { StudentDowngradeDrawer } from '@/components/student-downgrade-drawer';
@@ -97,7 +98,7 @@ import { SteppedLogo, UnequalMenuIcon } from '@/components/ui/design-icons';
 import { ProfileSheet } from '@/components/profile-sheet';
 import { NotificationsSheet } from '@/components/notifications-sheet';
 
-export type MobileTab = 'home' | 'timeline' | 'subscription' | 'radar' | 'vault';
+export type MobileTab = 'home' | 'timeline' | 'subscription' | 'agent' | 'radar' | 'vault';
 
 type SheetId =
   | 'none'
@@ -632,48 +633,52 @@ function HomeTab({
         </button>
       </header>
 
-      {/* 2. Available Balance Card matching Image 1 */}
-      <section className="mt-4 rounded-[28px] bg-white/95 p-5 shadow-[0_12px_36px_rgba(11,30,63,0.06)] border border-white/90 relative overflow-hidden backdrop-blur-md">
-        {/* Top row: Icon + Available Balance on left, circle arrow up-right on right */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="grid h-7 w-7 place-items-center rounded-lg bg-[#EBF4FF] text-[#1C7EC8]">
-              <CreditCard className="h-4 w-4" />
+      {/* 2. Available Balance Card matching Image 1 with subtle ambient gradient glow behind */}
+      <div className="relative mt-4">
+        <div className="pointer-events-none absolute -inset-1.5 rounded-[34px] bg-gradient-to-tr from-[#93C5FD]/40 via-[#C7D2FE]/25 to-[#67E8F9]/35 blur-xl opacity-75 -z-10" />
+        <section className="rounded-[28px] bg-white/95 p-5 shadow-[0_12px_36px_rgba(11,30,63,0.06)] border border-white/90 relative overflow-hidden backdrop-blur-md">
+          {/* Top row: Icon + Available Balance on left, circle arrow up-right on right */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="grid h-7 w-7 place-items-center rounded-lg bg-[#EBF4FF] text-[#1C7EC8]">
+                <CreditCard className="h-4 w-4" />
+              </div>
+              <span className="text-[13px] font-semibold text-[#0B1E3F]/75">Available Balance</span>
             </div>
-            <span className="text-[13px] font-semibold text-[#0B1E3F]/75">Available Balance</span>
+            <button
+              type="button"
+              onClick={() => onOpenSheet('expense')}
+              className="grid h-8 w-8 place-items-center rounded-full bg-[#0B1E3F] text-white shadow-sm transition-transform active:scale-95 hover:bg-[#122A54]"
+              aria-label="Add transaction"
+            >
+              <ArrowUpRight className="h-4 w-4" />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => onOpenSheet('expense')}
-            className="grid h-8 w-8 place-items-center rounded-full bg-[#0B1E3F] text-white shadow-sm transition-transform active:scale-95 hover:bg-[#122A54]"
-            aria-label="Add transaction"
-          >
-            <ArrowUpRight className="h-4 w-4" />
-          </button>
-        </div>
 
-        {/* Big Bold Balance matching Image 1: $56,750.00 */}
-        <div className="mt-3.5">
-          <p className="text-[34px] sm:text-[38px] font-black tracking-[-0.03em] text-[#0B1E3F] leading-none">
-            ${currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </p>
-        </div>
+          {/* Big Bold Balance matching Image 1: $56,750.00 */}
+          <div className="mt-3.5">
+            <p className="text-[34px] sm:text-[38px] font-black tracking-[-0.03em] text-[#0B1E3F] leading-none">
+              ${currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+          </div>
 
-        {/* Bottom Pill: Trend indicator */}
-        <div className="mt-3.5 flex items-center">
-          <button
-            type="button"
-            onClick={() => onOpenSheet('summary')}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#F4F8FC] px-3 py-1.5 text-[11px] font-bold text-[#0B1E3F]/75 hover:bg-[#EBF3FA] transition-colors"
-          >
-            <TrendingUp className="h-3.5 w-3.5 text-[#10B981]" />
-            <span>See last week tread</span>
-          </button>
-        </div>
-      </section>
+          {/* Bottom Pill: Trend indicator */}
+          <div className="mt-3.5 flex items-center">
+            <button
+              type="button"
+              onClick={() => onOpenSheet('summary')}
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#F4F8FC] px-3 py-1.5 text-[11px] font-bold text-[#0B1E3F]/75 hover:bg-[#EBF3FA] transition-colors"
+            >
+              <TrendingUp className="h-3.5 w-3.5 text-[#10B981]" />
+              <span>See last week tread</span>
+            </button>
+          </div>
+        </section>
+      </div>
 
-      {/* 3. Middle Section: Total Spending Graph (replaces Quick Actions) */}
-      <div className="mt-4">
+      {/* 3. Middle Section: Total Spending Graph with ambient flowing gradient behind */}
+      <div className="relative mt-4">
+        <div className="pointer-events-none absolute -inset-2 rounded-[38px] bg-gradient-to-b from-[#38BDF8]/25 via-[#818CF8]/15 to-[#1C7EC8]/20 blur-xl opacity-70 -z-10" />
         <SpendingStatisticChart
           incomeAmount={2400}
           expenseAmount={spentThisMonth}
@@ -681,8 +686,10 @@ function HomeTab({
         />
       </div>
 
-      {/* 4. Striking Deep Navy Blue Floating Bottom Container Block (#0B1E3F) matching Image 1 */}
-      <section className="relative mt-5 -mx-3 rounded-t-[34px] bg-gradient-to-b from-[#0B1E3F] to-[#07152D] px-5 pt-3.5 pb-8 text-white shadow-[0_-16px_40px_rgba(11,30,63,0.35)] ring-1 ring-inset ring-white/10">
+      {/* 4. Striking Deep Navy Blue Floating Bottom Container Block (#0B1E3F) */}
+      <div className="relative mt-5 -mx-3">
+        <div className="pointer-events-none absolute -inset-x-2 -top-4 h-12 bg-gradient-to-b from-[#1C7EC8]/25 via-[#2563EB]/15 to-transparent blur-md -z-10" />
+        <section className="relative rounded-t-[34px] bg-gradient-to-b from-[#0B1E3F] to-[#07152D] px-5 pt-3.5 pb-8 text-white shadow-[0_-16px_40px_rgba(11,30,63,0.35)] ring-1 ring-inset ring-white/10">
         {/* Subtle center chevron / peak indicator */}
         <div className="flex justify-center -mt-1 mb-2">
           <button
@@ -772,6 +779,7 @@ function HomeTab({
           </div>
         </div>
       </section>
+      </div>
     </div>
   );
 }
@@ -1620,7 +1628,9 @@ export function MobileAppShell({ copilot, initialTab = 'home', className }: Mobi
       <div className="relative flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto no-scrollbar px-4 pb-[104px] pt-1">
           {tab === 'home' && <HomeTab onOpenSheet={openSheet} onGoTab={setTab} />}
-          {tab === 'timeline' && <TimelineTab goals={goals} onOpenGoal={setGoalId} />}
+          {tab === 'timeline' && (
+            <RemindersTimeline onBack={() => setTab('home')} onOpenSheet={openSheet} />
+          )}
           {tab === 'subscription' && (
             <SubscriptionTab
               onOpenSheet={openSheet}
@@ -1655,8 +1665,8 @@ export function MobileAppShell({ copilot, initialTab = 'home', className }: Mobi
           aria-current={tab === 'timeline' ? 'page' : undefined}
           onClick={() => setTab('timeline')}
         >
-          <Wallet className="h-[18px] w-[18px]" />
-          <span>Wallet</span>
+          <CalendarDays className="h-[18px] w-[18px]" />
+          <span>Timeline</span>
           <span className="ct-dock-dot" />
         </button>
         <AiOrb listening={listeningActive} onTap={() => openSheet('expense')} onHold={openVoice} onRelease={releaseVoice} />
@@ -1668,15 +1678,6 @@ export function MobileAppShell({ copilot, initialTab = 'home', className }: Mobi
         >
           <CalendarRange className="h-[18px] w-[18px]" />
           <span>Subscriptions</span>
-          <span className="ct-dock-dot" />
-        </button>
-        <button
-          type="button"
-          className="ct-dock-btn"
-          onClick={() => openSheet('profile')}
-        >
-          <User className="h-[18px] w-[18px]" />
-          <span>Profile</span>
           <span className="ct-dock-dot" />
         </button>
       </nav>

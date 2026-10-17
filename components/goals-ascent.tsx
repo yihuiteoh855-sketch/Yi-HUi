@@ -646,17 +646,17 @@ export function GoalsAscent({
                 )}
               </button>
 
-              {/* Milestone Typography Labels flanking the mountain (Matching Image 2) */}
+              {/* Clean, non-overlapping milestone tag badge */}
               <div
                 className={cn(
-                  'absolute z-10 max-w-[42%] -translate-y-1/2 transition-opacity duration-200',
+                  'absolute z-10 max-w-[40%] -translate-y-1/2 transition-all duration-200 pointer-events-auto',
                   m.side === 'left' ? 'text-right' : 'text-left',
-                  isHovered ? 'scale-105' : '',
+                  isHovered || isCurrent ? 'scale-105 opacity-100' : 'opacity-90',
                 )}
                 style={
                   m.side === 'left'
-                    ? { right: `calc(${100 - leftPct}% + 28px)`, top: `${topPct}%` }
-                    : { left: `calc(${leftPct}% + 28px)`, top: `${topPct}%` }
+                    ? { right: `calc(${100 - leftPct}% + 26px)`, top: `${topPct}%` }
+                    : { left: `calc(${leftPct}% + 26px)`, top: `${topPct}%` }
                 }
               >
                 <button
@@ -664,40 +664,16 @@ export function GoalsAscent({
                   onClick={() => onOpenGoal(goal.id)}
                   onMouseEnter={() => setHoveredIndex(i)}
                   onMouseLeave={() => setHoveredIndex(null)}
-                  className="block w-full text-inherit"
+                  className="rounded-xl bg-[#0B1E3F]/85 backdrop-blur-md px-2.5 py-1 text-white shadow-md border border-white/20 transition-all hover:bg-[#0B1E3F] text-inherit"
                 >
-                  <p className="text-[12.5px] font-extrabold leading-tight text-white drop-shadow-[0_2px_4px_rgba(4,34,43,0.8)]">
-                    {m.badgeTitle}
+                  <p className="text-[11px] font-extrabold leading-tight text-white truncate">
+                    {goal.title}
                   </p>
-                  <p className="mt-0.5 text-[9.5px] font-semibold text-white/90 drop-shadow-[0_1px_3px_rgba(4,34,43,0.8)]">
-                    {goal.title} · {goalAmount(goal, goal.current)}
+                  <p className="text-[9.5px] font-bold text-[#38BDF8] mt-0.5">
+                    {isAchieved ? '✓ Reached' : `${goalAmount(goal, goal.current)} / ${goalAmount(goal, goal.target)}`}
                   </p>
                 </button>
               </div>
-
-              {/* Opposite slope secondary phrase (from Image 2, e.g. "Peak State", "Focused mind") */}
-              {m.oppositeTitle && (
-                <div
-                  className={cn(
-                    'pointer-events-none absolute z-0 max-w-[36%] -translate-y-1/2 opacity-75',
-                    m.side === 'left' ? 'text-left' : 'text-right',
-                  )}
-                  style={
-                    m.side === 'left'
-                      ? { left: `calc(${leftPct}% + 60px)`, top: `${topPct + 3}%` }
-                      : { right: `calc(${100 - leftPct}% + 60px)`, top: `${topPct + 3}%` }
-                  }
-                >
-                  <p className="text-[11px] font-bold text-white/80 drop-shadow-[0_1px_3px_rgba(4,34,43,0.8)]">
-                    {m.oppositeTitle}
-                  </p>
-                  {m.oppositeSub && (
-                    <p className="text-[8.5px] text-white/70 drop-shadow-[0_1px_2px_rgba(4,34,43,0.8)]">
-                      {m.oppositeSub}
-                    </p>
-                  )}
-                </div>
-              )}
             </React.Fragment>
           );
         })}

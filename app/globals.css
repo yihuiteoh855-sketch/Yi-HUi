@@ -846,24 +846,25 @@
   /* ---------------- Bottom dock — floating glass capsule ---------------- */
   .ct-dock {
     position: absolute;
-    left: 16px;
-    right: 16px;
-    bottom: 16px;
-    height: 64px;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    height: 66px;
     z-index: 30;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 12px;
-    border-radius: 32px;
-    /* Soft frosted white glass matching Image 1 */
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(24px) saturate(190%);
-    -webkit-backdrop-filter: blur(24px) saturate(190%);
-    border: 1px solid rgba(255, 255, 255, 0.95);
+    padding: 0 14px;
+    border-radius: 36px;
+    /* Ultra-luxurious floating frosted glassmorphism */
+    background: rgba(255, 255, 255, 0.68);
+    backdrop-filter: blur(28px) saturate(200%);
+    -webkit-backdrop-filter: blur(28px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.85);
     box-shadow:
-      0 16px 36px -6px rgba(11, 30, 63, 0.16),
-      0 4px 12px rgba(11, 30, 63, 0.05);
+      0 20px 48px -10px rgba(11, 30, 63, 0.20),
+      0 8px 24px -4px rgba(11, 30, 63, 0.10),
+      inset 0 1px 2px 0 rgba(255, 255, 255, 0.95);
   }
   .ct-dock-btn {
     display: flex;
@@ -1210,4 +1211,61 @@
 .cp-chip-zinc {
   background: rgba(24, 24, 27, 0.06);
   color: #52525b;
+}
+
+/* ---------------- Liquid flowing circle animations ---------------- */
+@keyframes liquid-flow-1 {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes liquid-flow-2 {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes liquid-bubble {
+  0% {
+    transform: translateY(16px) scale(0.6);
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.9;
+  }
+  80% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-38px) scale(1.1);
+    opacity: 0;
+  }
+}
+
+@keyframes liquid-pulse-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.45));
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgba(28, 126, 200, 0.85));
+  }
+}
+
+.animate-liquid-wave-1 {
+  animation: liquid-flow-1 4.5s linear infinite;
+}
+
+.animate-liquid-wave-2 {
+  animation: liquid-flow-2 3.2s linear infinite;
+}
+
+.animate-liquid-glow {
+  animation: liquid-pulse-glow 3s ease-in-out infinite;
 }

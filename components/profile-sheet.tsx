@@ -97,6 +97,39 @@ export function ProfileSheet({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
+      {/* Wallet Overview & Digital Vault */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0B1E3F] via-[#102A54] to-[#1C7EC8] p-4 text-white shadow-md">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="grid h-7 w-7 place-items-center rounded-lg bg-white/20 text-white backdrop-blur-md">
+              <CreditCard className="h-4 w-4" />
+            </div>
+            <span className="text-[12px] font-bold text-white/80">Digital Wallet & Payout</span>
+          </div>
+          <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] font-extrabold text-emerald-300">
+            Active ✓
+          </span>
+        </div>
+
+        <div className="mt-3">
+          <p className="text-[11px] font-medium text-white/70">Total Available Balance</p>
+          <p className="text-[26px] font-black tracking-tight text-white leading-tight">
+            $56,750.00
+          </p>
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 gap-2 border-t border-white/15 pt-2.5 text-[11px]">
+          <div>
+            <p className="text-white/70 font-medium">Safe Allowance</p>
+            <p className="font-extrabold text-white text-[13px]">$89.40 / day</p>
+          </div>
+          <div>
+            <p className="text-white/70 font-medium">Defense Vault</p>
+            <p className="font-extrabold text-white text-[13px]">$150.00 saved</p>
+          </div>
+        </div>
+      </div>
+
       {/* Spending Limits & Budget Controls */}
       <div className="rounded-2xl bg-white/90 p-4 shadow-sm border border-white/80 space-y-3">
         <div className="flex items-center justify-between">

@@ -188,19 +188,25 @@ export function SpendingStatisticChart({
           aria-hidden
         >
           <defs>
-            {/* Multi-stop volumetric area gradient */}
+            {/* Multi-stop volumetric area gradient with subtle liquid glow */}
             <linearGradient id="behance-area-fill" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.32" />
-              <stop offset="45%" stopColor="#60A5FA" stopOpacity="0.12" />
-              <stop offset="85%" stopColor="#818CF8" stopOpacity="0.03" />
+              <stop offset="45%" stopColor="#60A5FA" stopOpacity="0.14" />
+              <stop offset="85%" stopColor="#818CF8" stopOpacity="0.04" />
               <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.0" />
             </linearGradient>
 
-            {/* Glowing neon stroke gradient */}
+            {/* Glowing neon stroke gradient with living liquid flow */}
             <linearGradient id="behance-neon-stroke" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#1C7EC8" />
-              <stop offset="50%" stopColor="#2563EB" />
-              <stop offset="100%" stopColor="#06B6D4" />
+              <stop offset="0%" stopColor="#1C7EC8">
+                <animate attributeName="stop-color" values="#1C7EC8;#38BDF8;#2563EB;#1C7EC8" dur="6s" repeatCount="indefinite" />
+              </stop>
+              <stop offset="50%" stopColor="#2563EB">
+                <animate attributeName="stop-color" values="#2563EB;#1C7EC8;#06B6D4;#2563EB" dur="6s" repeatCount="indefinite" />
+              </stop>
+              <stop offset="100%" stopColor="#06B6D4">
+                <animate attributeName="stop-color" values="#06B6D4;#60A5FA;#1C7EC8;#06B6D4" dur="6s" repeatCount="indefinite" />
+              </stop>
             </linearGradient>
 
             {/* Glowing active pillar bar gradient */}
@@ -299,13 +305,13 @@ export function SpendingStatisticChart({
           )}
         </svg>
 
-        {/* Floating Glassmorphic Tooltip matching Dribbble concept showcase */}
+        {/* Floating Glassmorphic Tooltip with safe bounds */}
         {activeCoord && (
           <div
-            className="pointer-events-none absolute -translate-x-1/2 -translate-y-full rounded-full bg-[#0B1E3F]/95 backdrop-blur-md px-3.5 py-1 text-[11px] font-black text-white shadow-[0_8px_20px_rgba(11,30,63,0.35)] border border-[#38BDF8]/40 transition-all flex items-center gap-1.5"
+            className="pointer-events-none absolute -translate-x-1/2 -translate-y-full rounded-full bg-[#0B1E3F]/95 backdrop-blur-md px-3 py-1 text-[11px] font-black text-white shadow-[0_8px_20px_rgba(11,30,63,0.35)] border border-[#38BDF8]/40 transition-all flex items-center gap-1.5 z-20"
             style={{
-              left: `${(activeCoord.x / W) * 100}%`,
-              top: `${Math.max(14, (activeCoord.y / H) * 100 - 10)}%`,
+              left: `${Math.max(16, Math.min(84, (activeCoord.x / W) * 100))}%`,
+              top: `${Math.max(22, (activeCoord.y / H) * 100 - 8)}%`,
             }}
           >
             <span className="h-1.5 w-1.5 rounded-full bg-[#38BDF8] animate-pulse" />

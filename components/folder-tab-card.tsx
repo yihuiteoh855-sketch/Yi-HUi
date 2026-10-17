@@ -32,6 +32,8 @@ export function FolderTabCard({
   metaDate,
   tone = 'sky',
   title,
+  subtitle,
+  logo,
   pills,
   footerLeft,
   footerRight,
@@ -43,6 +45,8 @@ export function FolderTabCard({
   metaDate: string;
   tone?: FolderTone;
   title: string;
+  subtitle?: React.ReactNode;
+  logo?: React.ReactNode;
   /** Exactly two rounded pills / interactive buttons. */
   pills: React.ReactNode;
   footerLeft: React.ReactNode;
@@ -84,14 +88,26 @@ export function FolderTabCard({
         </span>
 
         <div className="rounded-b-[26px] px-4 pb-4 pt-3 shadow-[0_12px_28px_rgba(11,30,63,0.12)]" style={{ background: TONE_BODY[tone] }}>
-          <button
-            type="button"
-            onClick={onSelect}
-            disabled={!onSelect}
-            className="block w-full text-left disabled:cursor-default"
-          >
-            <h3 className="text-[17px] font-extrabold leading-snug tracking-[-0.025em] text-[#0B1E3F]">{title}</h3>
-          </button>
+          <div className="flex items-center gap-3">
+            {logo}
+            <div className="min-w-0 flex-1">
+              <button
+                type="button"
+                onClick={onSelect}
+                disabled={!onSelect}
+                className="block w-full text-left disabled:cursor-default"
+              >
+                <h3 className="truncate text-[16.5px] font-extrabold leading-snug tracking-[-0.02em] text-[#0B1E3F]">
+                  {title}
+                </h3>
+              </button>
+              {subtitle && (
+                <p className="truncate text-[11px] font-semibold text-[#0B1E3F]/75 mt-0.5">
+                  {subtitle}
+                </p>
+              )}
+            </div>
+          </div>
 
           <div className="mt-2.5 flex items-center gap-2">{pills}</div>
 

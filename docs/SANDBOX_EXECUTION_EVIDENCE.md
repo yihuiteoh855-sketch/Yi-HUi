@@ -14,25 +14,25 @@ machine-readable log is in `docs/sandbox-operation-log.json`.
 | Final sandbox clock | `2026-03-31T23:59:59.999Z` |
 | Audit entries | 10 |
 | Audit chain verified | YES |
-| Final ledger | balance RM 1240 · defenseVault RM 16.4 · rewardPool RM 22.4 |
+| Final ledger | balance RM 56750 · defenseVault RM 16.4 · rewardPool RM 22.4 |
 
 ## The 7-step judge workflow
 
 ### Step 1 — Default-OFF safety gate (T0 advisory only)
 
 - Sandbox clock: `2026-03-12T09:00:00.000Z`
-- Ledger after this step: balance RM 1240 · defenseVault RM 0 · rewardPool RM 24
+- Ledger after this step: balance RM 56750 · defenseVault RM 0 · rewardPool RM 24
 
 ```json
 {
   "masterAutonomyEnabled": false,
   "t0": {
-    "shortfallProbability": 77.3,
-    "cfar95": 171.13,
-    "es95": 198.8,
+    "shortfallProbability": 0,
+    "cfar95": 0,
+    "es95": 0,
     "intraMonthLiquidityBreachProb": 0,
-    "lowestProjectedBalanceRM": 502.24,
-    "riskLevel": "CRITICAL"
+    "lowestProjectedBalanceRM": 56012.24,
+    "riskLevel": "HIGH"
   },
   "t3Attempt": {
     "ok": false,
@@ -44,21 +44,21 @@ machine-readable log is in `docs/sandbox-operation-log.json`.
 ### Step 2 — Payment interceptor — Shopee RM 180 impulse buy
 
 - Sandbox clock: `2026-03-12T09:00:00.000Z`
-- Ledger after this step: balance RM 1240 · defenseVault RM 0 · rewardPool RM 24
+- Ledger after this step: balance RM 56750 · defenseVault RM 0 · rewardPool RM 24
 
 ```json
 {
   "seed": 42,
-  "shortfallProbability": 77.3,
-  "cfar95": 171.13,
-  "es95": 198.8,
+  "shortfallProbability": 0,
+  "cfar95": 0,
+  "es95": 0,
   "intraMonthLiquidityBreachProb": 0,
-  "lowestProjectedBalanceRM": 502.24,
-  "stratifiedShortfallProbability": 80.2,
-  "projectedMonthEndBalance": 244.97,
-  "projectedMonthEndBalanceWithIncomeRM": 1229.87,
-  "dynamicDailyAllowance": 17.82,
-  "riskLevel": "CRITICAL",
+  "lowestProjectedBalanceRM": 56012.24,
+  "stratifiedShortfallProbability": 0,
+  "projectedMonthEndBalance": 55754.97,
+  "projectedMonthEndBalanceWithIncomeRM": 56739.87,
+  "dynamicDailyAllowance": 2793.32,
+  "riskLevel": "HIGH",
   "limitBreach": {
     "weekly": true,
     "monthly": true
@@ -73,7 +73,7 @@ machine-readable log is in `docs/sandbox-operation-log.json`.
 ### Step 3 — 24h Commitment Quarantine lock (early claim refused)
 
 - Sandbox clock: `2026-03-12T09:00:00.000Z`
-- Ledger after this step: balance RM 1240 · defenseVault RM 0 · rewardPool RM 24
+- Ledger after this step: balance RM 56750 · defenseVault RM 0 · rewardPool RM 24
 
 ```json
 {
@@ -85,9 +85,9 @@ machine-readable log is in `docs/sandbox-operation-log.json`.
     "itemPrice": 180,
     "premiumReward": 9,
     "quarantineHours": 24,
-    "shortfallProbability": 81.7,
-    "cfar95": 166.84,
-    "riskLevel": "CRITICAL"
+    "shortfallProbability": 0,
+    "cfar95": 0,
+    "riskLevel": "HIGH"
   },
   "status": "LOCKED_24H",
   "earlyClaimRefused": true,
@@ -98,7 +98,7 @@ machine-readable log is in `docs/sandbox-operation-log.json`.
 ### Step 4 — Fast-forward +24h and claim the quarantine reward
 
 - Sandbox clock: `2026-03-13T09:00:00.000Z`
-- Ledger after this step: balance RM 1240 · defenseVault RM 9 · rewardPool RM 15
+- Ledger after this step: balance RM 56750 · defenseVault RM 9 · rewardPool RM 15
 
 ```json
 {
@@ -115,7 +115,7 @@ machine-readable log is in `docs/sandbox-operation-log.json`.
 ### Step 5 — Zombie Radar and Spotify student downgrade sweep
 
 - Sandbox clock: `2026-03-13T09:00:00.000Z`
-- Ledger after this step: balance RM 1240 · defenseVault RM 9 · rewardPool RM 15
+- Ledger after this step: balance RM 56750 · defenseVault RM 9 · rewardPool RM 15
 
 ```json
 {
@@ -142,7 +142,7 @@ machine-readable log is in `docs/sandbox-operation-log.json`.
 ### Step 6 — Jump to Month-End — two-stage sweep settlement
 
 - Sandbox clock: `2026-03-31T23:59:59.999Z`
-- Ledger after this step: balance RM 1240 · defenseVault RM 16.4 · rewardPool RM 22.4
+- Ledger after this step: balance RM 56750 · defenseVault RM 16.4 · rewardPool RM 22.4
 
 ```json
 {
@@ -171,21 +171,21 @@ machine-readable log is in `docs/sandbox-operation-log.json`.
 ### Step 7 — Cryptographic audit-chain verification
 
 - Sandbox clock: `2026-03-31T23:59:59.999Z`
-- Ledger after this step: balance RM 1240 · defenseVault RM 16.4 · rewardPool RM 22.4
+- Ledger after this step: balance RM 56750 · defenseVault RM 16.4 · rewardPool RM 22.4
 
 ```json
 {
   "verified": true,
   "entryCount": 10,
   "genesisPrevHash": "GENESIS",
-  "finalEntryHash": "4910e429120b0221030d80ce207e02c76577cf6648a5942c1805b04133c12068"
+  "finalEntryHash": "5a5ecd232c004339f932d4a07d64f2ec8f377502efafd131b510d109810039e7"
 }
 ```
 
 ## Sample [SANDBOX] operation-log lines
 
 ```text
-2026-03-12T09:00:00.000Z  [SANDBOX] simulatePaymentIntent Shopee 180 CRITICAL
+2026-03-12T09:00:00.000Z  [SANDBOX] simulatePaymentIntent Shopee 180 HIGH
 2026-03-12T09:00:00.000Z  [SANDBOX] setMasterAutonomy true
 2026-03-12T09:00:00.000Z  [SANDBOX] setTier T3 true
 2026-03-12T09:00:00.000Z  [SANDBOX] applyDecision APPROVED prop_quarantine_0001
@@ -200,7 +200,7 @@ machine-readable log is in `docs/sandbox-operation-log.json`.
 ## Final SHA-256 audit-chain digest
 
 - Genesis `prevHash`: `GENESIS`
-- Final `entryHash`: `4910e429120b0221030d80ce207e02c76577cf6648a5942c1805b04133c12068`
+- Final `entryHash`: `5a5ecd232c004339f932d4a07d64f2ec8f377502efafd131b510d109810039e7`
 - `verifyChain(userId)`: **true**
 
 The chain is `entryHash = SHA-256(canonicalJson(entry))` with `prevHash` binding each
