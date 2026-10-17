@@ -961,3 +961,250 @@
     backdrop-filter: blur(20px) saturate(180%);
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Phase 9 — time-based motion utilities.
+ *
+ * These are plain CSS animations/transitions (NOT requestAnimationFrame-
+ * driven). They always settle at their final state even in hidden tabs,
+ * background renderers or screen-share pipelines where motion frames pause,
+ * so the UI can never be left half-faded or invisible.
+ * ------------------------------------------------------------------ */
+@keyframes cp-enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.cp-view-enter {
+  animation: cp-enter-up 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cp-detail-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.cp-detail-enter {
+  animation: cp-detail-up 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cp-sheet-up {
+  from {
+    opacity: 0.4;
+    transform: translateY(48px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.cp-sheet-enter {
+  animation: cp-sheet-up 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cp-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.cp-panel-enter {
+  animation: cp-panel-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Collapsible reveal (progressive disclosure) on grid-rows — time-based. */
+.cp-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 240ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 220ms ease-out;
+}
+.cp-collapse[data-open='true'] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.cp-collapse > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-view-enter,
+  .cp-detail-enter,
+  .cp-sheet-enter,
+  .cp-panel-enter {
+    animation-duration: 1ms;
+  }
+  .cp-collapse {
+    transition-duration: 1ms;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Phase 9 — "Warm Alabaster & Obsidian Ink" consumer design system.
+ *
+ * An original CtrlPay identity: warm stone studio canvas, warm alabaster
+ * mobile canvas, pure-white cards with deep-zinc ink borders, an electric
+ * emerald action accent and tactile offset shadows. Purely presentational:
+ * no component logic, engine math or API behaviour lives here.
+ * ------------------------------------------------------------------ */
+:root {
+  --cp-ink: #18181b;
+  --cp-paper: #f7f6f2;
+  --cp-stone: #eceae4;
+  --cp-emerald: #10b981;
+  --cp-emerald-deep: #059669;
+  --cp-emerald-soft: #ecfdf5;
+  --cp-emerald-ink: #065f46;
+  --cp-amber-soft: #fef3c7;
+  --cp-amber-ink: #92400e;
+  --cp-indigo-soft: #eef2ff;
+  --cp-indigo-ink: #4f46e5;
+  --cp-rose-soft: #ffe4e6;
+  --cp-rose-ink: #e11d48;
+}
+
+/* Outer studio canvas (desktop backdrop) — grounds the phone frame. */
+.studio-backdrop {
+  background-color: var(--cp-stone);
+}
+
+/* Inner mobile app canvas — warm alabaster paper. */
+.app-canvas {
+  background-color: var(--cp-paper);
+  color: var(--cp-ink);
+}
+
+/* Tactile hero card — obsidian ink, used for the hero balance vault. */
+.tactile-hero {
+  background: var(--cp-ink);
+  color: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 4px 0 rgba(24, 24, 27, 0.28);
+}
+
+/* Primary elevated card — crisp ink border + tactile offset shadow. */
+.tactile-card {
+  background: #ffffff;
+  border: 1.5px solid var(--cp-ink);
+  border-radius: 20px;
+  box-shadow: 0 3px 0 var(--cp-ink);
+}
+
+/* Secondary card — soft ambient border + gentle float shadow. */
+.soft-card {
+  background: #ffffff;
+  border: 1px solid rgba(24, 24, 27, 0.12);
+  border-radius: 20px;
+  box-shadow: 0 6px 20px -4px rgba(24, 24, 27, 0.05);
+}
+
+/* Judge dock surface — matching warm tint for the desktop studio column. */
+.dock-card {
+  background: #faf9f5;
+  border: 1px solid rgba(24, 24, 27, 0.12);
+  border-radius: 20px;
+  box-shadow: 0 6px 20px -4px rgba(24, 24, 27, 0.06);
+  color: var(--cp-ink);
+}
+
+/* Tactile buttons — press-down physics, always paired with a real action. */
+.tactile-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--cp-emerald);
+  color: #ffffff;
+  border: 1.5px solid var(--cp-ink);
+  border-radius: 14px;
+  font-weight: 700;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+  box-shadow: 0 2px 0 var(--cp-ink);
+}
+.tactile-btn-primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 var(--cp-ink);
+}
+.tactile-btn-primary:disabled {
+  opacity: 0.5;
+}
+
+.tactile-btn-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--cp-ink);
+  color: #ffffff;
+  border-radius: 14px;
+  font-weight: 700;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+  box-shadow: 0 2px 0 rgba(24, 24, 27, 0.35);
+}
+.tactile-btn-dark:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 rgba(24, 24, 27, 0.35);
+}
+
+/* Perforated receipt divider — the x-ray layer opens below this line. */
+.receipt-divider {
+  border-top: 1px dashed #d4d4d8;
+}
+
+/* Story pills — human language first, numbers second. */
+.cp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.cp-chip-amber {
+  background: var(--cp-amber-soft);
+  color: var(--cp-amber-ink);
+}
+.cp-chip-emerald {
+  background: var(--cp-emerald-soft);
+  color: var(--cp-emerald-ink);
+}
+.cp-chip-indigo {
+  background: var(--cp-indigo-soft);
+  color: var(--cp-indigo-ink);
+}
+.cp-chip-rose {
+  background: var(--cp-rose-soft);
+  color: var(--cp-rose-ink);
+}
+.cp-chip-ink {
+  background: var(--cp-ink);
+  color: #ffffff;
+}
+.cp-chip-zinc {
+  background: rgba(24, 24, 27, 0.06);
+  color: #52525b;
+}

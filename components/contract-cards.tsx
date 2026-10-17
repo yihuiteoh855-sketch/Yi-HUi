@@ -228,11 +228,16 @@ export function QuarantineCard({ toolCallId, args, result, addToolResult }: Card
                 typeof args.category === 'string' ? (args.category as SpendCategory) : 'Shopping'
               }
               isNeed={false}
-              variant="inline"
+              variant="grid"
             />
             <p className="flex items-center gap-2 text-[11px] text-muted-foreground">
               <Info className="h-3 w-3" /> Locks for {terms.quarantineHours}h. After that you choose: claim the
               reward or proceed with the purchase.
+            </p>
+            <p className="flex">
+              <span className="cp-chip cp-chip-indigo">
+                <ShieldCheck className="h-3 w-3" /> Principal 100% yours · Zero penalty escape hatch
+              </span>
             </p>
             {!masterAutonomyEnabled && (
               <p className="rounded-md bg-secondary p-2 text-xs text-muted-foreground">
@@ -344,8 +349,13 @@ export function EscrowCard({ toolCallId, args, result, addToolResult }: CardProp
               amount={base.itemPrice}
               category={(base.lockedCategories[0] ?? 'Shopping') as SpendCategory}
               isNeed={false}
-              variant="inline"
+              variant="grid"
             />
+            <p className="flex">
+              <span className="cp-chip cp-chip-indigo">
+                <ShieldCheck className="h-3 w-3" /> Principal 100% yours · Zero penalty escape hatch
+              </span>
+            </p>
 
             {!masterAutonomyEnabled && (
               <p className="rounded-md bg-secondary p-2 text-xs text-muted-foreground">
@@ -431,6 +441,11 @@ export function SweepCard({ toolCallId, args, result, addToolResult }: CardProps
                 Requires student email verification — use the Zombie Radar “Student downgrade” drawer.
               </p>
             )}
+            <p className="flex">
+              <span className="cp-chip cp-chip-indigo">
+                <ShieldCheck className="h-3 w-3" /> Principal 100% yours · Zero penalty escape hatch
+              </span>
+            </p>
             {!masterAutonomyEnabled && (
               <p className="rounded-md bg-secondary p-2 text-xs text-muted-foreground">
                 Master Autonomy is OFF — approving a Sweep is blocked.

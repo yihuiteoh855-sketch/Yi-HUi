@@ -38,7 +38,7 @@ export function AuditDrawer() {
   );
 
   return (
-    <Card>
+    <Card className="dock-card">
       <CardHeader className="flex-row items-start justify-between space-y-0">
         <div>
           <CardTitle className="flex items-center gap-2">

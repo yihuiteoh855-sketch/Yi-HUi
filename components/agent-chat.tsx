@@ -141,7 +141,11 @@ export function AgentChat({ withBookkeeping = true }: { withBookkeeping?: boolea
   const typed = messages as unknown as LooseMessage[];
 
   return (
+<<<<<<< HEAD
     <Card className="flex h-full flex-col border-0 bg-transparent shadow-none ring-0 backdrop-blur-none">
+=======
+    <Card className="dock-card flex h-full flex-col">
+>>>>>>> 79d2074b2e19080fe6517e63c849beeac9f42067
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <div>
           <CardTitle className="flex items-center gap-2">
